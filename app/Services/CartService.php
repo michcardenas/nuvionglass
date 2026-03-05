@@ -1,0 +1,166 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\Product;
+use App\Models\ProductVariant;
+use Illuminate\Support\Collection;
+
+class CartService
+{
+    private const SESSION_KEY = 'cart';
+
+    /**
+     * Get all cart items with product data.
+     */
+    public function getItems(): Collection
+    {
+        $cart = session(self::SESSION_KEY, []);
+
+        if (empty($cart)) {
+            return collect();
+        }
+
+        $productIds = collect($cart)->pluck('product_id')->unique();
+        $variantIds = collect($cart)->pluck('variant_id')->filter()->unique();
+
+        $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
+        $variants = $variantIds->isNotEmpty()
+            ? ProductVariant::whereIn('id', $variantIds)->get()->keyBy('id')
+            : collect();
+
+        return collect($cart)->map(function ($item, $key) use ($products, $variants) {
+            $product = $products->get($item['product_id']);
+
+            if (! $product) {
+                return null;
+            }
+
+            $variant = isset($item['variant_id']) ? $variants->get($item['variant_id']) : null;
+            $unitPrice = $product->price + ($variant ? $variant->price_modifier : 0);
+
+            return [
+                'key' => $key,
+                'product_id' => $product->id,
+                'variant_id' => $variant?->id,
+                'product' => $product,
+                'variant' => $variant,
+                'qty' => $item['qty'],
+                'unit_price' => $unitPrice,
+                'total' => $unitPrice * $item['qty'],
+            ];
+        })->filter()->values();
+    }
+
+    /**
+     * Add a product (optionally with variant) to the cart.
+     */
+    public function add(int $productId, int $qty = 1, ?int $variantId = null): void
+    {
+        $cart = session(self::SESSION_KEY, []);
+        $key = $this->itemKey($productId, $variantId);
+
+        if (isset($cart[$key])) {
+            $cart[$key]['qty'] += $qty;
+        } else {
+            $cart[$key] = [
+                'product_id' => $productId,
+                'variant_id' => $variantId,
+                'qty' => $qty,
+            ];
+        }
+
+        session([self::SESSION_KEY => $cart]);
+    }
+
+    /**
+     * Update quantity of a cart item.
+     */
+    public function update(string $itemKey, int $qty): void
+    {
+        $cart = session(self::SESSION_KEY, []);
+
+        if (! isset($cart[$itemKey])) {
+            return;
+        }
+
+        if ($qty <= 0) {
+            unset($cart[$itemKey]);
+        } else {
+            $cart[$itemKey]['qty'] = $qty;
+        }
+
+        session([self::SESSION_KEY => $cart]);
+    }
+
+    /**
+     * Remove an item from the cart.
+     */
+    public function remove(string $itemKey): void
+    {
+        $cart = session(self::SESSION_KEY, []);
+        unset($cart[$itemKey]);
+        session([self::SESSION_KEY => $cart]);
+    }
+
+    /**
+     * Clear the entire cart.
+     */
+    public function clear(): void
+    {
+        session()->forget(self::SESSION_KEY);
+    }
+
+    /**
+     * Get cart subtotal.
+     */
+    public function getSubtotal(): float
+    {
+        return $this->getItems()->sum('total');
+    }
+
+    /**
+     * Get shipping cost.
+     */
+    public function getShipping(): float
+    {
+        $subtotal = $this->getSubtotal();
+
+        // Free shipping above $99
+        return $subtotal >= 99 ? 0 : 9.99;
+    }
+
+    /**
+     * Get cart total (subtotal + shipping).
+     */
+    public function getTotal(): float
+    {
+        return $this->getSubtotal() + $this->getShipping();
+    }
+
+    /**
+     * Get total item count.
+     */
+    public function count(): int
+    {
+        $cart = session(self::SESSION_KEY, []);
+
+        return array_sum(array_column($cart, 'qty'));
+    }
+
+    /**
+     * Check if cart is empty.
+     */
+    public function isEmpty(): bool
+    {
+        return empty(session(self::SESSION_KEY, []));
+    }
+
+    /**
+     * Generate a unique key for a product+variant combination.
+     */
+    private function itemKey(int $productId, ?int $variantId): string
+    {
+        return $variantId ? "{$productId}_{$variantId}" : (string) $productId;
+    }
+}
