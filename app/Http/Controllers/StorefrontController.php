@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BlogPost;
+use App\Models\InfographicImage;
 use App\Models\Product;
 use App\Services\SeoService;
 use Illuminate\View\View;
@@ -24,6 +25,10 @@ class StorefrontController extends Controller
         $recentPosts = BlogPost::published()
             ->orderByDesc('published_at')
             ->limit(3)
+            ->get();
+
+        $infographics = InfographicImage::active()
+            ->orderBy('sort_order')
             ->get();
 
         $organizationSchema = $this->seo->organizationSchema();
@@ -52,7 +57,7 @@ class StorefrontController extends Controller
         ]);
 
         return view('storefront.home', compact(
-            'featuredProducts', 'recentPosts', 'organizationSchema', 'faqSchema',
+            'featuredProducts', 'recentPosts', 'infographics', 'organizationSchema', 'faqSchema',
         ));
     }
 

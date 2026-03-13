@@ -118,11 +118,54 @@
     <section class="py-16 md:py-24 bg-bg-light">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-                {{-- Ilustración / gráfico --}}
-                <div class="relative" x-data x-reveal.once>
+                {{-- Ilustración / gráfico — carrusel de infografías --}}
+                <div class="relative" x-data="{ current: 0, total: {{ $infographics->count() ?: 1 }} }" x-reveal.once>
+                    @if($infographics->count())
+                    <div class="relative aspect-video rounded-2xl bg-white border border-border-light shadow-sm overflow-hidden">
+                        @foreach($infographics as $i => $infographic)
+                        <div class="absolute inset-0 transition-opacity duration-500"
+                             :class="current === {{ $i }} ? 'opacity-100 z-10' : 'opacity-0 z-0'">
+                            <img src="{{ asset('storage/' . $infographic->image) }}"
+                                 alt="{{ $infographic->title }}"
+                                 class="w-full h-full object-cover"
+                                 loading="{{ $i === 0 ? 'eager' : 'lazy' }}">
+                            @if($infographic->title || $infographic->description)
+                            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent px-5 pb-4 pt-10">
+                                <p class="text-white font-semibold text-sm">{{ $infographic->title }}</p>
+                                @if($infographic->description)
+                                <p class="text-white/70 text-xs mt-0.5">{{ $infographic->description }}</p>
+                                @endif
+                            </div>
+                            @endif
+                        </div>
+                        @endforeach
+
+                        {{-- Nav arrows --}}
+                        @if($infographics->count() > 1)
+                        <button @click="current = (current - 1 + total) % total"
+                                class="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow transition-colors">
+                            <svg class="w-4 h-4 text-text-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
+                        </button>
+                        <button @click="current = (current + 1) % total"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow transition-colors">
+                            <svg class="w-4 h-4 text-text-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
+                        </button>
+
+                        {{-- Dots --}}
+                        <div class="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5">
+                            @foreach($infographics as $i => $inf)
+                            <button @click="current = {{ $i }}"
+                                    class="w-2 h-2 rounded-full transition-all duration-300"
+                                    :class="current === {{ $i }} ? 'bg-white w-4' : 'bg-white/50'"></button>
+                            @endforeach
+                        </div>
+                        @endif
+                    </div>
+                    @else
                     <div class="aspect-video rounded-2xl bg-white border border-border-light shadow-sm flex items-center justify-center">
                         <span class="text-text-muted text-sm">Infografía: espectro de luz azul</span>
                     </div>
+                    @endif
                 </div>
 
                 {{-- Contenido --}}
@@ -189,35 +232,64 @@
             </div>
 
             <div class="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                {{-- TODO: Product cards from database (Fase 3) --}}
-                @php
-                $products = [
-                    ['name' => 'nuvion classic', 'desc' => 'Marco acetato negro. Protección premium sin graduación.', 'price' => '$899'],
-                    ['name' => 'nuvion pro', 'desc' => 'Marco metálico ultraligero. Disponible con graduación.', 'price' => '$1,299'],
-                    ['name' => 'nuvion sport', 'desc' => 'Diseño envolvente para gamers y creadores de contenido.', 'price' => '$1,099'],
-                ];
-                @endphp
-
-                @foreach($products as $index => $product)
+                @foreach($featuredProducts->take(3) as $index => $product)
                 <div class="reveal group bg-bg-light rounded-2xl overflow-hidden border border-border-light
                             hover:shadow-xl hover:shadow-secondary/10 hover:-translate-y-1.5 hover:border-secondary/30
                             transition-all duration-300"
                      style="transition-delay: {{ $index * 150 }}ms">
                     {{-- Imagen --}}
-                    <div class="relative aspect-[4/3] bg-white flex items-center justify-center overflow-hidden">
-                        <span class="text-text-muted/30 text-sm transition-transform duration-500 group-hover:scale-105">Imagen producto {{ $index + 1 }}</span>
-                        {{-- Badge --}}
-                        @if($index === 1)
-                        <span class="absolute top-4 left-4 bg-secondary text-white text-xs font-bold px-3 py-1 rounded-full">Más vendido</span>
+                    <a href="{{ route('products.show', $product->slug) }}" class="block relative aspect-[4/3] overflow-hidden">
+                        @if($product->images && count($product->images) > 0)
+                            <div class="w-full h-full bg-white flex items-center justify-center">
+                                <img src="{{ asset('storage/' . $product->images[0]) }}"
+                                     alt="{{ $product->name }}"
+                                     class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
+                                     loading="lazy">
+                            </div>
+                        @else
+                            {{-- Attractive gradient placeholder --}}
+                            @php
+                                $gradients = [
+                                    'from-primary/10 via-secondary/5 to-primary/15',
+                                    'from-secondary/10 via-primary/5 to-secondary/15',
+                                    'from-primary/15 via-secondary/10 to-primary/5',
+                                ];
+                            @endphp
+                            <div class="w-full h-full bg-gradient-to-br {{ $gradients[$index % 3] }} flex items-center justify-center relative">
+                                {{-- Animated decorative elements --}}
+                                <div class="absolute inset-0 overflow-hidden">
+                                    <div class="absolute top-6 right-6 w-20 h-20 rounded-full bg-secondary/10 blur-xl"></div>
+                                    <div class="absolute bottom-8 left-8 w-16 h-16 rounded-full bg-primary/10 blur-lg"></div>
+                                </div>
+                                {{-- Glasses icon --}}
+                                <div class="relative text-center transition-transform duration-500 group-hover:scale-110">
+                                    <svg class="w-20 h-20 mx-auto text-secondary/25" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="0.75" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="0.75" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                                    </svg>
+                                    <p class="mt-1 text-xs font-semibold text-secondary/40 tracking-wide">Próximamente</p>
+                                </div>
+                            </div>
                         @endif
-                    </div>
+                        {{-- Badge de oferta --}}
+                        @if($product->compare_price && $product->compare_price > $product->price)
+                            @php $discount = round((1 - $product->price / $product->compare_price) * 100); @endphp
+                            <span class="absolute top-4 left-4 bg-secondary text-white text-xs font-bold px-3 py-1 rounded-full">-{{ $discount }}%</span>
+                        @endif
+                    </a>
                     {{-- Info --}}
                     <div class="p-5 md:p-6">
-                        <h3 class="font-brand text-lg font-semibold text-text-dark">{{ $product['name'] }}</h3>
-                        <p class="mt-1.5 text-sm text-text-muted leading-relaxed">{{ $product['desc'] }}</p>
+                        <p class="text-xs text-secondary font-medium uppercase tracking-wide">{{ $product->category->name ?? '' }}</p>
+                        <h3 class="mt-1 font-brand text-lg font-semibold text-text-dark">{{ $product->name }}</h3>
+                        <p class="mt-1.5 text-sm text-text-muted leading-relaxed line-clamp-2">{{ $product->description }}</p>
                         <div class="mt-4 flex items-center justify-between">
-                            <span class="text-2xl font-bold text-primary">{{ $product['price'] }}</span>
-                            <a href="{{ route('products.index') }}"
+                            <div>
+                                <span class="text-2xl font-bold text-primary">${{ number_format($product->price, 0, '.', ',') }}</span>
+                                @if($product->compare_price && $product->compare_price > $product->price)
+                                    <span class="ml-1.5 text-sm text-text-muted line-through">${{ number_format($product->compare_price, 0, '.', ',') }}</span>
+                                @endif
+                            </div>
+                            <a href="{{ route('products.show', $product->slug) }}"
                                class="bg-primary hover:bg-primary-light text-white px-5 py-2.5 rounded-xl text-sm font-semibold
                                       transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/20 active:translate-y-0">
                                 Ver detalle

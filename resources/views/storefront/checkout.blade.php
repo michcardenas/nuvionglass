@@ -2,22 +2,435 @@
 
 @section('title', 'Checkout | nuvion - glass')
 
-@section('content')
-    <section class="py-16">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="font-brand text-3xl font-bold">Checkout</h1>
+@push('head')
+    <script src="https://js.stripe.com/v3/"></script>
+@endpush
 
-            {{-- TODO: Checkout form with customer info, order summary, payment --}}
-            <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-12">
-                <div>
-                    <h2 class="font-brand text-xl font-semibold mb-6">Datos de envío</h2>
-                    <p class="text-muted/50">Formulario de checkout (Fase 3).</p>
-                </div>
-                <div>
-                    <h2 class="font-brand text-xl font-semibold mb-6">Resumen del pedido</h2>
-                    <p class="text-muted/50">Resumen del carrito aquí.</p>
-                </div>
-            </div>
+@section('content')
+
+    {{-- Page header --}}
+    <section class="relative bg-bg overflow-hidden">
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-12">
+            <nav class="flex items-center gap-2 text-sm text-muted/50 mb-6">
+                <a href="{{ route('home') }}" class="hover:text-white transition-colors">Inicio</a>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/></svg>
+                <a href="{{ route('cart.index') }}" class="hover:text-white transition-colors">Carrito</a>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/></svg>
+                <span class="text-white/80">Checkout</span>
+            </nav>
+            <h1 class="font-brand text-3xl md:text-4xl font-bold text-white">Finalizar compra</h1>
         </div>
     </section>
+
+    {{-- Checkout form --}}
+    <section class="py-12 md:py-16 bg-bg-light">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8"
+             x-data="checkoutForm()" x-cloak>
+
+            <form @submit.prevent="handleSubmit" class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+
+                {{-- LEFT COLUMN: Customer data + Payment --}}
+                <div class="lg:col-span-2 space-y-6">
+
+                    {{-- Shipping Info --}}
+                    <div class="bg-white rounded-2xl p-6 md:p-8 border border-border-light shadow-sm">
+                        <h2 class="font-brand text-xl font-semibold text-text-dark mb-6 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
+                            Datos de envío
+                        </h2>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {{-- Name --}}
+                            <div class="sm:col-span-2">
+                                <label for="name" class="block text-sm font-medium text-text-muted mb-1.5">Nombre completo *</label>
+                                <input type="text" id="name" x-model="form.name"
+                                       class="w-full border border-border-light rounded-xl px-4 py-3 text-sm text-text-dark placeholder-text-muted/40 focus:outline-none focus:border-secondary/50 focus:ring-2 focus:ring-secondary/10 transition-colors"
+                                       placeholder="Tu nombre completo">
+                                <p x-show="errors.name" x-text="errors.name" class="text-danger text-xs mt-1"></p>
+                            </div>
+
+                            {{-- Email --}}
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-text-muted mb-1.5">Email *</label>
+                                <input type="email" id="email" x-model="form.email"
+                                       class="w-full border border-border-light rounded-xl px-4 py-3 text-sm text-text-dark placeholder-text-muted/40 focus:outline-none focus:border-secondary/50 focus:ring-2 focus:ring-secondary/10 transition-colors"
+                                       placeholder="tu@email.com">
+                                <p x-show="errors.email" x-text="errors.email" class="text-danger text-xs mt-1"></p>
+                            </div>
+
+                            {{-- Phone --}}
+                            <div>
+                                <label for="phone" class="block text-sm font-medium text-text-muted mb-1.5">Teléfono</label>
+                                <input type="tel" id="phone" x-model="form.phone"
+                                       class="w-full border border-border-light rounded-xl px-4 py-3 text-sm text-text-dark placeholder-text-muted/40 focus:outline-none focus:border-secondary/50 focus:ring-2 focus:ring-secondary/10 transition-colors"
+                                       placeholder="10 dígitos">
+                            </div>
+
+                            {{-- Address --}}
+                            <div class="sm:col-span-2">
+                                <label for="address" class="block text-sm font-medium text-text-muted mb-1.5">Dirección *</label>
+                                <input type="text" id="address" x-model="form.address"
+                                       class="w-full border border-border-light rounded-xl px-4 py-3 text-sm text-text-dark placeholder-text-muted/40 focus:outline-none focus:border-secondary/50 focus:ring-2 focus:ring-secondary/10 transition-colors"
+                                       placeholder="Calle, número, colonia">
+                                <p x-show="errors.address" x-text="errors.address" class="text-danger text-xs mt-1"></p>
+                            </div>
+
+                            {{-- City --}}
+                            <div>
+                                <label for="city" class="block text-sm font-medium text-text-muted mb-1.5">Ciudad *</label>
+                                <input type="text" id="city" x-model="form.city"
+                                       class="w-full border border-border-light rounded-xl px-4 py-3 text-sm text-text-dark placeholder-text-muted/40 focus:outline-none focus:border-secondary/50 focus:ring-2 focus:ring-secondary/10 transition-colors"
+                                       placeholder="Ciudad">
+                                <p x-show="errors.city" x-text="errors.city" class="text-danger text-xs mt-1"></p>
+                            </div>
+
+                            {{-- State --}}
+                            <div>
+                                <label for="state" class="block text-sm font-medium text-text-muted mb-1.5">Estado *</label>
+                                <input type="text" id="state" x-model="form.state"
+                                       class="w-full border border-border-light rounded-xl px-4 py-3 text-sm text-text-dark placeholder-text-muted/40 focus:outline-none focus:border-secondary/50 focus:ring-2 focus:ring-secondary/10 transition-colors"
+                                       placeholder="Estado">
+                                <p x-show="errors.state" x-text="errors.state" class="text-danger text-xs mt-1"></p>
+                            </div>
+
+                            {{-- Zip code --}}
+                            <div>
+                                <label for="zip_code" class="block text-sm font-medium text-text-muted mb-1.5">Código postal *</label>
+                                <input type="text" id="zip_code" x-model="form.zip_code"
+                                       class="w-full border border-border-light rounded-xl px-4 py-3 text-sm text-text-dark placeholder-text-muted/40 focus:outline-none focus:border-secondary/50 focus:ring-2 focus:ring-secondary/10 transition-colors"
+                                       placeholder="00000" maxlength="10">
+                                <p x-show="errors.zip_code" x-text="errors.zip_code" class="text-danger text-xs mt-1"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Payment Method --}}
+                    <div class="bg-white rounded-2xl p-6 md:p-8 border border-border-light shadow-sm">
+                        <h2 class="font-brand text-xl font-semibold text-text-dark mb-6 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z"/></svg>
+                            Método de pago
+                        </h2>
+
+                        <div class="space-y-3">
+                            {{-- Card --}}
+                            <label class="flex items-center gap-3 p-4 border rounded-xl cursor-pointer transition-all duration-200"
+                                   :class="form.payment_method === 'card' ? 'border-secondary bg-secondary/5 shadow-sm' : 'border-border-light hover:border-secondary/30'">
+                                <input type="radio" x-model="form.payment_method" value="card" class="text-secondary focus:ring-secondary">
+                                <div class="flex-1">
+                                    <span class="text-sm font-semibold text-text-dark">Tarjeta de crédito / débito</span>
+                                    <p class="text-xs text-text-muted mt-0.5">Pago seguro con Stripe</p>
+                                </div>
+                                <svg class="w-8 h-5 text-secondary/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z"/></svg>
+                            </label>
+
+                            {{-- Transfer --}}
+                            <label class="flex items-center gap-3 p-4 border rounded-xl cursor-pointer transition-all duration-200"
+                                   :class="form.payment_method === 'transfer' ? 'border-secondary bg-secondary/5 shadow-sm' : 'border-border-light hover:border-secondary/30'">
+                                <input type="radio" x-model="form.payment_method" value="transfer" class="text-secondary focus:ring-secondary">
+                                <div class="flex-1">
+                                    <span class="text-sm font-semibold text-text-dark">Transferencia bancaria</span>
+                                    <p class="text-xs text-text-muted mt-0.5">Recibirás instrucciones por email</p>
+                                </div>
+                                <svg class="w-5 h-5 text-secondary/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21"/></svg>
+                            </label>
+
+                            {{-- Cash on delivery --}}
+                            <label class="flex items-center gap-3 p-4 border rounded-xl cursor-pointer transition-all duration-200"
+                                   :class="form.payment_method === 'cash_on_delivery' ? 'border-secondary bg-secondary/5 shadow-sm' : 'border-border-light hover:border-secondary/30'">
+                                <input type="radio" x-model="form.payment_method" value="cash_on_delivery" class="text-secondary focus:ring-secondary">
+                                <div class="flex-1">
+                                    <span class="text-sm font-semibold text-text-dark">Pago contra entrega</span>
+                                    <p class="text-xs text-text-muted mt-0.5">Paga al recibir tu pedido</p>
+                                </div>
+                                <svg class="w-5 h-5 text-secondary/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z"/></svg>
+                            </label>
+                        </div>
+
+                        {{-- Stripe Card Element --}}
+                        <div x-show="form.payment_method === 'card'" x-transition class="mt-6">
+                            <label class="block text-sm font-medium text-text-muted mb-2">Datos de la tarjeta</label>
+                            <div id="card-element" class="border border-border-light rounded-xl px-4 py-3.5 bg-white focus-within:border-secondary/50 focus-within:ring-2 focus-within:ring-secondary/10 transition-colors"></div>
+                            <p x-show="cardError" x-text="cardError" class="text-danger text-xs mt-2"></p>
+                            <div class="mt-3 flex items-center gap-2 text-xs text-text-muted/60">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
+                                Pago seguro encriptado con Stripe
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Notes --}}
+                    <div class="bg-white rounded-2xl p-6 md:p-8 border border-border-light shadow-sm">
+                        <label for="notes" class="block text-sm font-medium text-text-muted mb-1.5">Notas adicionales (opcional)</label>
+                        <textarea id="notes" x-model="form.notes" rows="3"
+                                  class="w-full border border-border-light rounded-xl px-4 py-3 text-sm text-text-dark placeholder-text-muted/40 focus:outline-none focus:border-secondary/50 focus:ring-2 focus:ring-secondary/10 transition-colors resize-none"
+                                  placeholder="Instrucciones especiales de entrega, referencias..."></textarea>
+                    </div>
+                </div>
+
+                {{-- RIGHT COLUMN: Order Summary --}}
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-2xl p-6 md:p-8 border border-border-light shadow-sm sticky top-24">
+                        <h2 class="font-brand text-xl font-semibold text-text-dark mb-6">Resumen del pedido</h2>
+
+                        {{-- Cart items --}}
+                        <div class="space-y-4 max-h-80 overflow-y-auto pr-1">
+                            @foreach($items as $item)
+                            <div class="flex gap-3 pb-4 border-b border-border-light last:border-0 last:pb-0">
+                                @php $img = $item['product']->images[0] ?? null; @endphp
+                                <div class="w-16 h-16 rounded-lg bg-bg-light border border-border-light flex-shrink-0 overflow-hidden flex items-center justify-center">
+                                    @if($img)
+                                    <img src="{{ asset('storage/' . $img) }}" alt="{{ $item['product']->name }}" class="w-full h-full object-contain p-1">
+                                    @else
+                                    <span class="text-text-muted/30 text-xs">{{ Str::limit($item['product']->name, 10) }}</span>
+                                    @endif
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-text-dark truncate">{{ $item['product']->name }}</p>
+                                    @if($item['variant'])
+                                    <p class="text-xs text-text-muted/60">{{ $item['variant']->value }}</p>
+                                    @endif
+                                    <p class="text-xs text-text-muted/60">Cant: {{ $item['qty'] }}</p>
+                                </div>
+                                <p class="text-sm font-semibold text-text-dark">${{ number_format($item['total'], 2) }}</p>
+                            </div>
+                            @endforeach
+                        </div>
+
+                        {{-- Totals --}}
+                        <div class="mt-6 pt-4 border-t border-border-light space-y-2.5 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-text-muted">Subtotal</span>
+                                <span class="text-text-dark">${{ number_format($subtotal, 2) }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-text-muted">Envío</span>
+                                <span class="text-text-dark">{{ $shipping > 0 ? '$' . number_format($shipping, 2) : 'Gratis' }}</span>
+                            </div>
+                            <div class="flex justify-between font-bold text-lg pt-3 border-t border-border-light">
+                                <span class="text-text-dark">Total</span>
+                                <span class="text-primary">${{ number_format($total, 2) }}</span>
+                            </div>
+                        </div>
+
+                        {{-- Submit button --}}
+                        <button type="submit" :disabled="processing"
+                                class="mt-6 w-full bg-secondary hover:bg-secondary/90 text-white py-3.5 rounded-xl font-semibold text-base
+                                       transition-all duration-200 shadow-md shadow-secondary/20
+                                       hover:-translate-y-0.5 hover:shadow-lg hover:shadow-secondary/30
+                                       disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-md">
+                            <span x-show="!processing" class="flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
+                                Confirmar pedido — ${{ number_format($total, 2) }}
+                            </span>
+                            <span x-show="processing" class="flex items-center justify-center gap-2">
+                                <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Procesando...
+                            </span>
+                        </button>
+
+                        {{-- General error --}}
+                        <p x-show="generalError" x-text="generalError" class="text-danger text-sm mt-3 text-center"></p>
+
+                        {{-- Trust badges --}}
+                        <div class="mt-5 pt-4 border-t border-border-light flex items-center justify-center gap-4 text-xs text-text-muted/50">
+                            <span class="flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/></svg>
+                                Pago seguro
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/></svg>
+                                Envío gratis +$99
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
 @endsection
+
+@push('scripts')
+<script>
+function checkoutForm() {
+    return {
+        form: {
+            name: '',
+            email: '',
+            phone: '',
+            address: '',
+            city: '',
+            state: '',
+            zip_code: '',
+            payment_method: 'card',
+            stripe_payment_intent_id: '',
+            notes: '',
+        },
+        errors: {},
+        cardError: '',
+        generalError: '',
+        processing: false,
+        stripe: null,
+        cardElement: null,
+        cardMounted: false,
+
+        init() {
+            this.stripe = Stripe('{{ config("services.stripe.key") }}');
+            const elements = this.stripe.elements();
+            this.cardElement = elements.create('card', {
+                style: {
+                    base: {
+                        fontFamily: '"IBM Plex Sans", sans-serif',
+                        fontSize: '16px',
+                        color: '#1A1A2E',
+                        '::placeholder': { color: '#9CA3AF' },
+                    },
+                    invalid: { color: '#EF4444' },
+                },
+                hidePostalCode: true,
+            });
+
+            this.$watch('form.payment_method', (val) => {
+                if (val === 'card') {
+                    this.$nextTick(() => this.mountCard());
+                }
+            });
+
+            this.$nextTick(() => {
+                if (this.form.payment_method === 'card') {
+                    this.mountCard();
+                }
+            });
+        },
+
+        mountCard() {
+            const el = document.getElementById('card-element');
+            if (el && !this.cardMounted) {
+                this.cardElement.mount('#card-element');
+                this.cardMounted = true;
+                this.cardElement.on('change', (event) => {
+                    this.cardError = event.error ? event.error.message : '';
+                });
+            }
+        },
+
+        async handleSubmit() {
+            this.processing = true;
+            this.errors = {};
+            this.cardError = '';
+            this.generalError = '';
+
+            if (!this.validate()) {
+                this.processing = false;
+                return;
+            }
+
+            if (this.form.payment_method === 'card') {
+                await this.handleCardPayment();
+            } else {
+                await this.submitOrder();
+            }
+        },
+
+        validate() {
+            const required = { name: 'Nombre', email: 'Email', address: 'Dirección', city: 'Ciudad', state: 'Estado', zip_code: 'Código postal' };
+            for (const [field, label] of Object.entries(required)) {
+                if (!this.form[field]?.trim()) {
+                    this.errors[field] = `${label} es requerido.`;
+                }
+            }
+            if (this.form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email)) {
+                this.errors.email = 'Email inválido.';
+            }
+            if (Object.keys(this.errors).length > 0) {
+                const firstError = document.querySelector('[x-show="errors.' + Object.keys(this.errors)[0] + '"]');
+                if (firstError) firstError.closest('div')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            return Object.keys(this.errors).length === 0;
+        },
+
+        async handleCardPayment() {
+            try {
+                const res = await fetch('{{ route("checkout.createPaymentIntent") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({}),
+                });
+
+                if (!res.ok) {
+                    const data = await res.json();
+                    this.generalError = data.message || 'Error al preparar el pago.';
+                    this.processing = false;
+                    return;
+                }
+
+                const { clientSecret } = await res.json();
+
+                const { error, paymentIntent } = await this.stripe.confirmCardPayment(
+                    clientSecret,
+                    { payment_method: { card: this.cardElement } }
+                );
+
+                if (error) {
+                    this.cardError = error.message;
+                    this.processing = false;
+                    return;
+                }
+
+                if (paymentIntent.status === 'succeeded' || paymentIntent.status === 'processing') {
+                    this.form.stripe_payment_intent_id = paymentIntent.id;
+                    await this.submitOrder();
+                } else {
+                    this.generalError = 'El pago no fue completado. Intenta de nuevo.';
+                    this.processing = false;
+                }
+            } catch (e) {
+                this.generalError = 'Error inesperado. Intenta de nuevo.';
+                this.processing = false;
+            }
+        },
+
+        async submitOrder() {
+            try {
+                const res = await fetch('{{ route("checkout.process") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify(this.form),
+                });
+
+                if (res.status === 422) {
+                    const data = await res.json();
+                    this.errors = data.errors || {};
+                    this.generalError = data.message || '';
+                    this.processing = false;
+                    return;
+                }
+
+                const data = await res.json();
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                    return;
+                }
+
+                this.generalError = 'Error al crear el pedido.';
+                this.processing = false;
+            } catch (e) {
+                this.generalError = 'Error al crear el pedido. Intenta de nuevo.';
+                this.processing = false;
+            }
+        },
+    };
+}
+</script>
+@endpush

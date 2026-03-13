@@ -71,7 +71,8 @@ class CheckoutService
             'shipping' => $this->cart->getShipping(),
             'total' => $this->cart->getTotal(),
             'payment_method' => $data['payment_method'],
-            'payment_status' => 'pending',
+            'payment_status' => ($data['payment_method'] === 'card') ? 'processing' : 'pending',
+            'stripe_payment_intent_id' => $data['stripe_payment_intent_id'] ?? null,
             'shipping_address' => $shippingAddress,
             'notes' => $data['notes'] ?? null,
         ]);

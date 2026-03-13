@@ -3,9 +3,12 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
             {{-- Brand --}}
             <div class="md:col-span-1">
-                <a href="{{ route('home') }}" class="inline-block">
-                    <span class="font-brand text-2xl text-secondary">nuvion</span>
-                    <span class="font-brand text-xs text-muted uppercase tracking-[0.3em] ml-1">glass</span>
+                <a href="{{ route('home') }}" class="inline-flex items-center space-x-2.5">
+                    <img src="{{ asset('img/isotipo.png') }}" alt="nuvion - glass" class="h-9 w-9 object-contain">
+                    <div class="flex items-baseline space-x-1.5">
+                        <span class="font-brand text-2xl text-secondary">nuvion</span>
+                        <span class="font-brand text-xs text-muted uppercase tracking-[0.3em]">glass</span>
+                    </div>
                 </a>
                 <p class="mt-4 text-sm text-muted/70 leading-relaxed">
                     Protege tus ojos de la luz azul. Diseño moderno, tecnología que cuida tu visión.

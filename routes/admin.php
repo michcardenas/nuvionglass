@@ -5,6 +5,8 @@ use App\Http\Controllers\Admin\ProductAdminController;
 use App\Http\Controllers\Admin\OrderAdminController;
 use App\Http\Controllers\Admin\LeadAdminController;
 use App\Http\Controllers\Admin\BlogAdminController;
+use App\Http\Controllers\Admin\CategoryAdminController;
+use App\Http\Controllers\Admin\InfographicAdminController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,6 +21,9 @@ use Illuminate\Support\Facades\Route;
 
 // Dashboard
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+// Categories CRUD
+Route::resource('categories', CategoryAdminController::class)->except(['show']);
 
 // Products CRUD
 Route::resource('products', ProductAdminController::class);
@@ -35,3 +40,6 @@ Route::resource('leads', LeadAdminController::class)->only(['index', 'show', 'de
 
 // Blog CRUD
 Route::resource('blog', BlogAdminController::class);
+
+// Infographics CRUD
+Route::resource('infographics', InfographicAdminController::class)->except(['show']);

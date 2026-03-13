@@ -16,6 +16,7 @@ class Order extends Model
         'total',
         'payment_method',
         'payment_status',
+        'stripe_payment_intent_id',
         'shipping_address',
         'notes',
     ];

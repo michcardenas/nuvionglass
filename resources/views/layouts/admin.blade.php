@@ -20,7 +20,8 @@
         <aside :class="sidebarOpen ? 'w-64' : 'w-16'" class="bg-primary text-white transition-all duration-300 flex flex-col shrink-0">
             <div class="p-4 border-b border-white/10">
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-2">
-                    <span class="font-brand text-lg text-secondary">nuvion</span>
+                    <img src="{{ asset('img/isotipo.png') }}" alt="nuvion - glass" class="h-8 w-8 object-contain shrink-0">
+                    <span x-show="sidebarOpen" class="font-brand text-lg text-secondary">nuvion</span>
                     <span x-show="sidebarOpen" class="text-xs text-white/60 uppercase tracking-wider">admin</span>
                 </a>
             </div>
@@ -40,6 +41,14 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
                     </svg>
                     <span x-show="sidebarOpen">Productos</span>
+                </a>
+                <a href="{{ route('admin.categories.index') }}"
+                   class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors text-sm {{ request()->routeIs('admin.categories.*') ? 'bg-white/10' : '' }}">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 6h.008v.008H6V6Z"/>
+                    </svg>
+                    <span x-show="sidebarOpen">Categorías</span>
                 </a>
                 <a href="{{ route('admin.orders.index') }}"
                    class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors text-sm {{ request()->routeIs('admin.orders.*') ? 'bg-white/10' : '' }}">
@@ -61,6 +70,13 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5"/>
                     </svg>
                     <span x-show="sidebarOpen">Blog</span>
+                </a>
+                <a href="{{ route('admin.infographics.index') }}"
+                   class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors text-sm {{ request()->routeIs('admin.infographics.*') ? 'bg-white/10' : '' }}">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0 0 22.5 18.75V5.25A2.25 2.25 0 0 0 20.25 3H3.75A2.25 2.25 0 0 0 1.5 5.25v13.5A2.25 2.25 0 0 0 3.75 21Z"/>
+                    </svg>
+                    <span x-show="sidebarOpen">Infografías</span>
                 </a>
             </nav>
 
@@ -116,5 +132,6 @@
             </main>
         </div>
     </div>
+    @stack('scripts')
 </body>
 </html>

@@ -26,15 +26,52 @@
                     <input type="text" id="name" name="name" value="{{ old('name') }}" required
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-                <div>
+                <div x-data="quickCategory()">
                     <label for="category_id" class="block text-sm font-medium text-gray-700 mb-1">Categoría *</label>
-                    <select id="category_id" name="category_id" required
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Seleccionar...</option>
-                        @foreach($categories as $cat)
-                            <option value="{{ $cat->id }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
-                        @endforeach
-                    </select>
+                    <div class="flex items-center gap-2">
+                        <select id="category_id" name="category_id" required
+                                class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Seleccionar...</option>
+                            @foreach($categories as $cat)
+                                <option value="{{ $cat->id }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+                            @endforeach
+                        </select>
+                        <button type="button" @click="showModal = true"
+                                class="shrink-0 inline-flex items-center justify-center w-9 h-9 rounded-lg border border-gray-300 text-gray-500 hover:bg-gray-50 hover:text-blue-600 transition-colors"
+                                title="Crear categoría rápida">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    {{-- Quick create category modal --}}
+                    <div x-show="showModal" x-cloak
+                         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                         @keydown.escape.window="showModal = false">
+                        <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6" @click.outside="showModal = false">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Nueva categoría</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+                                    <input type="text" x-model="newName" x-ref="catName"
+                                           @keydown.enter.prevent="createCategory()"
+                                           placeholder="Ej: Lentes de sol"
+                                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <p x-show="error" x-text="error" class="text-sm text-red-600"></p>
+                            </div>
+                            <div class="flex justify-end gap-2 mt-5">
+                                <button type="button" @click="showModal = false; error = ''"
+                                        class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900">Cancelar</button>
+                                <button type="button" @click="createCategory()" :disabled="saving"
+                                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50">
+                                    <span x-show="!saving">Crear</span>
+                                    <span x-show="saving">Creando...</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -144,3 +181,49 @@
         </div>
     </form>
 @endsection
+
+@push('scripts')
+<script>
+function quickCategory() {
+    return {
+        showModal: false,
+        newName: '',
+        error: '',
+        saving: false,
+        async createCategory() {
+            if (!this.newName.trim()) {
+                this.error = 'El nombre es obligatorio.';
+                return;
+            }
+            this.saving = true;
+            this.error = '';
+            try {
+                const res = await fetch('{{ route("admin.categories.store") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    body: JSON.stringify({ name: this.newName.trim() }),
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    this.error = data.message || Object.values(data.errors || {}).flat()[0] || 'Error al crear.';
+                    return;
+                }
+                const select = document.getElementById('category_id');
+                const option = new Option(data.name, data.id, true, true);
+                select.add(option);
+                this.newName = '';
+                this.showModal = false;
+            } catch (e) {
+                this.error = 'Error de conexión.';
+            } finally {
+                this.saving = false;
+            }
+        }
+    };
+}
+</script>
+@endpush
