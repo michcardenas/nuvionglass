@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\ShippingRate;
+use App\Models\ShippingSetting;
 use Illuminate\Support\Collection;
 
 class CartService
@@ -120,14 +122,25 @@ class CartService
     }
 
     /**
-     * Get shipping cost.
+     * Get shipping cost based on configured rates.
      */
-    public function getShipping(): float
+    public function getShipping(?string $city = null): float
     {
         $subtotal = $this->getSubtotal();
+        $threshold = (float) ShippingSetting::get('free_shipping_threshold', 0);
 
-        // Free shipping above $99
-        return $subtotal >= 99 ? 0 : 9.99;
+        if ($threshold > 0 && $subtotal >= $threshold) {
+            return 0;
+        }
+
+        if ($city) {
+            $rate = ShippingRate::findForCity($city);
+            if ($rate) {
+                return (float) $rate->price;
+            }
+        }
+
+        return (float) ShippingSetting::get('default_price', 99.00);
     }
 
     /**

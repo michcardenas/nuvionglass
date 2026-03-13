@@ -196,8 +196,45 @@
                             @endforeach
                         </div>
 
+                        {{-- Coupon code --}}
+                        <div class="mt-6 pt-4 border-t border-border-light">
+                            <template x-if="!coupon.code">
+                                <div>
+                                    <label class="block text-sm font-medium text-text-muted mb-2">Código de descuento</label>
+                                    <div class="flex gap-2">
+                                        <input type="text" x-model="couponInput" placeholder="Ej: NUVION20"
+                                               style="text-transform: uppercase"
+                                               @keydown.enter.prevent="applyCoupon()"
+                                               class="flex-1 border border-border-light rounded-lg px-3 py-2 text-sm text-text-dark placeholder-text-muted/40 focus:outline-none focus:border-secondary/50 focus:ring-2 focus:ring-secondary/10 transition-colors">
+                                        <button type="button" @click="applyCoupon()" :disabled="applyingCoupon || !couponInput.trim()"
+                                                class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                            <span x-show="!applyingCoupon">Aplicar</span>
+                                            <span x-show="applyingCoupon" class="flex items-center">
+                                                <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <p x-show="couponError" x-text="couponError" class="text-danger text-xs mt-1.5"></p>
+                                </div>
+                            </template>
+                            <template x-if="coupon.code">
+                                <div class="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg px-3 py-2.5">
+                                    <div>
+                                        <span class="text-sm font-mono font-semibold text-green-800" x-text="coupon.code"></span>
+                                        <p class="text-xs text-green-600" x-text="coupon.description"></p>
+                                    </div>
+                                    <button type="button" @click="removeCoupon()" class="text-green-600 hover:text-red-500 transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18 18 6M6 6l12 12"/></svg>
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
+
                         {{-- Totals --}}
-                        <div class="mt-6 pt-4 border-t border-border-light space-y-2.5 text-sm">
+                        <div class="mt-4 pt-4 border-t border-border-light space-y-2.5 text-sm">
                             <div class="flex justify-between">
                                 <span class="text-text-muted">Subtotal</span>
                                 <span class="text-text-dark">${{ number_format($subtotal, 2) }}</span>
@@ -206,9 +243,15 @@
                                 <span class="text-text-muted">Envío</span>
                                 <span class="text-text-dark">{{ $shipping > 0 ? '$' . number_format($shipping, 2) : 'Gratis' }}</span>
                             </div>
+                            <template x-if="coupon.discount_amount > 0">
+                                <div class="flex justify-between text-green-600">
+                                    <span>Descuento</span>
+                                    <span x-text="'-$' + Number(coupon.discount_amount).toFixed(2)"></span>
+                                </div>
+                            </template>
                             <div class="flex justify-between font-bold text-lg pt-3 border-t border-border-light">
                                 <span class="text-text-dark">Total</span>
-                                <span class="text-primary">${{ number_format($total, 2) }}</span>
+                                <span class="text-primary" x-text="'$' + Number(currentTotal).toFixed(2)"></span>
                             </div>
                         </div>
 
@@ -220,7 +263,7 @@
                                        disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-md">
                             <span x-show="!processing" class="flex items-center justify-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
-                                Confirmar pedido — ${{ number_format($total, 2) }}
+                                <span x-text="'Confirmar pedido — $' + Number(currentTotal).toFixed(2)"></span>
                             </span>
                             <span x-show="processing" class="flex items-center justify-center gap-2">
                                 <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -276,6 +319,15 @@ function checkoutForm() {
         stripe: null,
         cardElement: null,
         cardMounted: false,
+        couponInput: '',
+        couponError: '',
+        applyingCoupon: false,
+        coupon: {
+            code: {!! json_encode($appliedCoupon) !!},
+            description: {!! json_encode($discount['amount'] > 0 ? ($discount['code'] ? 'Descuento aplicado' : '') : '') !!},
+            discount_amount: {{ $discount['amount'] ?? 0 }},
+        },
+        currentTotal: {{ $total }},
 
         init() {
             this.stripe = Stripe('{{ config("services.stripe.key") }}');
@@ -314,6 +366,65 @@ function checkoutForm() {
                 this.cardElement.on('change', (event) => {
                     this.cardError = event.error ? event.error.message : '';
                 });
+            }
+        },
+
+        async applyCoupon() {
+            this.couponError = '';
+            if (!this.couponInput.trim()) return;
+            this.applyingCoupon = true;
+
+            try {
+                const res = await fetch('{{ route("checkout.applyCoupon") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ code: this.couponInput.trim() }),
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    this.couponError = data.message || 'Código no válido.';
+                    this.applyingCoupon = false;
+                    return;
+                }
+
+                this.coupon = {
+                    code: data.code,
+                    description: data.description,
+                    discount_amount: data.discount_amount,
+                };
+                this.currentTotal = data.new_total;
+                this.couponInput = '';
+            } catch (e) {
+                this.couponError = 'Error al aplicar el código.';
+            }
+            this.applyingCoupon = false;
+        },
+
+        async removeCoupon() {
+            try {
+                const res = await fetch('{{ route("checkout.removeCoupon") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({}),
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    this.coupon = { code: null, description: '', discount_amount: 0 };
+                    this.currentTotal = data.new_total;
+                }
+            } catch (e) {
+                console.error('Error removing coupon:', e);
             }
         },
 

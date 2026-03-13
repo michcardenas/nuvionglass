@@ -17,6 +17,8 @@ class Order extends Model
         'payment_method',
         'payment_status',
         'stripe_payment_intent_id',
+        'discount_code',
+        'discount_amount',
         'shipping_address',
         'notes',
     ];
@@ -26,6 +28,7 @@ class Order extends Model
         return [
             'subtotal' => 'decimal:2',
             'shipping' => 'decimal:2',
+            'discount_amount' => 'decimal:2',
             'total' => 'decimal:2',
         ];
     }

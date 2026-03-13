@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DiscountCode;
 use App\Models\Order;
 use App\Services\CartService;
 use App\Services\CheckoutService;
@@ -26,11 +27,78 @@ class CheckoutController extends Controller
                 ->with('error', 'Tu carrito está vacío.');
         }
 
+        $subtotal = $this->cart->getSubtotal();
+        $shipping = $this->cart->getShipping();
+        $discount = $this->getSessionDiscount($subtotal);
+
         return view('storefront.checkout', [
             'items' => $this->cart->getItems(),
-            'subtotal' => $this->cart->getSubtotal(),
-            'shipping' => $this->cart->getShipping(),
-            'total' => $this->cart->getTotal(),
+            'subtotal' => $subtotal,
+            'shipping' => $shipping,
+            'discount' => $discount,
+            'total' => max(0, $subtotal - $discount['amount'] + $shipping),
+            'appliedCoupon' => $discount['code'],
+        ]);
+    }
+
+    public function applyCoupon(Request $request): JsonResponse
+    {
+        $request->validate([
+            'code' => 'required|string|max:50',
+        ]);
+
+        $code = strtoupper(trim($request->input('code')));
+        $discountCode = DiscountCode::where('code', $code)->first();
+
+        if (! $discountCode) {
+            return response()->json(['message' => 'Código de descuento no encontrado.'], 422);
+        }
+
+        $subtotal = $this->cart->getSubtotal();
+
+        if (! $discountCode->isValid($subtotal)) {
+            $message = 'Código de descuento no válido.';
+
+            if ($discountCode->expires_at?->isPast()) {
+                $message = 'Este código ha expirado.';
+            } elseif ($discountCode->max_uses !== null && $discountCode->times_used >= $discountCode->max_uses) {
+                $message = 'Este código ha alcanzado su límite de usos.';
+            } elseif ($discountCode->min_order_amount && $subtotal < (float) $discountCode->min_order_amount) {
+                $message = 'Compra mínima de $' . number_format($discountCode->min_order_amount, 2) . ' requerida.';
+            } elseif (! $discountCode->is_active) {
+                $message = 'Este código no está activo.';
+            }
+
+            return response()->json(['message' => $message], 422);
+        }
+
+        $discountAmount = $discountCode->calculateDiscount($subtotal);
+        $shipping = $this->cart->getShipping();
+        $newTotal = max(0, $subtotal - $discountAmount + $shipping);
+
+        session(['discount_code_id' => $discountCode->id]);
+
+        return response()->json([
+            'success' => true,
+            'code' => $discountCode->code,
+            'description' => $discountCode->type === 'percentage'
+                ? $discountCode->value . '% de descuento'
+                : '$' . number_format($discountCode->value, 2) . ' de descuento',
+            'discount_amount' => $discountAmount,
+            'new_total' => $newTotal,
+        ]);
+    }
+
+    public function removeCoupon(): JsonResponse
+    {
+        session()->forget('discount_code_id');
+
+        $subtotal = $this->cart->getSubtotal();
+        $shipping = $this->cart->getShipping();
+
+        return response()->json([
+            'success' => true,
+            'new_total' => $subtotal + $shipping,
         ]);
     }
 
@@ -40,7 +108,10 @@ class CheckoutController extends Controller
             return response()->json(['message' => 'El carrito está vacío.'], 422);
         }
 
-        $total = $this->cart->getTotal();
+        $subtotal = $this->cart->getSubtotal();
+        $shipping = $this->cart->getShipping();
+        $discount = $this->getSessionDiscount($subtotal);
+        $total = max(0, $subtotal - $discount['amount'] + $shipping);
 
         Stripe::setApiKey(config('services.stripe.secret'));
 
@@ -50,6 +121,8 @@ class CheckoutController extends Controller
             'automatic_payment_methods' => ['enabled' => true],
             'metadata' => [
                 'cart_total' => $total,
+                'discount_code' => $discount['code'] ?? '',
+                'discount_amount' => $discount['amount'],
             ],
         ]);
 
@@ -73,7 +146,19 @@ class CheckoutController extends Controller
             'notes' => 'nullable|string|max:1000',
         ]);
 
+        $subtotal = $this->cart->getSubtotal();
+        $discount = $this->getSessionDiscount($subtotal);
+
+        $validated['discount_code'] = $discount['code'];
+        $validated['discount_amount'] = $discount['amount'];
+
         $order = $this->checkout->process($validated);
+
+        if ($discount['model']) {
+            $discount['model']->increment('times_used');
+        }
+
+        session()->forget('discount_code_id');
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -92,5 +177,27 @@ class CheckoutController extends Controller
         return view('storefront.checkout-confirmation', [
             'order' => $order,
         ]);
+    }
+
+    private function getSessionDiscount(float $subtotal): array
+    {
+        $discountCodeId = session('discount_code_id');
+
+        if (! $discountCodeId) {
+            return ['code' => null, 'amount' => 0, 'model' => null];
+        }
+
+        $discountCode = DiscountCode::find($discountCodeId);
+
+        if (! $discountCode || ! $discountCode->isValid($subtotal)) {
+            session()->forget('discount_code_id');
+            return ['code' => null, 'amount' => 0, 'model' => null];
+        }
+
+        return [
+            'code' => $discountCode->code,
+            'amount' => $discountCode->calculateDiscount($subtotal),
+            'model' => $discountCode,
+        ];
     }
 }

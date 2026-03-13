@@ -64,12 +64,19 @@ class CheckoutService
             $data['zip_code'],
         ]));
 
+        $subtotal = $this->cart->getSubtotal();
+        $shipping = $this->cart->getShipping();
+        $discountAmount = (float) ($data['discount_amount'] ?? 0);
+        $total = max(0, $subtotal - $discountAmount + $shipping);
+
         return Order::create([
             'customer_id' => $customer->id,
             'status' => 'pending',
-            'subtotal' => $this->cart->getSubtotal(),
-            'shipping' => $this->cart->getShipping(),
-            'total' => $this->cart->getTotal(),
+            'subtotal' => $subtotal,
+            'shipping' => $shipping,
+            'discount_code' => $data['discount_code'] ?? null,
+            'discount_amount' => $discountAmount,
+            'total' => $total,
             'payment_method' => $data['payment_method'],
             'payment_status' => ($data['payment_method'] === 'card') ? 'processing' : 'pending',
             'stripe_payment_intent_id' => $data['stripe_payment_intent_id'] ?? null,

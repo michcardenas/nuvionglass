@@ -6,7 +6,9 @@ use App\Http\Controllers\Admin\OrderAdminController;
 use App\Http\Controllers\Admin\LeadAdminController;
 use App\Http\Controllers\Admin\BlogAdminController;
 use App\Http\Controllers\Admin\CategoryAdminController;
+use App\Http\Controllers\Admin\DiscountCodeAdminController;
 use App\Http\Controllers\Admin\InfographicAdminController;
+use App\Http\Controllers\Admin\ShippingAdminController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -40,6 +42,16 @@ Route::resource('leads', LeadAdminController::class)->only(['index', 'show', 'de
 
 // Blog CRUD
 Route::resource('blog', BlogAdminController::class);
+
+// Discount codes CRUD
+Route::resource('discount-codes', DiscountCodeAdminController::class)->except(['show']);
+
+// Shipping management
+Route::get('shipping', [ShippingAdminController::class, 'index'])->name('shipping.index');
+Route::put('shipping/settings', [ShippingAdminController::class, 'updateSettings'])->name('shipping.settings');
+Route::post('shipping/rates', [ShippingAdminController::class, 'store'])->name('shipping.store');
+Route::put('shipping/rates/{shippingRate}', [ShippingAdminController::class, 'update'])->name('shipping.update');
+Route::delete('shipping/rates/{shippingRate}', [ShippingAdminController::class, 'destroy'])->name('shipping.destroy');
 
 // Infographics CRUD
 Route::resource('infographics', InfographicAdminController::class)->except(['show']);
