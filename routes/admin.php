@@ -35,6 +35,7 @@ Route::patch('products/{product}/toggle', [ProductAdminController::class, 'toggl
 Route::get('orders/export/csv', [OrderAdminController::class, 'exportCsv'])->name('orders.export');
 Route::resource('orders', OrderAdminController::class)->only(['index', 'show', 'update']);
 Route::patch('orders/{order}/status', [OrderAdminController::class, 'updateStatus'])->name('orders.status');
+Route::patch('orders/{order}/tracking', [OrderAdminController::class, 'updateTracking'])->name('orders.tracking');
 
 // Leads management
 Route::get('leads/export/csv', [LeadAdminController::class, 'exportCsv'])->name('leads.export');

@@ -152,6 +152,17 @@ class CheckoutController extends Controller
         $validated['discount_code'] = $discount['code'];
         $validated['discount_amount'] = $discount['amount'];
 
+        // If card payment, verify with Stripe that payment succeeded
+        if ($validated['payment_method'] === 'card' && !empty($validated['stripe_payment_intent_id'])) {
+            Stripe::setApiKey(config('services.stripe.secret'));
+            $paymentIntent = PaymentIntent::retrieve($validated['stripe_payment_intent_id']);
+
+            if ($paymentIntent->status === 'succeeded') {
+                $validated['payment_status'] = 'paid';
+                $validated['order_status'] = 'confirmed';
+            }
+        }
+
         $order = $this->checkout->process($validated);
 
         if ($discount['model']) {
@@ -175,6 +186,17 @@ class CheckoutController extends Controller
         $order->load(['items.product', 'items.variant', 'customer']);
 
         return view('storefront.checkout-confirmation', [
+            'order' => $order,
+        ]);
+    }
+
+    public function track(string $tracking_token): View
+    {
+        $order = Order::where('tracking_token', $tracking_token)
+            ->with(['items.product', 'items.variant', 'customer'])
+            ->firstOrFail();
+
+        return view('storefront.order-tracking', [
             'order' => $order,
         ]);
     }

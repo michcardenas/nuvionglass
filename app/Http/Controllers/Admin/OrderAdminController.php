@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\OrderShipped;
 use App\Models\Order;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -62,6 +64,40 @@ class OrderAdminController extends Controller
 
         return redirect()->route('admin.orders.show', $order)
             ->with('success', 'Estado actualizado.');
+    }
+
+    public function updateTracking(Request $request, Order $order): RedirectResponse
+    {
+        $validated = $request->validate([
+            'shipping_carrier' => 'nullable|string|max:100',
+            'tracking_number' => 'nullable|string|max:100',
+            'tracking_url' => 'nullable|url|max:500',
+            'notify_customer' => 'nullable|boolean',
+        ]);
+
+        $notify = $validated['notify_customer'] ?? false;
+        unset($validated['notify_customer']);
+
+        $order->update($validated);
+
+        // Auto-set status to shipped if tracking is added and status is pending/confirmed
+        if ($validated['tracking_number'] && in_array($order->status, ['pending', 'confirmed'])) {
+            $order->update(['status' => 'shipped']);
+        }
+
+        if ($notify && $order->customer) {
+            try {
+                $order->load('items.product', 'items.variant', 'customer');
+                Mail::to($order->customer->email)->send(new OrderShipped($order));
+            } catch (\Throwable $e) {
+                report($e);
+                return redirect()->route('admin.orders.show', $order)
+                    ->with('success', 'Guía actualizada, pero no se pudo enviar el correo.');
+            }
+        }
+
+        return redirect()->route('admin.orders.show', $order)
+            ->with('success', $notify ? 'Guía actualizada y cliente notificado.' : 'Guía actualizada.');
     }
 
     public function exportCsv(): StreamedResponse

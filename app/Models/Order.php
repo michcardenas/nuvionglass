@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Order extends Model
 {
@@ -20,8 +21,21 @@ class Order extends Model
         'discount_code',
         'discount_amount',
         'shipping_address',
+        'shipping_carrier',
+        'tracking_number',
+        'tracking_url',
         'notes',
+        'tracking_token',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Order $order) {
+            if (! $order->tracking_token) {
+                $order->tracking_token = Str::random(48);
+            }
+        });
+    }
 
     protected function casts(): array
     {

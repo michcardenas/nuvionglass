@@ -7,9 +7,8 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 
-class OrderConfirmation extends Mailable
+class OrderShipped extends Mailable
 {
-
     public function __construct(
         public Order $order,
     ) {}
@@ -17,14 +16,14 @@ class OrderConfirmation extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "Pedido #{$this->order->id} confirmado — nuvion glass",
+            subject: "Tu pedido #{$this->order->id} va en camino — nuvion glass",
         );
     }
 
     public function content(): Content
     {
         return new Content(
-            view: 'emails.order-confirmation',
+            view: 'emails.order-shipped',
         );
     }
 }

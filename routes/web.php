@@ -42,6 +42,9 @@ Route::post('/checkout/create-payment-intent', [CheckoutController::class, 'crea
 Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.applyCoupon');
 Route::post('/checkout/remove-coupon', [CheckoutController::class, 'removeCoupon'])->name('checkout.removeCoupon');
 
+// Order tracking
+Route::get('/pedido/{tracking_token}', [CheckoutController::class, 'track'])->name('order.track');
+
 // Stripe webhook
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle'])->name('stripe.webhook');
 

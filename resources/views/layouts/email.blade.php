@@ -16,8 +16,7 @@
                     <tr>
                         <td align="center" style="padding:24px 0;">
                             <a href="{{ url('/') }}" style="text-decoration:none;">
-                                <span style="font-size:28px;font-weight:700;color:#002F6D;letter-spacing:-0.5px;">nuvion</span>
-                                <span style="font-size:12px;color:#4B5563;text-transform:uppercase;letter-spacing:3px;margin-left:4px;">glass</span>
+                                <img src="{{ asset('img/logo.png') }}" alt="Nuvion Glass" width="160" style="width:160px;height:auto;display:block;margin:0 auto;">
                             </a>
                         </td>
                     </tr>

@@ -21,17 +21,24 @@ class CheckoutService
      */
     public function process(array $data): Order
     {
-        return DB::transaction(function () use ($data) {
+        $order = DB::transaction(function () use ($data) {
             $customer = $this->findOrCreateCustomer($data);
             $order = $this->createOrder($customer, $data);
             $this->createOrderItems($order);
             $this->cart->clear();
 
-            $order->load('items.product', 'items.variant', 'customer');
-            Mail::to($order->customer->email)->send(new OrderConfirmation($order));
-
             return $order;
         });
+
+        $order->load('items.product', 'items.variant', 'customer');
+
+        try {
+            Mail::to($order->customer->email)->send(new OrderConfirmation($order));
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        return $order;
     }
 
     /**
@@ -71,14 +78,14 @@ class CheckoutService
 
         return Order::create([
             'customer_id' => $customer->id,
-            'status' => 'pending',
+            'status' => $data['order_status'] ?? 'pending',
             'subtotal' => $subtotal,
             'shipping' => $shipping,
             'discount_code' => $data['discount_code'] ?? null,
             'discount_amount' => $discountAmount,
             'total' => $total,
             'payment_method' => $data['payment_method'],
-            'payment_status' => ($data['payment_method'] === 'card') ? 'processing' : 'pending',
+            'payment_status' => $data['payment_status'] ?? (($data['payment_method'] === 'card') ? 'processing' : 'pending'),
             'stripe_payment_intent_id' => $data['stripe_payment_intent_id'] ?? null,
             'shipping_address' => $shippingAddress,
             'notes' => $data['notes'] ?? null,
