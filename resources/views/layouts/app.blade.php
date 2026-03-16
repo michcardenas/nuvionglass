@@ -28,7 +28,7 @@
     <meta name="twitter:image" content="@yield('twitter_image', asset('images/og-default.jpg'))">
 
     {{-- Favicon --}}
-    <link rel="icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" href="{{ asset('img/isotipo.png') }}">
 
     {{-- Google Fonts: IBM Plex Sans + Bai Jamjuree --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
