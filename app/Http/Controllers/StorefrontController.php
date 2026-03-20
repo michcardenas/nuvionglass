@@ -73,8 +73,24 @@ class StorefrontController extends Controller
 
         $hero = HeroSetting::getCurrent();
 
+        // Producto estrella para el split layout del hero
+        $heroProduct = Product::active()
+            ->with('variants')
+            ->whereIn('internal_code', ['WUHAO', 'YT2212'])
+            ->first()
+            ?? Product::active()->first();
+
+        // Determinar modo del hero
+        $heroMode = 'split';
+        if ($hero && $hero->media_type === 'video'
+            && $hero->media_path
+            && \Storage::disk('public')->exists($hero->media_path)) {
+            $heroMode = 'video';
+        }
+
         return view('storefront.home', compact(
-            'hero', 'lentes', 'toallitas', 'coloresDisponibles',
+            'hero', 'heroProduct', 'heroMode',
+            'lentes', 'toallitas', 'coloresDisponibles',
             'recentPosts', 'infographics', 'organizationSchema', 'faqSchema',
         ));
     }

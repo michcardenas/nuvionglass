@@ -17,146 +17,393 @@
 @section('content')
 
     {{-- ============================================================
-         1. HERO — full screen, video/imagen/gradiente de fondo
+         1. HERO — split claro (default) o video full width
          ============================================================ --}}
     <style>
-        @keyframes hFadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to   { opacity: 1; transform: translateY(0); }
+        @keyframes hSlideUp {
+            from { opacity:0; transform:translateY(22px); }
+            to   { opacity:1; transform:translateY(0); }
         }
+        @keyframes hSlideRight {
+            from { opacity:0; transform:translateX(20px); }
+            to   { opacity:1; transform:translateX(0); }
+        }
+        @keyframes hFloatIn {
+            from { opacity:0; transform:scale(.94); }
+            to   { opacity:1; transform:scale(1); }
+        }
+
+        .h-anim-1 { animation: hSlideUp .7s ease .05s both; }
+        .h-anim-2 { animation: hSlideUp .7s ease .15s both; }
+        .h-anim-3 { animation: hSlideUp .7s ease .25s both; }
+        .h-anim-4 { animation: hSlideUp .7s ease .35s both; }
+        .h-anim-5 { animation: hSlideUp .7s ease .45s both; }
+        .h-anim-6 { animation: hSlideUp .7s ease .55s both; }
+        .h-img-anim { animation: hSlideRight .8s ease .2s both; }
+        .h-float-anim { animation: hFloatIn .6s ease both; }
+        .h-float-anim:nth-child(2) { animation-delay:.5s; }
+        .h-float-anim:nth-child(3) { animation-delay:.7s; }
+
+        .h-btn-dark {
+            background: #0d1117;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 13px 26px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background .2s, transform .15s;
+        }
+        .h-btn-dark:hover {
+            background: #378ADD;
+            transform: translateY(-1px);
+        }
+
+        .h-btn-outline {
+            background: transparent;
+            color: #374151;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 13px 26px;
+            font-size: 15px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all .2s;
+        }
+        .h-btn-outline:hover {
+            border-color: #378ADD;
+            color: #378ADD;
+        }
+
+        .h-trust-bar {
+            background: #f9fafb;
+            border-top: 1px solid #f3f4f6;
+            padding: 14px 6%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 28px;
+            flex-wrap: wrap;
+        }
+        .h-trust-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .h-trust-icon {
+            width: 22px; height: 22px;
+            background: #EBF4FF;
+            border-radius: 50%;
+            display: flex; align-items: center;
+            justify-content: center;
+            font-size: 11px; color: #378ADD;
+            flex-shrink: 0;
+        }
+
+        .h-float-badge {
+            position: absolute;
+            background: #fff;
+            border-radius: 10px;
+            padding: 10px 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .h-float-num {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0d1117;
+            line-height: 1;
+        }
+        .h-float-lbl {
+            font-size: 10px;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+
         @media (max-width: 768px) {
-            .hero-stat { display: none !important; }
+            .h-split-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .h-split-right {
+                height: 300px !important;
+                min-height: 0 !important;
+            }
+            .h-float-badge { display: none !important; }
+            .h-split-left {
+                padding: 48px 24px 32px !important;
+            }
+            .h-trust-bar { gap: 16px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .h-anim-1,.h-anim-2,.h-anim-3,
+            .h-anim-4,.h-anim-5,.h-anim-6,
+            .h-img-anim,.h-float-anim {
+                animation: none !important;
+                opacity: 1 !important;
+                transform: none !important;
+            }
         }
     </style>
 
-    <section style="position:relative;height:100vh;min-height:600px;max-height:900px;overflow:hidden;background:#0a0f1e;display:flex;align-items:center;">
+    @if($heroMode === 'split')
+    {{-- ===== MODO A: SPLIT LAYOUT CLARO ===== --}}
+    <section style="background:#ffffff;overflow:hidden;">
+        <div class="h-split-grid" style="display:grid;grid-template-columns:1fr 1fr;min-height:580px;">
 
-        {{-- CAPA 1: MEDIA DE FONDO --}}
-        @if($hero->media_type === 'video' && $hero->media_path)
-        <video autoplay muted loop playsinline preload="metadata"
-               style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ 1 - $hero->overlay_opacity }};filter:saturate(0.75) brightness(0.9);">
-            <source src="{{ asset('storage/' . $hero->media_path) }}" type="video/mp4">
-        </video>
-        @elseif($hero->media_type === 'image' && $hero->media_path)
-        <img src="{{ asset('storage/' . $hero->media_path) }}" alt="nuvion glass"
-             style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ 1 - $hero->overlay_opacity }};filter:saturate(0.75) brightness(0.9);">
-        @else
-        {{-- Gradiente base cuando no hay media --}}
-        <div style="position:absolute;inset:0;background:linear-gradient(135deg,#060d1a 0%,#0a1628 30%,#0f2440 60%,#060d1a 100%);"></div>
-        @php $heroProduct = $lentes->first(); @endphp
-        @if($heroProduct && ($heroProduct->images[0] ?? null))
-        <div style="position:absolute;right:0;top:0;bottom:0;width:55%;overflow:hidden;">
-            <img src="{{ asset('storage/' . $heroProduct->images[0]) }}" alt="{{ $heroProduct->name }}"
-                 style="width:100%;height:100%;object-fit:cover;object-position:center;opacity:.35;filter:saturate(0.6);">
-        </div>
-        @endif
-        @endif
-
-        {{-- CAPA 2: OVERLAY GRADIENTE --}}
-        <div style="position:absolute;inset:0;background:linear-gradient(105deg,rgba(6,13,26,0.97) 0%,rgba(6,13,26,0.88) 30%,rgba(6,13,26,0.65) 55%,rgba(6,13,26,0.25) 75%,rgba(6,13,26,0.08) 100%);pointer-events:none;"></div>
-
-        {{-- CAPA 3: GLOW AZUL SUTIL --}}
-        <div style="position:absolute;top:-5%;left:20%;width:700px;height:700px;background:radial-gradient(circle,rgba(56,130,221,0.1) 0%,transparent 60%);pointer-events:none;"></div>
-
-        {{-- CAPA 4: CONTENIDO PRINCIPAL --}}
-        <div style="position:relative;z-index:2;width:100%;max-width:1200px;margin:0 auto;padding:0 6%;">
-            <div style="max-width:620px;">
+            {{-- COLUMNA IZQUIERDA: Texto --}}
+            <div class="h-split-left" style="display:flex;flex-direction:column;justify-content:center;padding:72px 48px 72px 6%;background:#ffffff;">
 
                 {{-- Eyebrow pill --}}
-                @if($hero->eyebrow_text)
-                <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(56,130,221,0.12);border:0.5px solid rgba(56,130,221,0.3);border-radius:20px;padding:5px 16px;font-size:11px;color:#85B7EB;letter-spacing:.09em;text-transform:uppercase;margin-bottom:24px;animation:hFadeUp .7s ease both;">
+                <div class="h-anim-1" style="display:inline-flex;align-items:center;gap:7px;background:#EBF4FF;border:0.5px solid #B5D4F4;border-radius:20px;padding:5px 14px;font-size:11px;color:#185FA5;letter-spacing:.08em;text-transform:uppercase;margin-bottom:20px;width:fit-content;">
                     <span style="width:6px;height:6px;border-radius:50%;background:#378ADD;flex-shrink:0;"></span>
-                    {{ $hero->eyebrow_text }}
+                    {{ $hero->eyebrow_text ?? 'Protección de luz azul' }}
                 </div>
-                @endif
 
                 {{-- Título --}}
-                <h1 style="font-size:clamp(36px,5.5vw,66px);font-weight:800;color:#ffffff;line-height:1.03;letter-spacing:-.025em;margin-bottom:22px;animation:hFadeUp .7s ease .1s both;font-family:'Bai Jamjuree',sans-serif;">
-                    {{ $hero->title_line1 }}<br>
-                    {{ $hero->title_line2 }}<br>
-                    @if($hero->title_highlight_word && str_contains($hero->title_line3, $hero->title_highlight_word))
-                        {!! str_replace($hero->title_highlight_word, '<span style="color:#378ADD;">' . e($hero->title_highlight_word) . '</span>', e($hero->title_line3)) !!}
+                @php
+                    $t1 = $hero->title_line1 ?? 'Lentes que cuidan';
+                    $t2 = $hero->title_line2 ?? 'tus ojos de las';
+                    $t3 = $hero->title_line3 ?? 'pantallas';
+                    $hl = $hero->title_highlight_word ?? 'pantallas';
+                @endphp
+                <h1 class="h-anim-2" style="font-size:clamp(34px,4.2vw,54px);font-weight:800;color:#0d1117;line-height:1.05;letter-spacing:-.025em;margin-bottom:18px;font-family:'Bai Jamjuree',sans-serif;">
+                    {{ $t1 }}<br>
+                    {{ $t2 }}<br>
+                    @if($hl && str_contains($t3, $hl))
+                        {!! str_replace($hl, '<span style="color:#378ADD;">'.$hl.'</span>', e($t3)) !!}
                     @else
-                        {{ $hero->title_line3 }}
+                        {{ $t3 }}
                     @endif
                 </h1>
 
                 {{-- Badge 2x1 --}}
-                @if($hero->badge_text)
-                <div style="display:inline-flex;align-items:center;gap:9px;background:rgba(56,130,221,0.1);border:1px solid rgba(56,130,221,0.22);border-radius:8px;padding:9px 18px;margin-bottom:22px;font-size:13px;color:#85B7EB;animation:hFadeUp .7s ease .2s both;">
-                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-                        <rect x="1" y="4" width="13" height="9" rx="2" stroke="#85B7EB" stroke-width="1.2"/>
-                        <path d="M5.5 4V3a2 2 0 014 0v1" stroke="#85B7EB" stroke-width="1.2"/>
+                @if($hero->badge_text ?? true)
+                <div class="h-anim-3" style="display:inline-flex;align-items:center;gap:8px;background:#F0F7FF;border:1px solid #BFDBFE;border-radius:8px;padding:9px 16px;font-size:13px;color:#1e40af;margin-bottom:20px;width:fit-content;">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <rect x="1" y="3.5" width="12" height="9" rx="1.5" stroke="#1e40af" stroke-width="1.2"/>
+                        <path d="M5 3.5V3a2 2 0 014 0v.5" stroke="#1e40af" stroke-width="1.2"/>
                     </svg>
                     {!! str_replace(
                         ['2x1', '$499.90'],
-                        ['<strong style="color:#fff;font-weight:600;">2x1</strong>', '<strong style="color:#fff;font-weight:600;">$499.90</strong>'],
-                        e($hero->badge_text)
+                        ['<strong style="font-weight:700;">2x1</strong>', '<strong style="font-weight:700;">$499.90</strong>'],
+                        e($hero->badge_text ?? '2x1 en todos los lentes · $499.90 c/u')
                     ) !!}
                 </div>
                 @endif
 
                 {{-- Subtítulo --}}
-                @if($hero->subtitle)
-                <p style="font-size:16px;color:rgba(255,255,255,0.48);line-height:1.65;margin-bottom:32px;max-width:440px;animation:hFadeUp .7s ease .25s both;">
-                    {{ $hero->subtitle }}
+                <p class="h-anim-4" style="font-size:15px;color:#6b7280;line-height:1.65;margin-bottom:28px;max-width:400px;">
+                    {{ $hero->subtitle ?? 'Con o sin graduación. Filtro de luz azul de alta eficiencia en todos los modelos.' }}
                 </p>
-                @endif
 
                 {{-- Botones --}}
-                <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:32px;animation:hFadeUp .7s ease .3s both;">
-                    <a href="{{ $hero->btn_primary_url }}"
-                       style="background:#378ADD;color:#fff;border-radius:8px;padding:14px 30px;font-size:15px;font-weight:500;text-decoration:none;display:inline-block;transition:background .2s,transform .15s;"
-                       onmouseover="this.style.background='#185FA5';this.style.transform='translateY(-1px)'"
-                       onmouseout="this.style.background='#378ADD';this.style.transform='translateY(0)'">
-                        {{ $hero->btn_primary_text }} &rarr;
+                <div class="h-anim-5" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px;">
+                    <a href="{{ $hero->btn_primary_url ?? '/lentes' }}" class="h-btn-dark">
+                        {{ $hero->btn_primary_text ?? 'Ver lentes' }} →
                     </a>
-                    <a href="{{ $hero->btn_secondary_url }}"
-                       style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.18);border-radius:8px;padding:14px 30px;font-size:15px;text-decoration:none;display:inline-block;transition:all .2s;"
-                       onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.borderColor='rgba(255,255,255,0.35)'"
-                       onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.borderColor='rgba(255,255,255,0.18)'">
-                        {{ $hero->btn_secondary_text }}
+                    <a href="{{ $hero->btn_secondary_url ?? '/que-es-la-luz-azul' }}" class="h-btn-outline">
+                        {{ $hero->btn_secondary_text ?? '¿Qué es la luz azul?' }}
                     </a>
                 </div>
 
-                {{-- Trust badges --}}
-                @php $trustItems = $hero->trust_items ?? []; @endphp
-                @if(count($trustItems) > 0)
-                <div style="display:flex;gap:20px;flex-wrap:wrap;animation:hFadeUp .7s ease .4s both;">
+                {{-- Trust items --}}
+                @php
+                    $trustItems = $hero->trust_items ?? ['Envío gratis +$999', 'Garantía 6 meses', '30 días devolución'];
+                @endphp
+                <div class="h-anim-6" style="display:flex;gap:16px;flex-wrap:wrap;">
                     @foreach($trustItems as $item)
-                    <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:rgba(255,255,255,0.3);">
-                        <span style="color:#378ADD;font-size:10px;">&#10003;</span>
+                    <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:#9ca3af;">
+                        <span style="color:#22c55e;font-size:11px;">✓</span>
                         {{ $item }}
                     </div>
                     @endforeach
                 </div>
+
+            </div>
+
+            {{-- COLUMNA DERECHA: Imagen del producto --}}
+            <div class="h-split-right h-img-anim" style="position:relative;overflow:hidden;background:linear-gradient(135deg,#e0f2fe 0%,#dbeafe 50%,#ede9fe 100%);min-height:580px;">
+
+                @if($heroProduct && $heroProduct->featured_image)
+                <img src="{{ asset('storage/'.$heroProduct->featured_image) }}"
+                     alt="{{ $heroProduct->name }} nuvion glass filtro luz azul"
+                     style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;padding:40px;transition:transform .4s ease;"
+                     onmouseover="this.style.transform='scale(1.03)'"
+                     onmouseout="this.style.transform='scale(1)'">
+                @else
+                {{-- Fallback si no hay imagen --}}
+                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+                    <div style="width:220px;height:110px;border:4px solid rgba(13,17,23,0.15);border-radius:50%;position:relative;">
+                        <div style="position:absolute;inset:12px;border-radius:50%;background:linear-gradient(135deg,rgba(56,130,221,0.15),rgba(139,92,246,0.1));"></div>
+                    </div>
+                </div>
                 @endif
+
+                {{-- Float badges --}}
+                <div class="h-float-badge h-float-anim" style="top:14%;left:6%;">
+                    <div class="h-float-num">{{ $hero->stat1_number ?? '2x1' }}</div>
+                    <div class="h-float-lbl">{{ $hero->stat1_label ?? 'combinables' }}</div>
+                </div>
+                <div class="h-float-badge h-float-anim" style="bottom:20%;right:8%;">
+                    <div class="h-float-num">{{ $hero->stat2_number ?? '6' }}</div>
+                    <div class="h-float-lbl">{{ $hero->stat2_label ?? 'modelos' }}</div>
+                </div>
+                <div class="h-float-badge h-float-anim" style="top:52%;left:5%;">
+                    <div class="h-float-num">7+</div>
+                    <div class="h-float-lbl">colores</div>
+                </div>
+
+                {{-- Nombre del producto --}}
+                @if($heroProduct)
+                <div style="position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.9);backdrop-filter:blur(8px);border-radius:20px;padding:6px 16px;font-size:12px;color:#374151;white-space:nowrap;border:0.5px solid rgba(0,0,0,0.06);">
+                    {{ $heroProduct->name }} · con filtro luz azul
+                </div>
+                @endif
+            </div>
+        </div>
+
+        {{-- Trust bar inferior --}}
+        <div class="h-trust-bar">
+            <div class="h-trust-item">
+                <div class="h-trust-icon">
+                    <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                        <path d="M2 5.5l2.5 2.5L9 3" stroke="#378ADD" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                Filtro luz azul certificado
+            </div>
+            <div class="h-trust-item">
+                <div class="h-trust-icon">📦</div>
+                Envío gratis +$999
+            </div>
+            <div class="h-trust-item">
+                <div class="h-trust-icon">↩</div>
+                30 días devolución
+            </div>
+            <div class="h-trust-item">
+                <div class="h-trust-icon">★</div>
+                Garantía 6 meses
+            </div>
+        </div>
+    </section>
+
+    @else
+    {{-- ===== MODO B: VIDEO FULL WIDTH ===== --}}
+    <section style="position:relative;min-height:100vh;min-height:100svh;max-height:900px;overflow:hidden;background:#f9fafb;">
+
+        {{-- Video de fondo --}}
+        @php
+            $vp = $hero->video_position ?? 50;
+            $translateX = round(($vp - 50) * -0.4, 1);
+        @endphp
+        <video autoplay muted loop playsinline preload="metadata"
+               style="position:absolute;inset:0;width:120%;height:100%;object-fit:cover;transform:translateX({{ $translateX }}%);">
+            <source src="{{ asset('storage/'.$hero->media_path) }}" type="video/mp4">
+        </video>
+
+        {{-- Overlay claro de izquierda a derecha --}}
+        @php
+            $op = $hero->overlay_opacity ?? 0.55;
+        @endphp
+        <div style="position:absolute;inset:0;background:linear-gradient(to right,rgba(255,255,255,{{ round(0.5 + $op * 0.5, 2) }}) 0%,rgba(255,255,255,{{ round(0.4 + $op * 0.48, 2) }}) 30%,rgba(255,255,255,{{ round($op * 0.67, 2) }}) 55%,rgba(255,255,255,{{ round($op * 0.17, 2) }}) 80%,rgba(255,255,255,0.0) 100%);pointer-events:none;"></div>
+
+        {{-- Contenido --}}
+        <div style="position:relative;z-index:2;width:100%;max-width:1200px;margin:0 auto;padding:0 6%;min-height:inherit;display:flex;align-items:center;">
+            <div style="max-width:580px;padding:80px 0;">
+
+                {{-- Eyebrow --}}
+                <div class="h-anim-1" style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#378ADD;font-weight:500;margin-bottom:14px;">
+                    {{ $hero->eyebrow_text ?? 'nuvion glass · protección visual' }}
+                </div>
+
+                {{-- Título --}}
+                @php
+                    $t1 = $hero->title_line1 ?? 'Tus ojos merecen';
+                    $t2 = $hero->title_line2 ?? 'protección';
+                    $t3 = $hero->title_line3 ?? 'real';
+                    $hl = $hero->title_highlight_word ?? 'real';
+                @endphp
+                <h1 class="h-anim-2" style="font-size:clamp(36px,5vw,62px);font-weight:800;color:#0d1117;line-height:1.04;letter-spacing:-.025em;margin-bottom:20px;font-family:'Bai Jamjuree',sans-serif;">
+                    {{ $t1 }}<br>{{ $t2 }}<br>
+                    @if($hl && str_contains($t3, $hl))
+                        {!! str_replace($hl, '<span style="color:#378ADD;">'.$hl.'</span>', e($t3)) !!}
+                    @else
+                        {{ $t3 }}
+                    @endif
+                </h1>
+
+                {{-- Badge 2x1 --}}
+                <div class="h-anim-3" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.85);border:1px solid #BFDBFE;border-radius:8px;padding:9px 16px;font-size:13px;color:#1e40af;margin-bottom:20px;backdrop-filter:blur(4px);width:fit-content;">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <rect x="1" y="3.5" width="12" height="9" rx="1.5" stroke="#1e40af" stroke-width="1.2"/>
+                        <path d="M5 3.5V3a2 2 0 014 0v.5" stroke="#1e40af" stroke-width="1.2"/>
+                    </svg>
+                    {!! str_replace(
+                        ['2x1', '$499.90'],
+                        ['<strong>2x1</strong>', '<strong>$499.90</strong>'],
+                        e($hero->badge_text ?? '2x1 en todos los lentes · $499.90 c/u')
+                    ) !!}
+                </div>
+
+                {{-- Subtítulo --}}
+                <p class="h-anim-4" style="font-size:16px;color:#4b5563;line-height:1.65;margin-bottom:30px;max-width:420px;">
+                    {{ $hero->subtitle ?? 'Con o sin graduación. Filtro de luz azul de alta eficiencia.' }}
+                </p>
+
+                {{-- Botones --}}
+                <div class="h-anim-5" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px;">
+                    <a href="{{ $hero->btn_primary_url ?? '/lentes' }}" class="h-btn-dark">
+                        {{ $hero->btn_primary_text ?? 'Ver lentes' }} →
+                    </a>
+                    <a href="{{ $hero->btn_secondary_url ?? '/que-es-la-luz-azul' }}" class="h-btn-outline">
+                        {{ $hero->btn_secondary_text ?? '¿Qué es la luz azul?' }}
+                    </a>
+                </div>
+
+                {{-- Trust items --}}
+                @php
+                    $trustItems = $hero->trust_items ?? ['Envío gratis +$999', 'Garantía 6 meses', '30 días devolución'];
+                @endphp
+                <div class="h-anim-6" style="display:flex;gap:16px;flex-wrap:wrap;">
+                    @foreach($trustItems as $item)
+                    <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:#6b7280;">
+                        <span style="color:#22c55e;font-size:11px;">✓</span>
+                        {{ $item }}
+                    </div>
+                    @endforeach
+                </div>
 
             </div>
         </div>
 
-        {{-- CAPA 5: STATS FLOTANTES --}}
-        @if($hero->stat1_number)
-        <div class="hero-stat" style="position:absolute;right:clamp(20px,8%,80px);top:clamp(80px,22%,160px);z-index:3;background:rgba(255,255,255,0.05);border:0.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 20px;backdrop-filter:blur(10px);animation:hFadeUp .8s ease .5s both;">
-            <div style="font-size:26px;font-weight:700;color:#fff;line-height:1;">{{ $hero->stat1_number }}</div>
-            <div style="font-size:11px;margin-top:4px;color:rgba(255,255,255,0.35);">{{ $hero->stat1_label }}</div>
+        {{-- Trust bar sobre el borde inferior --}}
+        <div style="position:absolute;bottom:0;left:0;right:0;z-index:3;">
+            <div class="h-trust-bar" style="background:rgba(255,255,255,0.92);backdrop-filter:blur(8px);border-top:1px solid rgba(0,0,0,0.06);">
+                <div class="h-trust-item">
+                    <div class="h-trust-icon">✓</div>
+                    Filtro certificado
+                </div>
+                <div class="h-trust-item">
+                    <div class="h-trust-icon">📦</div>
+                    Envío gratis +$999
+                </div>
+                <div class="h-trust-item">
+                    <div class="h-trust-icon">↩</div>
+                    30 días devolución
+                </div>
+                <div class="h-trust-item">
+                    <div class="h-trust-icon">★</div>
+                    Garantía 6 meses
+                </div>
+            </div>
         </div>
-        @endif
-
-        @if($hero->stat2_number)
-        <div class="hero-stat" style="position:absolute;right:clamp(20px,5%,50px);bottom:clamp(80px,28%,200px);z-index:3;background:rgba(255,255,255,0.05);border:0.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 20px;backdrop-filter:blur(10px);animation:hFadeUp .8s ease .65s both;">
-            <div style="font-size:26px;font-weight:700;color:#fff;line-height:1;">{{ $hero->stat2_number }}</div>
-            <div style="font-size:11px;margin-top:4px;color:rgba(255,255,255,0.35);">{{ $hero->stat2_label }}</div>
-        </div>
-        @endif
-
-        {{-- Indicador de scroll --}}
-        <div style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:3;display:flex;flex-direction:column;align-items:center;gap:6px;animation:hFadeUp 1s ease 1s both;">
-            <div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,0.18);">Scroll</div>
-            <div style="width:1px;height:40px;background:linear-gradient(to bottom,rgba(255,255,255,0.2),transparent);"></div>
-        </div>
-
     </section>
+    @endif
 
     {{-- ============================================================
          2. TARJETAS DE CATEGORÍA

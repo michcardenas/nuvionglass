@@ -35,8 +35,8 @@ class AdminHeroController extends Controller
             $data['media_path'] = $file->store('hero', 'public');
         }
 
-        // If "use gradient" checkbox was checked, remove media and switch to gradient
-        if ($request->use_gradient) {
+        // If "use gradient" checkbox was checked OR radio set to gradient, remove media
+        if ($request->use_gradient || ($request->media_mode === 'gradient' && !$request->hasFile('media_file'))) {
             if ($hero->media_path) {
                 Storage::disk('public')->delete($hero->media_path);
             }
