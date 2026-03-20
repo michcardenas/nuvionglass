@@ -63,6 +63,22 @@ Route::post('/quiz/resultado', [LandingController::class, 'quizResult'])->name('
 // SEO
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
+// Serve storage files (fallback when symlink doesn't work on shared hosting)
+Route::get('/storage/{path}', function (string $path) {
+    $fullPath = storage_path('app/public/' . $path);
+
+    if (!file_exists($fullPath)) {
+        abort(404);
+    }
+
+    $mime = mime_content_type($fullPath);
+
+    return response()->file($fullPath, [
+        'Content-Type' => $mime,
+        'Cache-Control' => 'public, max-age=31536000',
+    ]);
+})->where('path', '.*')->name('storage.serve');
+
 /*
 |--------------------------------------------------------------------------
 | Admin Authentication (outside admin middleware group)
