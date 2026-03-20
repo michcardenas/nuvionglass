@@ -31,9 +31,17 @@ class BlogAdminController extends Controller
             'content' => 'required|string',
             'excerpt' => 'nullable|string|max:500',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'meta_title' => 'nullable|string|max:255',
-            'meta_description' => 'nullable|string|max:500',
+            'featured_image_alt' => 'nullable|string|max:255',
+            'meta_title' => 'nullable|string|max:60',
+            'meta_description' => 'nullable|string|max:160',
+            'focus_keyword' => 'nullable|string|max:255',
+            'canonical_url' => 'nullable|url|max:500',
+            'og_title' => 'nullable|string|max:255',
+            'og_description' => 'nullable|string|max:500',
+            'status' => 'required|in:draft,published,archived',
             'published_at' => 'nullable|date',
+            'author_name' => 'nullable|string|max:255',
+            'schema_type' => 'nullable|in:Article,BlogPosting,NewsArticle',
         ]);
 
         $validated['slug'] = Str::slug($validated['title']);
@@ -41,6 +49,14 @@ class BlogAdminController extends Controller
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('blog', 'public');
         }
+
+        // Auto-set published_at if publishing and no date set
+        if ($validated['status'] === 'published' && empty($validated['published_at'])) {
+            $validated['published_at'] = now();
+        }
+
+        $validated['author_name'] = $validated['author_name'] ?: 'nuvion glass';
+        $validated['schema_type'] = $validated['schema_type'] ?: 'BlogPosting';
 
         BlogPost::create($validated);
 
@@ -65,9 +81,17 @@ class BlogAdminController extends Controller
             'content' => 'required|string',
             'excerpt' => 'nullable|string|max:500',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'meta_title' => 'nullable|string|max:255',
-            'meta_description' => 'nullable|string|max:500',
+            'featured_image_alt' => 'nullable|string|max:255',
+            'meta_title' => 'nullable|string|max:60',
+            'meta_description' => 'nullable|string|max:160',
+            'focus_keyword' => 'nullable|string|max:255',
+            'canonical_url' => 'nullable|url|max:500',
+            'og_title' => 'nullable|string|max:255',
+            'og_description' => 'nullable|string|max:500',
+            'status' => 'required|in:draft,published,archived',
             'published_at' => 'nullable|date',
+            'author_name' => 'nullable|string|max:255',
+            'schema_type' => 'nullable|in:Article,BlogPosting,NewsArticle',
         ]);
 
         $validated['slug'] = Str::slug($validated['title']);
@@ -78,6 +102,14 @@ class BlogAdminController extends Controller
             }
             $validated['image'] = $request->file('image')->store('blog', 'public');
         }
+
+        // Auto-set published_at if publishing for the first time
+        if ($validated['status'] === 'published' && empty($validated['published_at']) && ! $blog->published_at) {
+            $validated['published_at'] = now();
+        }
+
+        $validated['author_name'] = $validated['author_name'] ?: 'nuvion glass';
+        $validated['schema_type'] = $validated['schema_type'] ?: 'BlogPosting';
 
         $blog->update($validated);
 

@@ -51,9 +51,26 @@
 
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 class="text-lg font-semibold text-gray-800 mb-4">Imagen *</h2>
+
+            <div class="mb-4 p-4 rounded-lg border border-blue-200 bg-blue-50">
+                <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/>
+                    </svg>
+                    <div>
+                        <p class="text-sm font-medium text-blue-800">Tamaño recomendado</p>
+                        <p class="text-sm text-blue-700 mt-1">
+                            <strong>1280 × 720 px</strong> (proporción 16:9, horizontal).
+                            Para pantallas retina usa <strong>1920 × 1080 px</strong>.
+                        </p>
+                        <p class="text-xs text-blue-600 mt-1">La infografía se muestra en un contenedor 16:9. Imágenes verticales o cuadradas se recortarán automáticamente y no se verán bien.</p>
+                    </div>
+                </div>
+            </div>
+
             <input type="file" name="image" accept="image/*" required
                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-            <p class="mt-2 text-xs text-gray-400">JPG, PNG o WebP. Máximo 4MB. Recomendado: formato horizontal 16:9.</p>
+            <p class="mt-2 text-xs text-gray-400">JPG, PNG o WebP. Máximo 4MB.</p>
         </div>
 
         <div class="flex items-center justify-end space-x-3">

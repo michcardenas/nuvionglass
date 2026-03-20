@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ShippingSetting;
 use App\Services\CartService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -16,24 +17,9 @@ class CartController extends Controller
 
     public function index(): View
     {
-        $items = $this->cart->getItems();
-        $itemsJson = $items->map(fn ($item) => [
-            'key' => $item['key'],
-            'name' => $item['product']->name,
-            'slug' => $item['product']->slug,
-            'image' => $item['product']->images[0] ?? null,
-            'variant' => $item['variant']?->value,
-            'qty' => $item['qty'],
-            'unit_price' => $item['unit_price'],
-            'total' => $item['total'],
-        ])->values();
+        $data = $this->cartData();
 
-        return view('storefront.cart', [
-            'itemsJson' => $itemsJson,
-            'subtotal' => $this->cart->getSubtotal(),
-            'shipping' => $this->cart->getShipping(),
-            'total' => $this->cart->getTotal(),
-        ]);
+        return view('storefront.cart', $data);
     }
 
     public function add(Request $request): RedirectResponse|JsonResponse
@@ -51,25 +37,10 @@ class CartController extends Controller
         );
 
         if ($request->expectsJson()) {
-            $items = $this->cart->getItems();
-
-            return response()->json([
-                'message' => 'Producto agregado al carrito.',
-                'cart_count' => $this->cart->count(),
-                'items' => $items->map(fn ($item) => [
-                    'key' => $item['key'],
-                    'name' => $item['product']->name,
-                    'slug' => $item['product']->slug,
-                    'image' => $item['product']->images[0] ?? null,
-                    'variant' => $item['variant']?->value,
-                    'qty' => $item['qty'],
-                    'unit_price' => $item['unit_price'],
-                    'total' => $item['total'],
-                ]),
-                'subtotal' => $this->cart->getSubtotal(),
-                'shipping' => $this->cart->getShipping(),
-                'total' => $this->cart->getTotal(),
-            ]);
+            return response()->json(array_merge(
+                ['message' => 'Producto agregado al carrito.'],
+                $this->cartData(),
+            ));
         }
 
         return redirect()->route('cart.index')
@@ -85,24 +56,7 @@ class CartController extends Controller
         $this->cart->update($itemId, $validated['qty']);
 
         if ($request->expectsJson()) {
-            $items = $this->cart->getItems();
-
-            return response()->json([
-                'cart_count' => $this->cart->count(),
-                'items' => $items->map(fn ($item) => [
-                    'key' => $item['key'],
-                    'name' => $item['product']->name,
-                    'slug' => $item['product']->slug,
-                    'image' => $item['product']->images[0] ?? null,
-                    'variant' => $item['variant']?->value,
-                    'qty' => $item['qty'],
-                    'unit_price' => $item['unit_price'],
-                    'total' => $item['total'],
-                ]),
-                'subtotal' => $this->cart->getSubtotal(),
-                'shipping' => $this->cart->getShipping(),
-                'total' => $this->cart->getTotal(),
-            ]);
+            return response()->json($this->cartData());
         }
 
         return redirect()->route('cart.index');
@@ -113,27 +67,50 @@ class CartController extends Controller
         $this->cart->remove($itemId);
 
         if (request()->expectsJson()) {
-            $items = $this->cart->getItems();
-
-            return response()->json([
-                'cart_count' => $this->cart->count(),
-                'items' => $items->map(fn ($item) => [
-                    'key' => $item['key'],
-                    'name' => $item['product']->name,
-                    'slug' => $item['product']->slug,
-                    'image' => $item['product']->images[0] ?? null,
-                    'variant' => $item['variant']?->value,
-                    'qty' => $item['qty'],
-                    'unit_price' => $item['unit_price'],
-                    'total' => $item['total'],
-                ]),
-                'subtotal' => $this->cart->getSubtotal(),
-                'shipping' => $this->cart->getShipping(),
-                'total' => $this->cart->getTotal(),
-            ]);
+            return response()->json($this->cartData());
         }
 
         return redirect()->route('cart.index')
             ->with('success', 'Producto eliminado del carrito.');
+    }
+
+    /**
+     * Build the full cart data array (used by JSON responses and the cart page view).
+     */
+    private function cartData(): array
+    {
+        $items = $this->cart->getItems();
+        $promo = $this->cart->calculate2x1();
+        $subtotal = $this->cart->getSubtotal();
+        $discount = $promo['discount'];
+        $subtotalConDescuento = $subtotal - $discount;
+
+        $threshold = (float) ShippingSetting::get('free_shipping_threshold', 999);
+        $defaultShipping = (float) ShippingSetting::get('default_price', 99.00);
+        $shipping = ($threshold > 0 && $subtotalConDescuento >= $threshold) ? 0 : $defaultShipping;
+
+        $total = $subtotalConDescuento + $shipping;
+
+        return [
+            'cart_count' => $this->cart->count(),
+            'items' => $items->map(fn ($item) => [
+                'key' => $item['key'],
+                'name' => $item['product']->name,
+                'slug' => $item['product']->slug,
+                'image' => $item['product']->images[0] ?? null,
+                'variant' => $item['variant']
+                    ? trim(($item['variant']->color ?? $item['variant']->value) . ' ' . ($item['variant']->graduation ?? ''))
+                    : null,
+                'type' => $item['product']->type,
+                'qty' => $item['qty'],
+                'unit_price' => $item['unit_price'],
+                'total' => $item['total'],
+            ])->values(),
+            'subtotal' => $subtotal,
+            'discount_2x1' => $discount,
+            'free_items' => $promo['free_items'],
+            'shipping' => $shipping,
+            'total' => $total,
+        ];
     }
 }

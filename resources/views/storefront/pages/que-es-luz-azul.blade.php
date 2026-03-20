@@ -384,7 +384,246 @@
     </section>
 
     {{-- ============================================================
-         7. CTA FINAL
+         7. TOGGLE COMPARATIVO + MÉTRICAS DE IMPACTO
+    ============================================================= --}}
+    <section class="py-20 md:py-28 bg-bg overflow-hidden">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            {{-- Header --}}
+            <div class="text-center reveal">
+                <span class="inline-block text-xs font-bold uppercase tracking-widest text-secondary mb-4">Compara la diferencia</span>
+                <h2 class="font-brand text-3xl md:text-4xl font-bold text-text leading-tight">
+                    ¿Qué pasa con tus ojos sin protección?
+                </h2>
+            </div>
+
+            {{-- Toggle + Panel --}}
+            <div class="mt-12 max-w-xl mx-auto reveal delay-150" id="compare-toggle-wrap">
+
+                {{-- Toggle buttons --}}
+                <div class="flex rounded-xl overflow-hidden border border-white/10" role="tablist">
+                    <button id="toggle-btn-off" role="tab" aria-selected="true" aria-controls="panel-off"
+                            class="flex-1 py-3.5 px-4 text-sm font-bold uppercase tracking-wide text-center transition-all duration-250"
+                            style="background:#1a3a6e;color:#7cb3f4;border-right:1px solid rgba(255,255,255,0.1);">
+                        Sin filtro
+                    </button>
+                    <button id="toggle-btn-on" role="tab" aria-selected="false" aria-controls="panel-on"
+                            class="flex-1 py-3.5 px-4 text-sm font-bold uppercase tracking-wide text-center transition-all duration-250"
+                            style="background:transparent;color:rgba(255,255,255,0.35);">
+                        Con nuvion glass
+                    </button>
+                </div>
+
+                {{-- Panels container --}}
+                <div class="relative mt-4" style="min-height:200px;">
+
+                    {{-- Panel: Sin filtro --}}
+                    <div id="panel-off" role="tabpanel"
+                         class="rounded-xl p-6 transition-all duration-250"
+                         style="background:rgba(26,58,110,0.15);border:1px solid rgba(59,130,246,0.2);opacity:1;transform:translateY(0);">
+                        <ul class="space-y-4">
+                            @foreach([
+                                'Fatiga visual constante',
+                                'Ojos secos e irritados',
+                                'Insomnio digital por supresión de melatonina',
+                                'Dolores de cabeza frecuentes',
+                            ] as $item)
+                                <li class="flex items-center gap-3 text-sm text-text/70">
+                                    <span class="flex-shrink-0 w-6 h-6 rounded-full bg-red-500/15 flex items-center justify-center">
+                                        <svg class="w-3.5 h-3.5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                                        </svg>
+                                    </span>
+                                    {{ $item }}
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+
+                    {{-- Panel: Con nuvion glass --}}
+                    <div id="panel-on" role="tabpanel"
+                         class="absolute inset-0 rounded-xl p-6 transition-all duration-250"
+                         style="background:rgba(23,52,4,0.15);border:1px solid rgba(52,211,153,0.2);opacity:0;transform:translateY(6px);pointer-events:none;">
+                        <ul class="space-y-4">
+                            @foreach([
+                                'Descanso visual prolongado frente a pantallas',
+                                'Ojos hidratados y cómodos todo el día',
+                                'Mejor calidad y duración del sueño',
+                                'Sin cefaleas relacionadas con pantallas',
+                            ] as $item)
+                                <li class="flex items-center gap-3 text-sm text-text/70">
+                                    <span class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/15 flex items-center justify-center">
+                                        <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                    </span>
+                                    {{ $item }}
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Metrics grid --}}
+            <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto reveal delay-300">
+                {{-- Card 1: problema --}}
+                <div class="metric-card metric-red rounded-xl p-5 transition-all duration-300"
+                     style="border:1px solid rgba(239,68,68,0.5);background:rgba(239,68,68,0.06);box-shadow:0 0 15px rgba(239,68,68,0.25),inset 0 0 15px rgba(239,68,68,0.05);">
+                    <span class="block font-brand text-4xl font-bold text-red-400">66%</span>
+                    <p class="mt-1 text-sm text-white/70 leading-snug">menos parpadeos frente a pantalla</p>
+                    <span class="inline-block mt-2 text-[11px] font-semibold uppercase tracking-wider text-red-400">sin protección</span>
+                </div>
+
+                {{-- Card 2: solución --}}
+                <div class="metric-card metric-green rounded-xl p-5 transition-all duration-300"
+                     style="border:1px solid rgba(52,211,153,0.1);background:transparent;box-shadow:none;">
+                    <span class="block font-brand text-4xl font-bold text-emerald-400/30">3h</span>
+                    <p class="mt-1 text-sm text-white/20 leading-snug">más de sueño profundo recuperado</p>
+                    <span class="inline-block mt-2 text-[11px] font-semibold uppercase tracking-wider text-emerald-400/20">con nuvion glass</span>
+                </div>
+
+                {{-- Card 3: problema --}}
+                <div class="metric-card metric-red rounded-xl p-5 transition-all duration-300"
+                     style="border:1px solid rgba(239,68,68,0.5);background:rgba(239,68,68,0.06);box-shadow:0 0 15px rgba(239,68,68,0.25),inset 0 0 15px rgba(239,68,68,0.05);">
+                    <span class="block font-brand text-4xl font-bold text-red-400">90%</span>
+                    <p class="mt-1 text-sm text-white/70 leading-snug">de usuarios con fatiga visual digital</p>
+                    <span class="inline-block mt-2 text-[11px] font-semibold uppercase tracking-wider text-red-400">tras 2h de pantalla sin filtro</span>
+                </div>
+
+                {{-- Card 4: solución --}}
+                <div class="metric-card metric-green rounded-xl p-5 transition-all duration-300"
+                     style="border:1px solid rgba(52,211,153,0.1);background:transparent;box-shadow:none;">
+                    <span class="block font-brand text-4xl font-bold text-emerald-400/30">40%</span>
+                    <p class="mt-1 text-sm text-white/20 leading-snug">reducción de fatiga ocular reportada</p>
+                    <span class="inline-block mt-2 text-[11px] font-semibold uppercase tracking-wider text-emerald-400/20">con filtro de luz azul activo</span>
+                </div>
+            </div>
+
+            {{-- Sources --}}
+            <p class="mt-5 text-center text-[11px] text-text/25 max-w-2xl mx-auto reveal delay-450">
+                Fuentes: Vision Council, Harvard Health Publishing, American Journal of Ophthalmology
+            </p>
+
+            {{-- CTA --}}
+            <div class="mt-10 text-center reveal delay-450">
+                <a href="{{ route('products.index') }}"
+                   class="inline-flex items-center justify-center bg-secondary hover:bg-secondary/90 text-white px-8 py-3.5 rounded-lg font-bold transition-colors shadow-lg">
+                    Ver lentes nuvion glass
+                </a>
+            </div>
+        </div>
+    </section>
+
+    {{-- Toggle script (vanilla JS) --}}
+    <script>
+    (function() {
+        var btnOff = document.getElementById('toggle-btn-off');
+        var btnOn = document.getElementById('toggle-btn-on');
+        var panelOff = document.getElementById('panel-off');
+        var panelOn = document.getElementById('panel-on');
+        if (!btnOff || !btnOn || !panelOff || !panelOn) return;
+
+        var redCards = document.querySelectorAll('.metric-red');
+        var greenCards = document.querySelectorAll('.metric-green');
+
+        var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var dur = reducedMotion ? '0ms' : '250ms';
+        panelOff.style.transitionDuration = dur;
+        panelOn.style.transitionDuration = dur;
+
+        function setCards(activeColor) {
+            redCards.forEach(function(c) {
+                var num = c.querySelector('.font-brand');
+                var desc = c.querySelector('p');
+                var label = c.querySelector('span:last-child');
+                if (activeColor === 'red') {
+                    c.style.borderColor = 'rgba(239,68,68,0.5)';
+                    c.style.background = 'rgba(239,68,68,0.06)';
+                    c.style.boxShadow = '0 0 15px rgba(239,68,68,0.25), inset 0 0 15px rgba(239,68,68,0.05)';
+                    if (num) num.style.color = '#f87171';
+                    if (desc) desc.style.color = 'rgba(255,255,255,0.7)';
+                    if (label) label.style.color = '#f87171';
+                } else {
+                    c.style.borderColor = 'rgba(239,68,68,0.1)';
+                    c.style.background = 'transparent';
+                    c.style.boxShadow = 'none';
+                    if (num) num.style.color = 'rgba(248,113,113,0.3)';
+                    if (desc) desc.style.color = 'rgba(255,255,255,0.2)';
+                    if (label) label.style.color = 'rgba(248,113,113,0.2)';
+                }
+            });
+            greenCards.forEach(function(c) {
+                var num = c.querySelector('.font-brand');
+                var desc = c.querySelector('p');
+                var label = c.querySelector('span:last-child');
+                if (activeColor === 'green') {
+                    c.style.borderColor = 'rgba(52,211,153,0.6)';
+                    c.style.background = 'rgba(16,185,129,0.1)';
+                    c.style.boxShadow = '0 0 20px rgba(52,211,153,0.35), 0 0 40px rgba(52,211,153,0.15), inset 0 0 20px rgba(52,211,153,0.08)';
+                    if (num) num.style.color = '#6ee7b7';
+                    if (desc) desc.style.color = 'rgba(255,255,255,0.7)';
+                    if (label) label.style.color = '#6ee7b7';
+                } else {
+                    c.style.borderColor = 'rgba(52,211,153,0.1)';
+                    c.style.background = 'transparent';
+                    c.style.boxShadow = 'none';
+                    if (num) num.style.color = 'rgba(52,211,153,0.3)';
+                    if (desc) desc.style.color = 'rgba(255,255,255,0.2)';
+                    if (label) label.style.color = 'rgba(52,211,153,0.2)';
+                }
+            });
+        }
+
+        function activate(which) {
+            if (which === 'off') {
+                btnOff.style.background = '#1a3a6e';
+                btnOff.style.color = '#7cb3f4';
+                btnOff.setAttribute('aria-selected', 'true');
+                btnOn.style.background = 'transparent';
+                btnOn.style.color = 'rgba(255,255,255,0.35)';
+                btnOn.setAttribute('aria-selected', 'false');
+
+                panelOff.style.opacity = '1';
+                panelOff.style.transform = 'translateY(0)';
+                panelOff.style.pointerEvents = 'auto';
+                panelOff.style.position = 'relative';
+
+                panelOn.style.opacity = '0';
+                panelOn.style.transform = 'translateY(6px)';
+                panelOn.style.pointerEvents = 'none';
+                panelOn.style.position = 'absolute';
+
+                setCards('red');
+            } else {
+                btnOn.style.background = '#173404';
+                btnOn.style.color = '#86efac';
+                btnOn.setAttribute('aria-selected', 'true');
+                btnOff.style.background = 'transparent';
+                btnOff.style.color = 'rgba(255,255,255,0.35)';
+                btnOff.setAttribute('aria-selected', 'false');
+
+                panelOn.style.opacity = '1';
+                panelOn.style.transform = 'translateY(0)';
+                panelOn.style.pointerEvents = 'auto';
+                panelOn.style.position = 'relative';
+
+                panelOff.style.opacity = '0';
+                panelOff.style.transform = 'translateY(6px)';
+                panelOff.style.pointerEvents = 'none';
+                panelOff.style.position = 'absolute';
+
+                setCards('green');
+            }
+        }
+
+        btnOff.addEventListener('click', function() { activate('off'); });
+        btnOn.addEventListener('click', function() { activate('on'); });
+    })();
+    </script>
+
+    {{-- ============================================================
+         8. CTA FINAL
     ============================================================= --}}
     <section class="relative overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-r from-primary to-secondary"></div>
@@ -399,14 +638,10 @@
                 Elige los lentes que cuidan tu vista sin sacrificar estilo.
                 Con o sin graduación.
             </p>
-            <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 reveal delay-300">
+            <div class="mt-8 reveal delay-300">
                 <a href="{{ route('products.index') }}"
                    class="inline-flex items-center justify-center bg-white text-primary hover:bg-white/90 px-8 py-3.5 rounded-lg font-bold text-lg transition-colors shadow-lg">
                     Ver nuestros lentes
-                </a>
-                <a href="{{ route('home') }}#quiz"
-                   class="inline-flex items-center justify-center border-2 border-white/30 text-white hover:bg-white/10 px-8 py-3.5 rounded-lg font-medium transition-colors">
-                    Hacer el quiz
                 </a>
             </div>
         </div>

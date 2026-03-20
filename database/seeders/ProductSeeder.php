@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Database\Seeder;
@@ -10,131 +11,243 @@ class ProductSeeder extends Seeder
 {
     public function run(): void
     {
-        $products = [
-            // --- Sin Graduación (category_id: 1) ---
-            [
-                'category_id' => 1,
-                'name' => 'nuvion Classic',
-                'slug' => 'nuvion-classic',
-                'description' => 'Nuestro modelo insignia. Diseño minimalista y elegante con filtro de luz azul de alta eficiencia. Marco ultraligero de TR-90 que apenas sentirás. Perfecto para uso diario frente a pantallas.',
-                'price' => 899.00,
-                'compare_price' => 1299.00,
-                'stock' => 150,
-                'images' => [],
-                'meta_title' => 'nuvion Classic — Lentes Anti Luz Azul',
-                'meta_description' => 'Protege tus ojos con nuvion Classic. Filtro de luz azul premium en un diseño minimalista y ultraligero.',
-                'is_active' => true,
-                'is_featured' => true,
-                'variants' => [
-                    ['name' => 'Color', 'value' => 'Negro Mate', 'price_modifier' => 0, 'stock' => 50],
-                    ['name' => 'Color', 'value' => 'Azul Oscuro', 'price_modifier' => 0, 'stock' => 50],
-                    ['name' => 'Color', 'value' => 'Transparente', 'price_modifier' => 100.00, 'stock' => 50],
-                ],
-            ],
-            [
-                'category_id' => 1,
-                'name' => 'nuvion Aura',
-                'slug' => 'nuvion-aura',
-                'description' => 'Estilo redondo contemporáneo con filtro avanzado de luz azul. Ideal para quienes buscan un look sofisticado sin sacrificar la protección ocular. Bisagras flex para mayor comodidad.',
-                'price' => 999.00,
-                'compare_price' => 1399.00,
-                'stock' => 100,
-                'images' => [],
-                'meta_title' => 'nuvion Aura — Lentes Redondos Anti Luz Azul',
-                'meta_description' => 'Estilo redondo y protección premium. nuvion Aura filtra la luz azul dañina con un diseño sofisticado.',
-                'is_active' => true,
-                'is_featured' => true,
-                'variants' => [
-                    ['name' => 'Color', 'value' => 'Dorado', 'price_modifier' => 0, 'stock' => 50],
-                    ['name' => 'Color', 'value' => 'Plateado', 'price_modifier' => 0, 'stock' => 50],
-                ],
-            ],
+        // Ensure categories exist
+        $catSinGrad = Category::updateOrCreate(
+            ['slug' => 'sin-graduacion'],
+            ['name' => 'Sin Graduación', 'sort_order' => 1],
+        );
+        $catLectura = Category::updateOrCreate(
+            ['slug' => 'lectura'],
+            ['name' => 'Lectura', 'sort_order' => 2],
+        );
+        $catMiopia = Category::updateOrCreate(
+            ['slug' => 'miopia'],
+            ['name' => 'Miopía', 'sort_order' => 3],
+        );
+        $catToallitas = Category::updateOrCreate(
+            ['slug' => 'toallitas'],
+            ['name' => 'Toallitas', 'sort_order' => 4],
+        );
 
-            // --- Con Graduación (category_id: 2) ---
-            [
-                'category_id' => 2,
-                'name' => 'nuvion Vision Pro',
-                'slug' => 'nuvion-vision-pro',
-                'description' => 'Lentes con graduación personalizada y filtro de luz azul integrado. Tecnología de lente asférica para una visión nítida. Incluye consulta virtual para verificar tu graduación.',
-                'price' => 1599.00,
-                'compare_price' => 2299.00,
-                'stock' => 80,
-                'images' => [],
-                'meta_title' => 'nuvion Vision Pro — Lentes Graduados Anti Luz Azul',
-                'meta_description' => 'Corrección visual + protección de luz azul. nuvion Vision Pro con lentes asféricas de alta definición.',
-                'is_active' => true,
-                'is_featured' => true,
-                'variants' => [
-                    ['name' => 'Color', 'value' => 'Negro Mate', 'price_modifier' => 0, 'stock' => 40],
-                    ['name' => 'Color', 'value' => 'Gris Oscuro', 'price_modifier' => 0, 'stock' => 40],
-                ],
-            ],
-            [
-                'category_id' => 2,
-                'name' => 'nuvion Flex RX',
-                'slug' => 'nuvion-flex-rx',
-                'description' => 'Marco flexible de titanio con graduación y filtro de luz azul. Ultra resistente y ligero. Se adapta a cualquier forma de rostro con sus patillas ajustables.',
-                'price' => 1799.00,
-                'compare_price' => 2499.00,
-                'stock' => 60,
-                'images' => [],
-                'meta_title' => 'nuvion Flex RX — Lentes Flexibles Graduados',
-                'meta_description' => 'Titanio flexible + graduación + filtro de luz azul. nuvion Flex RX, la combinación perfecta de resistencia y protección.',
-                'is_active' => true,
-                'is_featured' => false,
-                'variants' => [
-                    ['name' => 'Color', 'value' => 'Plata', 'price_modifier' => 0, 'stock' => 30],
-                    ['name' => 'Color', 'value' => 'Negro', 'price_modifier' => 0, 'stock' => 30],
-                ],
-            ],
+        // ─── 1. Cosmos (Sin Graduación) ───
+        $cosmos = Product::updateOrCreate(['internal_code' => 'WUHAO'], [
+            'category_id' => $catSinGrad->id,
+            'name' => 'Cosmos',
+            'slug' => 'cosmos',
+            'type' => 'sin_graduacion',
+            'description' => 'Lentes sin graduación con filtro de luz azul. Diseño versátil disponible en 7 colores. Ideal para uso diario frente a pantallas.',
+            'price' => 499.90,
+            'compare_price' => 899.00,
+            'stock' => 999,
+            'images' => [],
+            'meta_title' => 'Cosmos — Lentes Sin Graduación con Filtro de Luz Azul',
+            'meta_description' => 'Lentes Cosmos con filtro de luz azul. Sin graduación, 7 colores disponibles. Protege tus ojos de las pantallas.',
+            'is_active' => true,
+            'is_featured' => true,
+            'badge_2x1' => true,
+            'sort_order' => 1,
+        ]);
+        $this->seedSimpleVariants($cosmos, ['Azul', 'Blanco', 'Café', 'Gris', 'Negro', 'Rosa', 'Verde'], 'sin_graduacion');
 
-            // --- Gaming & Sport (category_id: 3) ---
-            [
-                'category_id' => 3,
-                'name' => 'nuvion Pro Gamer',
-                'slug' => 'nuvion-pro-gamer',
-                'description' => 'Diseñados para sesiones de gaming intensas. Filtro de luz azul de alto rendimiento con tinte ámbar sutil. Marco envolvente que no interfiere con headsets. Almohadillas de silicona antideslizantes.',
-                'price' => 1199.00,
-                'compare_price' => 1599.00,
-                'stock' => 90,
-                'images' => [],
-                'meta_title' => 'nuvion Pro Gamer — Lentes Gaming Anti Luz Azul',
-                'meta_description' => 'Máximo rendimiento visual para gamers. nuvion Pro Gamer con filtro de alto rendimiento y diseño compatible con headsets.',
-                'is_active' => true,
-                'is_featured' => true,
-                'variants' => [
-                    ['name' => 'Color', 'value' => 'Rojo/Negro', 'price_modifier' => 0, 'stock' => 45],
-                    ['name' => 'Color', 'value' => 'Azul/Negro', 'price_modifier' => 0, 'stock' => 45],
+        // ─── 2. Nebula (Sin Graduación) ───
+        $nebula = Product::updateOrCreate(['internal_code' => 'YT2212'], [
+            'category_id' => $catSinGrad->id,
+            'name' => 'Nebula',
+            'slug' => 'nebula',
+            'type' => 'sin_graduacion',
+            'description' => 'Lentes sin graduación con filtro de luz azul. Estilo contemporáneo en 6 colores únicos.',
+            'price' => 499.90,
+            'compare_price' => 899.00,
+            'stock' => 999,
+            'images' => [],
+            'meta_title' => 'Nebula — Lentes Sin Graduación con Filtro de Luz Azul',
+            'meta_description' => 'Lentes Nebula con filtro de luz azul. Sin graduación, 6 colores disponibles. Estilo contemporáneo.',
+            'is_active' => true,
+            'is_featured' => true,
+            'badge_2x1' => true,
+            'sort_order' => 2,
+        ]);
+        $this->seedSimpleVariants($nebula, ['Arena Oscuro', 'Cristal', 'Gris', 'Morado', 'Negro', 'Verde'], 'sin_graduacion');
+
+        // ─── 3. Mercury (Lectura) ───
+        $mercury = Product::updateOrCreate(['internal_code' => '8026'], [
+            'category_id' => $catLectura->id,
+            'name' => 'Mercury',
+            'slug' => 'mercury',
+            'type' => 'lectura',
+            'description' => 'Lentes de lectura con filtro de luz azul. Disponibles en 7 graduaciones y 4 colores.',
+            'price' => 499.90,
+            'compare_price' => 899.00,
+            'stock' => 999,
+            'images' => [],
+            'meta_title' => 'Mercury — Lentes de Lectura con Filtro de Luz Azul',
+            'meta_description' => 'Lentes Mercury de lectura con filtro de luz azul. 7 graduaciones, 4 colores. Protección y claridad.',
+            'is_active' => true,
+            'is_featured' => true,
+            'badge_2x1' => true,
+            'sort_order' => 3,
+        ]);
+        $this->seedGraduatedVariants($mercury, ['Amarillo', 'Blanco', 'Jaspe', 'Rosa'], 'lectura');
+
+        // ─── 4. Nova (Lectura) ───
+        $nova = Product::updateOrCreate(['internal_code' => 'TY564'], [
+            'category_id' => $catLectura->id,
+            'name' => 'Nova',
+            'slug' => 'nova',
+            'type' => 'lectura',
+            'description' => 'Lentes de lectura con filtro de luz azul. Diseño moderno en 3 colores y 7 graduaciones.',
+            'price' => 499.90,
+            'compare_price' => 899.00,
+            'stock' => 999,
+            'images' => [],
+            'meta_title' => 'Nova — Lentes de Lectura con Filtro de Luz Azul',
+            'meta_description' => 'Lentes Nova de lectura con filtro de luz azul. 7 graduaciones, 3 colores. Diseño moderno.',
+            'is_active' => true,
+            'is_featured' => true,
+            'badge_2x1' => true,
+            'sort_order' => 4,
+        ]);
+        $this->seedGraduatedVariants($nova, ['Negro', 'Rosa', 'Verde'], 'lectura');
+
+        // ─── 5. Orion (Lectura) ───
+        $orion = Product::updateOrCreate(['internal_code' => '158'], [
+            'category_id' => $catLectura->id,
+            'name' => 'Orion',
+            'slug' => 'orion',
+            'type' => 'lectura',
+            'description' => 'Lentes de lectura con filtro de luz azul. Clásico atemporal disponible en negro.',
+            'price' => 499.90,
+            'compare_price' => 899.00,
+            'stock' => 999,
+            'images' => [],
+            'meta_title' => 'Orion — Lentes de Lectura con Filtro de Luz Azul',
+            'meta_description' => 'Lentes Orion de lectura con filtro de luz azul. Clásico atemporal en negro.',
+            'is_active' => true,
+            'is_featured' => false,
+            'badge_2x1' => true,
+            'sort_order' => 5,
+        ]);
+        $this->seedGraduatedVariants($orion, ['Negro'], 'lectura');
+
+        // ─── 6. Titan (Miopía + Lectura) ───
+        $titan = Product::updateOrCreate(['internal_code' => '8019'], [
+            'category_id' => $catMiopia->id,
+            'name' => 'Titan',
+            'slug' => 'titan',
+            'type' => 'miopia',
+            'description' => 'El único modelo con graduación para miopía Y lectura. Filtro de luz azul integrado. Disponible en 8 colores y 14 graduaciones.',
+            'price' => 499.90,
+            'compare_price' => 899.00,
+            'stock' => 999,
+            'images' => [],
+            'meta_title' => 'Titan — Lentes Miopía y Lectura con Filtro de Luz Azul',
+            'meta_description' => 'Lentes Titan con graduación para miopía y lectura. Filtro de luz azul, 8 colores, 14 graduaciones.',
+            'is_active' => true,
+            'is_featured' => true,
+            'badge_2x1' => true,
+            'sort_order' => 6,
+        ]);
+        $titanColors = ['Azul', 'Café', 'Gris', 'Morado', 'Negro', 'Rojo', 'Rosa'];
+        $this->seedGraduatedVariants($titan, $titanColors, 'miopia');
+        $this->seedGraduatedVariants($titan, $titanColors, 'lectura');
+
+        // ─── 7. Toallitas 25 piezas ───
+        $toallitas25 = Product::updateOrCreate(['internal_code' => 'TOALLITAS-25'], [
+            'category_id' => $catToallitas->id,
+            'name' => 'Toallitas Limpiadoras 2en1 — 25 piezas',
+            'slug' => 'toallitas-limpiadoras-25',
+            'type' => 'toallitas',
+            'description' => 'Kit limpiador 2 en 1: paño húmedo con fórmula sin alcohol + paño seco. Resultados inmediatos. Sirve para lentes, pantallas, cámaras y tablets. 25 piezas individuales.',
+            'price' => 99.90,
+            'compare_price' => null,
+            'stock' => 999,
+            'images' => [],
+            'meta_title' => 'Toallitas Limpiadoras 2en1 — 25 piezas',
+            'meta_description' => 'Kit limpiador 2 en 1 para lentes y pantallas. 25 piezas individuales. Fórmula sin alcohol.',
+            'is_active' => true,
+            'is_featured' => false,
+            'badge_2x1' => false,
+            'sort_order' => 7,
+        ]);
+        ProductVariant::updateOrCreate(
+            ['product_id' => $toallitas25->id, 'color' => null, 'graduation' => null, 'graduation_type' => null],
+            ['name' => 'Default', 'value' => 'Estándar', 'price_modifier' => 0, 'stock' => 999, 'is_active' => true],
+        );
+
+        // ─── 8. Toallitas 60 piezas ───
+        $toallitas60 = Product::updateOrCreate(['internal_code' => 'TOALLITAS-60'], [
+            'category_id' => $catToallitas->id,
+            'name' => 'Toallitas Limpiadoras 2en1 — 60 piezas',
+            'slug' => 'toallitas-limpiadoras-60',
+            'type' => 'toallitas',
+            'description' => 'Kit limpiador 2 en 1: paño húmedo con fórmula sin alcohol + paño seco. Pack ahorro con 60 piezas individuales. Ideal para toda la familia.',
+            'price' => 199.90,
+            'compare_price' => null,
+            'stock' => 999,
+            'images' => [],
+            'meta_title' => 'Toallitas Limpiadoras 2en1 — 60 piezas',
+            'meta_description' => 'Kit limpiador 2 en 1 para lentes y pantallas. Pack ahorro 60 piezas. Fórmula sin alcohol.',
+            'is_active' => true,
+            'is_featured' => false,
+            'badge_2x1' => false,
+            'sort_order' => 8,
+        ]);
+        ProductVariant::updateOrCreate(
+            ['product_id' => $toallitas60->id, 'color' => null, 'graduation' => null, 'graduation_type' => null],
+            ['name' => 'Default', 'value' => 'Estándar', 'price_modifier' => 0, 'stock' => 999, 'is_active' => true],
+        );
+    }
+
+    /**
+     * Seed color-only variants for sin_graduacion products.
+     */
+    private function seedSimpleVariants(Product $product, array $colors, string $graduationType): void
+    {
+        foreach ($colors as $color) {
+            ProductVariant::updateOrCreate(
+                [
+                    'product_id' => $product->id,
+                    'color' => $color,
+                    'graduation' => '+0',
+                    'graduation_type' => $graduationType,
                 ],
-            ],
-            [
-                'category_id' => 3,
-                'name' => 'nuvion Sport Shield',
-                'slug' => 'nuvion-sport-shield',
-                'description' => 'Lentes deportivos con protección de luz azul y UV400. Marco de policarbonato ultra resistente a impactos. Grip de goma en patillas y puente nasal. Ideales para deportes y actividades al aire libre.',
-                'price' => 1099.00,
-                'compare_price' => 1499.00,
-                'stock' => 70,
-                'images' => [],
-                'meta_title' => 'nuvion Sport Shield — Lentes Deportivos Anti Luz Azul',
-                'meta_description' => 'Protección total para deportistas. nuvion Sport Shield con filtro de luz azul y UV400 en marco ultra resistente.',
-                'is_active' => true,
-                'is_featured' => false,
-                'variants' => [
-                    ['name' => 'Color', 'value' => 'Blanco/Gris', 'price_modifier' => 0, 'stock' => 35],
-                    ['name' => 'Color', 'value' => 'Negro/Verde', 'price_modifier' => 0, 'stock' => 35],
+                [
+                    'name' => 'Color',
+                    'value' => $color,
+                    'price_modifier' => 0,
+                    'stock' => 99,
+                    'is_active' => true,
                 ],
-            ],
-        ];
+            );
+        }
+    }
 
-        foreach ($products as $productData) {
-            $variants = $productData['variants'];
-            unset($productData['variants']);
+    /**
+     * Seed color×graduation variants for lectura/miopia products.
+     */
+    private function seedGraduatedVariants(Product $product, array $colors, string $graduationType): void
+    {
+        $graduations = $graduationType === 'miopia'
+            ? ['-100', '-150', '-200', '-250', '-300', '-350', '-400']
+            : ['+100', '+150', '+200', '+250', '+300', '+350', '+400'];
 
-            $product = Product::create($productData);
-
-            foreach ($variants as $variant) {
-                $product->variants()->create($variant);
+        foreach ($graduations as $graduation) {
+            foreach ($colors as $color) {
+                ProductVariant::updateOrCreate(
+                    [
+                        'product_id' => $product->id,
+                        'color' => $color,
+                        'graduation' => $graduation,
+                        'graduation_type' => $graduationType,
+                    ],
+                    [
+                        'name' => 'Color',
+                        'value' => $color,
+                        'price_modifier' => 0,
+                        'stock' => 99,
+                        'is_active' => true,
+                    ],
+                );
             }
         }
     }

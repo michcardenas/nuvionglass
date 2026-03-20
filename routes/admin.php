@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\LeadAdminController;
 use App\Http\Controllers\Admin\BlogAdminController;
 use App\Http\Controllers\Admin\CategoryAdminController;
 use App\Http\Controllers\Admin\DiscountCodeAdminController;
+use App\Http\Controllers\Admin\AdminHeroController;
 use App\Http\Controllers\Admin\InfographicAdminController;
 use App\Http\Controllers\Admin\ShippingAdminController;
 use Illuminate\Support\Facades\Route;
@@ -56,3 +57,7 @@ Route::delete('shipping/rates/{shippingRate}', [ShippingAdminController::class, 
 
 // Infographics CRUD
 Route::resource('infographics', InfographicAdminController::class)->except(['show']);
+
+// Hero settings
+Route::get('hero', [AdminHeroController::class, 'edit'])->name('hero.edit');
+Route::put('hero', [AdminHeroController::class, 'update'])->name('hero.update');

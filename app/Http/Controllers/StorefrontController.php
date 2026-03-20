@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ColorHelper;
 use App\Models\BlogPost;
+use App\Models\HeroSetting;
 use App\Models\InfographicImage;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Services\SeoService;
 use Illuminate\View\View;
 
@@ -16,11 +19,23 @@ class StorefrontController extends Controller
 
     public function home(): View
     {
-        $featuredProducts = Product::active()
-            ->featured()
-            ->with('category', 'variants')
-            ->limit(4)
+        $lentes = Product::active()
+            ->whereIn('type', ['sin_graduacion', 'lectura', 'miopia'])
+            ->with('variants')
+            ->orderBy('sort_order')
             ->get();
+
+        $toallitas = Product::active()
+            ->where('type', 'toallitas')
+            ->orderBy('sort_order')
+            ->get();
+
+        $coloresDisponibles = ProductVariant::where('is_active', true)
+            ->whereNotNull('color')
+            ->distinct()
+            ->pluck('color')
+            ->sort()
+            ->values();
 
         $recentPosts = BlogPost::published()
             ->orderByDesc('published_at')
@@ -40,24 +55,27 @@ class StorefrontController extends Controller
             ],
             [
                 'question' => '¿Los lentes nuvion tienen graduación?',
-                'answer' => 'Sí, ofrecemos lentes con y sin graduación. Nuestra línea Con Graduación incluye modelos con lentes asféricas de alta definición.',
+                'answer' => 'Sí, ofrecemos lentes con y sin graduación. Nuestra línea incluye modelos para miopía, lectura y sin graduación.',
             ],
             [
                 'question' => '¿Cuánto tarda el envío?',
-                'answer' => 'El envío estándar tarda 3-5 días hábiles. Envío gratis en pedidos mayores a $99.',
+                'answer' => 'El envío estándar tarda 3-5 días hábiles. Envío gratis en pedidos mayores a $999.',
             ],
             [
                 'question' => '¿Puedo devolver los lentes si no me gustan?',
                 'answer' => 'Sí, tienes 30 días para devolverlos si no estás satisfecho. Aplican términos y condiciones.',
             ],
             [
-                'question' => '¿Los lentes sirven para gaming?',
-                'answer' => 'Sí, nuestra línea Gaming & Sport está diseñada específicamente para sesiones intensas frente a pantallas, con filtro de alto rendimiento y diseño compatible con headsets.',
+                'question' => '¿Qué es la promoción 2×1?',
+                'answer' => 'Al comprar 2 pares de lentes, el segundo par (de igual o menor valor) es completamente gratis. Aplica para todos los modelos de lentes.',
             ],
         ]);
 
+        $hero = HeroSetting::getCurrent();
+
         return view('storefront.home', compact(
-            'featuredProducts', 'recentPosts', 'infographics', 'organizationSchema', 'faqSchema',
+            'hero', 'lentes', 'toallitas', 'coloresDisponibles',
+            'recentPosts', 'infographics', 'organizationSchema', 'faqSchema',
         ));
     }
 

@@ -114,11 +114,61 @@ class CartService
     }
 
     /**
-     * Get cart subtotal.
+     * Get cart subtotal (before 2x1 discount).
      */
     public function getSubtotal(): float
     {
         return $this->getItems()->sum('total');
+    }
+
+    /**
+     * Calculate 2x1 discount.
+     * Only lens products (miopia, lectura, sin_graduacion) with badge_2x1 qualify.
+     * Expands by qty, sorts by price desc, every 2nd unit is free.
+     */
+    public function calculate2x1(): array
+    {
+        $items = $this->getItems();
+
+        // Expand each item into individual units (only eligible lenses)
+        $units = [];
+        foreach ($items as $item) {
+            $product = $item['product'];
+
+            if (! $product->badge_2x1) {
+                continue;
+            }
+
+            if (! in_array($product->type, ['miopia', 'lectura', 'sin_graduacion'])) {
+                continue;
+            }
+
+            for ($i = 0; $i < $item['qty']; $i++) {
+                $units[] = [
+                    'name' => $product->name,
+                    'price' => (float) $item['unit_price'],
+                ];
+            }
+        }
+
+        if (empty($units)) {
+            return ['discount' => 0, 'free_items' => []];
+        }
+
+        // Sort by price descending — cheaper one in each pair is free
+        usort($units, fn ($a, $b) => $b['price'] <=> $a['price']);
+
+        $discount = 0;
+        $freeItems = [];
+
+        foreach ($units as $index => $unit) {
+            if (($index + 1) % 2 === 0) {
+                $discount += $unit['price'];
+                $freeItems[] = $unit['name'];
+            }
+        }
+
+        return ['discount' => $discount, 'free_items' => $freeItems];
     }
 
     /**

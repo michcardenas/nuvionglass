@@ -4,4 +4,4 @@ Disallow: /carrito
 Disallow: /checkout
 Allow: /
 
-Sitemap: https://nuvionglass.com/sitemap.xml
+Sitemap: https://nuvionglass.com.mx/sitemap.xml

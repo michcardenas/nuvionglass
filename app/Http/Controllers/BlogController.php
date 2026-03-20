@@ -49,8 +49,14 @@ class BlogController extends Controller
             ->limit(3)
             ->get();
 
+        $products = collect([
+            ['name' => 'nuvion Classic', 'price' => '$899', 'original_price' => '$1,299', 'slug' => 'nuvion-classic', 'type' => 'Sin Graduación'],
+            ['name' => 'nuvion Aura', 'price' => '$999', 'original_price' => '$1,399', 'slug' => 'nuvion-aura', 'type' => 'Sin Graduación'],
+            ['name' => 'nuvion Vision Pro', 'price' => '$1,599', 'original_price' => '$2,299', 'slug' => 'nuvion-vision-pro', 'type' => 'Con Graduación'],
+        ]);
+
         return view('storefront.blog.show', compact(
-            'post', 'seo', 'schema', 'breadcrumbs', 'recent',
+            'post', 'seo', 'schema', 'breadcrumbs', 'recent', 'products',
         ));
     }
 }

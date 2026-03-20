@@ -54,14 +54,27 @@ class SeoService
     {
         $title = $post->meta_title ?: "{$post->title} | nuvion - glass";
         $description = $post->meta_description ?: mb_substr(strip_tags($post->excerpt ?? $post->content), 0, 160);
+        $image = $post->image ? asset("storage/{$post->image}") : null;
+        $canonical = $post->canonical_url ?: route('blog.show', $post->slug);
 
-        return $this->meta(
-            $title,
-            $description,
-            $post->image ? asset("storage/{$post->image}") : null,
-            route('blog.show', $post->slug),
-            'article',
-        );
+        $meta = $this->meta($title, $description, $image, $canonical, 'article');
+
+        // Override with OG-specific fields if set
+        if ($post->og_title) {
+            $meta['og_title'] = $post->og_title;
+            $meta['twitter_title'] = $post->og_title;
+        }
+        if ($post->og_description) {
+            $meta['og_description'] = $post->og_description;
+            $meta['twitter_description'] = $post->og_description;
+        }
+        if ($post->og_image) {
+            $ogImage = asset("storage/{$post->og_image}");
+            $meta['og_image'] = $ogImage;
+            $meta['twitter_image'] = $ogImage;
+        }
+
+        return $meta;
     }
 
     /**
@@ -124,28 +137,37 @@ class SeoService
     {
         $schema = [
             '@context' => 'https://schema.org',
-            '@type' => 'Article',
+            '@type' => $post->schema_type ?? 'BlogPosting',
             'headline' => $post->title,
-            'description' => $post->excerpt ?? mb_substr(strip_tags($post->content), 0, 160),
+            'description' => $post->meta_description ?? $post->excerpt ?? mb_substr(strip_tags($post->content), 0, 160),
             'url' => route('blog.show', $post->slug),
             'datePublished' => $post->published_at?->toIso8601String(),
             'dateModified' => $post->updated_at->toIso8601String(),
             'author' => [
                 '@type' => 'Organization',
-                'name' => 'nuvion - glass',
+                'name' => $post->author_name ?? 'nuvion glass',
+                'url' => url('/'),
             ],
             'publisher' => [
                 '@type' => 'Organization',
-                'name' => 'nuvion - glass',
+                'name' => 'nuvion glass',
                 'logo' => [
                     '@type' => 'ImageObject',
-                    'url' => asset('images/logo.png'),
+                    'url' => asset('img/isotipo.png'),
                 ],
+            ],
+            'mainEntityOfPage' => [
+                '@type' => 'WebPage',
+                '@id' => route('blog.show', $post->slug),
             ],
         ];
 
         if ($post->image) {
             $schema['image'] = asset("storage/{$post->image}");
+        }
+
+        if ($post->focus_keyword) {
+            $schema['keywords'] = $post->focus_keyword;
         }
 
         return $this->toJsonLd($schema);

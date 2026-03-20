@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ColorHelper;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Services\SeoService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -16,46 +18,50 @@ class ProductController extends Controller
 
     public function index(Request $request): View
     {
-        $query = Product::active()->with('category', 'variants');
+        $tipoFiltro = $request->input('type', 'todos');
+        $colorFiltro = $request->input('color');
+        $graduacionFiltro = $request->input('graduation');
 
-        // Filter: category
-        if ($request->filled('categoria')) {
-            $query->whereHas('category', fn ($q) => $q->where('slug', $request->categoria));
+        $query = Product::active()->with('variants')->orderBy('sort_order');
+
+        if ($tipoFiltro && $tipoFiltro !== 'todos') {
+            $query->where('type', $tipoFiltro);
         }
 
-        // Filter: price range
-        if ($request->filled('precio_min')) {
-            $query->where('price', '>=', (float) $request->precio_min);
-        }
-        if ($request->filled('precio_max')) {
-            $query->where('price', '<=', (float) $request->precio_max);
+        if ($colorFiltro) {
+            $query->whereHas('variants', fn ($q) => $q->where('color', $colorFiltro)->where('is_active', true));
         }
 
-        // Filter: only in stock
-        if ($request->boolean('disponible')) {
-            $query->where('stock', '>', 0);
+        if ($graduacionFiltro) {
+            $query->whereHas('variants', fn ($q) => $q->where('graduation', $graduacionFiltro)->where('is_active', true));
         }
 
-        // Filter: only on sale
-        if ($request->boolean('oferta')) {
-            $query->whereNotNull('compare_price')->whereColumn('price', '<', 'compare_price');
-        }
+        $products = $query->get();
 
-        // Sort
-        $sort = $request->input('orden', 'destacados');
-        $query = match ($sort) {
-            'precio_asc'  => $query->orderBy('price', 'asc'),
-            'precio_desc' => $query->orderBy('price', 'desc'),
-            'recientes'   => $query->orderBy('created_at', 'desc'),
-            'nombre'      => $query->orderBy('name', 'asc'),
-            default        => $query->orderBy('is_featured', 'desc'),
-        };
+        // Available colors
+        $coloresDisponibles = ProductVariant::whereHas('product', fn ($q) => $q->active())
+            ->where('is_active', true)
+            ->whereNotNull('color')
+            ->distinct()
+            ->pluck('color')
+            ->sort()
+            ->values();
 
-        // Price bounds for the range filter UI
-        $priceRange = Product::active()->selectRaw('MIN(price) as min_price, MAX(price) as max_price')->first();
+        // Available graduations sorted numerically
+        $graduacionesDisponibles = ProductVariant::whereHas('product', fn ($q) => $q->active()->whereIn('type', ['miopia', 'lectura', 'sin_graduacion']))
+            ->where('is_active', true)
+            ->whereNotNull('graduation')
+            ->pluck('graduation')
+            ->unique()
+            ->filter()
+            ->sortBy(fn ($g) => (float) $g)
+            ->values();
 
-        $products = $query->paginate(12);
-        $categories = Category::orderBy('sort_order')->get();
+        // Toallitas always available separately
+        $toallitas = Product::active()
+            ->where('type', 'toallitas')
+            ->with('variants')
+            ->get();
 
         $breadcrumbs = $this->seo->breadcrumbSchema([
             ['name' => 'Inicio', 'url' => url('/')],
@@ -63,12 +69,15 @@ class ProductController extends Controller
         ]);
 
         return view('storefront.products.index', [
-            'products'        => $products,
-            'categories'      => $categories,
-            'currentCategory' => $request->categoria,
-            'currentSort'     => $sort,
-            'priceRange'      => $priceRange,
-            'breadcrumbs'     => $breadcrumbs,
+            'products' => $products,
+            'toallitas' => $toallitas,
+            'coloresDisponibles' => $coloresDisponibles,
+            'graduacionesDisponibles' => $graduacionesDisponibles,
+            'tipoFiltro' => $tipoFiltro,
+            'colorFiltro' => $colorFiltro,
+            'graduacionFiltro' => $graduacionFiltro,
+            'breadcrumbs' => $breadcrumbs,
+            'colorHelper' => ColorHelper::all(),
         ]);
     }
 
@@ -76,13 +85,33 @@ class ProductController extends Controller
     {
         $product = Product::active()
             ->where('slug', $slug)
-            ->with('category', 'variants')
+            ->with('variants')
             ->firstOrFail();
 
-        $related = Product::active()
-            ->where('category_id', $product->category_id)
-            ->where('id', '!=', $product->id)
-            ->limit(3)
+        $activeVariants = $product->variants->where('is_active', true);
+
+        // Unique colors
+        $colores = $activeVariants->pluck('color')->unique()->filter()->values();
+
+        // Graduations grouped by type
+        $graduacionesMiopia = $activeVariants
+            ->where('graduation_type', 'miopia')
+            ->pluck('graduation')->unique()->filter()
+            ->sortBy(fn ($g) => (float) $g)->values();
+
+        $graduacionesLectura = $activeVariants
+            ->where('graduation_type', 'lectura')
+            ->pluck('graduation')->unique()->filter()
+            ->sortBy(fn ($g) => (float) $g)->values();
+
+        $graduacionesSinGrad = $activeVariants
+            ->where('graduation_type', 'sin_graduacion')
+            ->pluck('graduation')->unique()->filter()->values();
+
+        // Toallitas for suggestion
+        $toallitas = Product::active()
+            ->where('type', 'toallitas')
+            ->with('variants')
             ->get();
 
         $seo = $this->seo->forProduct($product);
@@ -94,7 +123,9 @@ class ProductController extends Controller
         ]);
 
         return view('storefront.products.show', compact(
-            'product', 'related', 'seo', 'schema', 'breadcrumbs',
+            'product', 'colores',
+            'graduacionesMiopia', 'graduacionesLectura', 'graduacionesSinGrad',
+            'toallitas', 'seo', 'schema', 'breadcrumbs',
         ));
     }
 }

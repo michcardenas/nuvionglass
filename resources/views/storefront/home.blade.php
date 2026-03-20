@@ -17,226 +17,292 @@
 @section('content')
 
     {{-- ============================================================
-         1. HERO — fondo oscuro #0A0E1A (fluye desde navbar)
+         1. HERO — full screen, video/imagen/gradiente de fondo
          ============================================================ --}}
-    <section class="relative bg-bg overflow-hidden"
-             style="background: linear-gradient(135deg, #0A0E1A 0%, #001a40 50%, #0A0E1A 100%);
-                    background-size: 200% 200%;
-                    animation: gradientShift 10s ease infinite;">
-        {{-- Glow decorativo --}}
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-secondary/5 rounded-full blur-[120px] pointer-events-none"
-             style="animation: pulseDot 6s ease-in-out infinite;"></div>
+    <style>
+        @keyframes hFadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 768px) {
+            .hero-stat { display: none !important; }
+        }
+    </style>
 
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16 md:pt-16 md:pb-28 lg:pt-20 lg:pb-36">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                {{-- Copy --}}
-                <div class="order-2 lg:order-1">
-                    <span class="inline-block text-secondary text-sm font-medium tracking-wider uppercase mb-4 anim-fade-up delay-100">Protección de luz azul</span>
-                    {{-- Hero title — word-by-word cascade reveal --}}
-                    <h1 class="font-brand text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.1]"
-                        x-data="{ show: false }"
-                        x-init="setTimeout(() => show = true, 250)">
-                        <span class="hero-word-wrap"><span class="hero-word" :class="show && 'visible'" style="transition-delay: 0ms">Protege</span></span>
-                        <span class="hero-word-wrap"><span class="hero-word" :class="show && 'visible'" style="transition-delay: 80ms">tus</span></span>
-                        <span class="hero-word-wrap"><span class="hero-word" :class="show && 'visible'" style="transition-delay: 160ms">ojos</span></span>
-                        <br>
-                        <span class="hero-word-wrap"><span class="hero-word text-secondary" :class="show && 'visible'" style="transition-delay: 320ms">antes</span></span>
-                        <span class="hero-word-wrap"><span class="hero-word text-secondary" :class="show && 'visible'" style="transition-delay: 400ms">de</span></span>
-                        <span class="hero-word-wrap"><span class="hero-word text-secondary" :class="show && 'visible'" style="transition-delay: 480ms">que</span></span>
-                        <span class="hero-word-wrap"><span class="hero-word text-secondary" :class="show && 'visible'" style="transition-delay: 560ms">sea</span></span>
-                        <span class="hero-word-wrap"><span class="hero-word text-secondary" :class="show && 'visible'" style="transition-delay: 640ms">tarde</span></span>
-                    </h1>
-                    <p class="mt-6 text-base sm:text-lg text-muted/80 leading-relaxed max-w-lg anim-fade-up delay-300">
-                        Lentes con protección de luz azul. Con o sin graduación. Diseño moderno que querrás usar todo el día.
-                    </p>
-                    <div class="mt-8 flex flex-col sm:flex-row gap-4 anim-fade-up delay-400">
-                        <a href="{{ route('products.index') }}"
-                           class="relative inline-flex items-center justify-center bg-secondary hover:bg-secondary/90 text-white px-8 py-3.5 rounded-xl font-semibold text-base transition-all duration-300 shadow-lg shadow-secondary/25 overflow-hidden
-                                  hover:-translate-y-0.5 hover:shadow-xl hover:shadow-secondary/30 active:translate-y-0">
-                            Ver lentes
-                            <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
-                        </a>
-                        <a href="{{ route('blue-light') }}"
-                           class="inline-flex items-center justify-center border border-white/20 text-white/90 hover:bg-white/5 hover:border-white/40 px-8 py-3.5 rounded-xl font-medium text-base transition-colors">
-                            ¿Qué es la luz azul?
-                        </a>
-                    </div>
+    <section style="position:relative;height:100vh;min-height:600px;max-height:900px;overflow:hidden;background:#0a0f1e;display:flex;align-items:center;">
 
-                    {{-- Trust badges --}}
-                    <div class="mt-10 flex flex-wrap items-center gap-6 text-sm text-muted/50 anim-fade-up delay-500">
-                        <div class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/></svg>
-                            <span>Envío gratis</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/></svg>
-                            <span>Garantía 6 meses</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182"/></svg>
-                            <span>30 días de devolución</span>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Imagen hero — scroll-driven gallery --}}
-                @php
-                $heroImages = [
-                    'akz3gg94DYuehu11m3sBSaxjYLRAAGxT5fB6Cozk.png',
-                    'EZT3BIVBQp25uDJC8kPeodhCCFMOzY0NsnGeRlEx.png',
-                    'FtG9kU1bZCasQU1d9oZNWFc3JWBQsUOyVYPmuTSA.png',
-                    'jZr0I7SxOBaqj5jECAuIMUbLLLfOOwpkhsqNQhLD.png',
-                    'MPBPzKsunt1kCCL6QztOnsoY1lCVmgkn9bvOkVeG.png',
-                    'oCAQWUGek3EklYHH6h9KCLYTNmLO0depaUtkIFjX.png',
-                    'RiK57MpLZZxIxSIH5BKhXcABKyr9uy5aciKIevrD.png',
-                    'rnCKGK5KfSxtaTp9fvZhuqiVJ0C0ye7REm2b7A3v.png',
-                ];
-                @endphp
-                <div class="order-1 lg:order-2 flex justify-center anim-fade-right delay-300">
-                    <div class="relative w-full max-w-md lg:max-w-lg aspect-square rounded-3xl bg-gradient-to-br from-secondary/10 to-primary/10 border border-white/5 flex items-center justify-center anim-float overflow-hidden"
-                         x-data="heroGallery()"
-                         @scroll.window.throttle.50ms="onScroll()">
-                        @foreach($heroImages as $i => $img)
-                        <img src="{{ asset('storage/products/' . $img) }}"
-                             alt="nuvion glass producto {{ $i + 1 }}"
-                             class="absolute inset-0 w-full h-full object-contain transition-opacity duration-500"
-                             :class="current === {{ $i }} ? 'opacity-100' : 'opacity-0'">
-                        @endforeach
-                        {{-- Decorative ring --}}
-                        <div class="absolute -inset-4 rounded-full border border-secondary/10 pointer-events-none"
-                             style="animation: pulseDot 4s ease-in-out infinite;"></div>
-                    </div>
-                </div>
-            </div>
+        {{-- CAPA 1: MEDIA DE FONDO --}}
+        @if($hero->media_type === 'video' && $hero->media_path)
+        <video autoplay muted loop playsinline preload="metadata"
+               style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ 1 - $hero->overlay_opacity }};filter:saturate(0.75) brightness(0.9);">
+            <source src="{{ asset('storage/' . $hero->media_path) }}" type="video/mp4">
+        </video>
+        @elseif($hero->media_type === 'image' && $hero->media_path)
+        <img src="{{ asset('storage/' . $hero->media_path) }}" alt="nuvion glass"
+             style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ 1 - $hero->overlay_opacity }};filter:saturate(0.75) brightness(0.9);">
+        @else
+        {{-- Gradiente base cuando no hay media --}}
+        <div style="position:absolute;inset:0;background:linear-gradient(135deg,#060d1a 0%,#0a1628 30%,#0f2440 60%,#060d1a 100%);"></div>
+        @php $heroProduct = $lentes->first(); @endphp
+        @if($heroProduct && ($heroProduct->images[0] ?? null))
+        <div style="position:absolute;right:0;top:0;bottom:0;width:55%;overflow:hidden;">
+            <img src="{{ asset('storage/' . $heroProduct->images[0]) }}" alt="{{ $heroProduct->name }}"
+                 style="width:100%;height:100%;object-fit:cover;object-position:center;opacity:.35;filter:saturate(0.6);">
         </div>
-    </section>
+        @endif
+        @endif
 
-    {{-- ============================================================
-         2. EDUCACIÓN RÁPIDA — ¿Qué es la luz azul?
-         Fondo claro #F4F6F9
-         ============================================================ --}}
-    <section class="py-16 md:py-24 bg-bg-light">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-                {{-- Ilustración / gráfico — carrusel de infografías --}}
-                <div class="relative" x-data="{ current: 0, total: {{ $infographics->count() ?: 1 }} }" x-reveal.once>
-                    @if($infographics->count())
-                    <div class="relative aspect-video rounded-2xl bg-white border border-border-light shadow-sm overflow-hidden">
-                        @foreach($infographics as $i => $infographic)
-                        <div class="absolute inset-0 transition-opacity duration-500"
-                             :class="current === {{ $i }} ? 'opacity-100 z-10' : 'opacity-0 z-0'">
-                            <img src="{{ asset('storage/' . $infographic->image) }}"
-                                 alt="{{ $infographic->title }}"
-                                 class="w-full h-full object-cover"
-                                 loading="{{ $i === 0 ? 'eager' : 'lazy' }}">
-                            @if($infographic->title || $infographic->description)
-                            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent px-5 pb-4 pt-10">
-                                <p class="text-white font-semibold text-sm">{{ $infographic->title }}</p>
-                                @if($infographic->description)
-                                <p class="text-white/70 text-xs mt-0.5">{{ $infographic->description }}</p>
-                                @endif
-                            </div>
-                            @endif
-                        </div>
-                        @endforeach
+        {{-- CAPA 2: OVERLAY GRADIENTE --}}
+        <div style="position:absolute;inset:0;background:linear-gradient(105deg,rgba(6,13,26,0.97) 0%,rgba(6,13,26,0.88) 30%,rgba(6,13,26,0.65) 55%,rgba(6,13,26,0.25) 75%,rgba(6,13,26,0.08) 100%);pointer-events:none;"></div>
 
-                        {{-- Nav arrows --}}
-                        @if($infographics->count() > 1)
-                        <button @click="current = (current - 1 + total) % total"
-                                class="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow transition-colors">
-                            <svg class="w-4 h-4 text-text-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
-                        </button>
-                        <button @click="current = (current + 1) % total"
-                                class="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow transition-colors">
-                            <svg class="w-4 h-4 text-text-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
-                        </button>
+        {{-- CAPA 3: GLOW AZUL SUTIL --}}
+        <div style="position:absolute;top:-5%;left:20%;width:700px;height:700px;background:radial-gradient(circle,rgba(56,130,221,0.1) 0%,transparent 60%);pointer-events:none;"></div>
 
-                        {{-- Dots --}}
-                        <div class="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5">
-                            @foreach($infographics as $i => $inf)
-                            <button @click="current = {{ $i }}"
-                                    class="w-2 h-2 rounded-full transition-all duration-300"
-                                    :class="current === {{ $i }} ? 'bg-white w-4' : 'bg-white/50'"></button>
-                            @endforeach
-                        </div>
-                        @endif
-                    </div>
-                    @else
-                    <div class="aspect-video rounded-2xl bg-white border border-border-light shadow-sm flex items-center justify-center">
-                        <span class="text-text-muted text-sm">Infografía: espectro de luz azul</span>
-                    </div>
-                    @endif
+        {{-- CAPA 4: CONTENIDO PRINCIPAL --}}
+        <div style="position:relative;z-index:2;width:100%;max-width:1200px;margin:0 auto;padding:0 6%;">
+            <div style="max-width:620px;">
+
+                {{-- Eyebrow pill --}}
+                @if($hero->eyebrow_text)
+                <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(56,130,221,0.12);border:0.5px solid rgba(56,130,221,0.3);border-radius:20px;padding:5px 16px;font-size:11px;color:#85B7EB;letter-spacing:.09em;text-transform:uppercase;margin-bottom:24px;animation:hFadeUp .7s ease both;">
+                    <span style="width:6px;height:6px;border-radius:50%;background:#378ADD;flex-shrink:0;"></span>
+                    {{ $hero->eyebrow_text }}
                 </div>
+                @endif
 
-                {{-- Contenido --}}
-                <div x-data x-reveal.once>
-                    <span class="inline-block text-secondary text-sm font-semibold tracking-wider uppercase mb-3">¿Sabías esto?</span>
-                    <h2 class="font-brand text-3xl md:text-4xl font-bold text-text-dark leading-tight">
-                        ¿Qué es la luz azul y por qué daña tus ojos?
-                    </h2>
-                    <p class="mt-5 text-text-muted leading-relaxed">
-                        La luz azul de alta energía es emitida por pantallas, focos LED y el sol. La exposición prolongada penetra profundamente en tus ojos, causando:
-                    </p>
-                    <ul class="mt-5 space-y-3">
-                        @php
-                        $symptoms = [
-                            'Fatiga visual y ojos secos',
-                            'Dolores de cabeza crónicos',
-                            'Alteración del ciclo de sueño',
-                            'Tensión ocular constante',
-                        ];
-                        @endphp
-                        @foreach($symptoms as $index => $symptom)
-                        <li class="flex items-center gap-3 text-text-muted reveal"
-                            style="transition-delay: {{ $index * 100 }}ms">
-                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-danger/10 flex items-center justify-center">
-                                <svg class="w-3.5 h-3.5 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"/></svg>
-                            </span>
-                            {{ $symptom }}
-                        </li>
-                        @endforeach
-                    </ul>
-                    <a href="{{ route('blue-light') }}" class="mt-6 inline-flex items-center gap-2 text-secondary font-semibold hover:underline">
-                        Conoce la ciencia completa
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+                {{-- Título --}}
+                <h1 style="font-size:clamp(36px,5.5vw,66px);font-weight:800;color:#ffffff;line-height:1.03;letter-spacing:-.025em;margin-bottom:22px;animation:hFadeUp .7s ease .1s both;font-family:'Bai Jamjuree',sans-serif;">
+                    {{ $hero->title_line1 }}<br>
+                    {{ $hero->title_line2 }}<br>
+                    @if($hero->title_highlight_word && str_contains($hero->title_line3, $hero->title_highlight_word))
+                        {!! str_replace($hero->title_highlight_word, '<span style="color:#378ADD;">' . e($hero->title_highlight_word) . '</span>', e($hero->title_line3)) !!}
+                    @else
+                        {{ $hero->title_line3 }}
+                    @endif
+                </h1>
+
+                {{-- Badge 2x1 --}}
+                @if($hero->badge_text)
+                <div style="display:inline-flex;align-items:center;gap:9px;background:rgba(56,130,221,0.1);border:1px solid rgba(56,130,221,0.22);border-radius:8px;padding:9px 18px;margin-bottom:22px;font-size:13px;color:#85B7EB;animation:hFadeUp .7s ease .2s both;">
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                        <rect x="1" y="4" width="13" height="9" rx="2" stroke="#85B7EB" stroke-width="1.2"/>
+                        <path d="M5.5 4V3a2 2 0 014 0v1" stroke="#85B7EB" stroke-width="1.2"/>
+                    </svg>
+                    {!! str_replace(
+                        ['2x1', '$499.90'],
+                        ['<strong style="color:#fff;font-weight:600;">2x1</strong>', '<strong style="color:#fff;font-weight:600;">$499.90</strong>'],
+                        e($hero->badge_text)
+                    ) !!}
+                </div>
+                @endif
+
+                {{-- Subtítulo --}}
+                @if($hero->subtitle)
+                <p style="font-size:16px;color:rgba(255,255,255,0.48);line-height:1.65;margin-bottom:32px;max-width:440px;animation:hFadeUp .7s ease .25s both;">
+                    {{ $hero->subtitle }}
+                </p>
+                @endif
+
+                {{-- Botones --}}
+                <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:32px;animation:hFadeUp .7s ease .3s both;">
+                    <a href="{{ $hero->btn_primary_url }}"
+                       style="background:#378ADD;color:#fff;border-radius:8px;padding:14px 30px;font-size:15px;font-weight:500;text-decoration:none;display:inline-block;transition:background .2s,transform .15s;"
+                       onmouseover="this.style.background='#185FA5';this.style.transform='translateY(-1px)'"
+                       onmouseout="this.style.background='#378ADD';this.style.transform='translateY(0)'">
+                        {{ $hero->btn_primary_text }} &rarr;
+                    </a>
+                    <a href="{{ $hero->btn_secondary_url }}"
+                       style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.18);border-radius:8px;padding:14px 30px;font-size:15px;text-decoration:none;display:inline-block;transition:all .2s;"
+                       onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.borderColor='rgba(255,255,255,0.35)'"
+                       onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.borderColor='rgba(255,255,255,0.18)'">
+                        {{ $hero->btn_secondary_text }}
                     </a>
                 </div>
+
+                {{-- Trust badges --}}
+                @php $trustItems = $hero->trust_items ?? []; @endphp
+                @if(count($trustItems) > 0)
+                <div style="display:flex;gap:20px;flex-wrap:wrap;animation:hFadeUp .7s ease .4s both;">
+                    @foreach($trustItems as $item)
+                    <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:rgba(255,255,255,0.3);">
+                        <span style="color:#378ADD;font-size:10px;">&#10003;</span>
+                        {{ $item }}
+                    </div>
+                    @endforeach
+                </div>
+                @endif
+
+            </div>
+        </div>
+
+        {{-- CAPA 5: STATS FLOTANTES --}}
+        @if($hero->stat1_number)
+        <div class="hero-stat" style="position:absolute;right:clamp(20px,8%,80px);top:clamp(80px,22%,160px);z-index:3;background:rgba(255,255,255,0.05);border:0.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 20px;backdrop-filter:blur(10px);animation:hFadeUp .8s ease .5s both;">
+            <div style="font-size:26px;font-weight:700;color:#fff;line-height:1;">{{ $hero->stat1_number }}</div>
+            <div style="font-size:11px;margin-top:4px;color:rgba(255,255,255,0.35);">{{ $hero->stat1_label }}</div>
+        </div>
+        @endif
+
+        @if($hero->stat2_number)
+        <div class="hero-stat" style="position:absolute;right:clamp(20px,5%,50px);bottom:clamp(80px,28%,200px);z-index:3;background:rgba(255,255,255,0.05);border:0.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 20px;backdrop-filter:blur(10px);animation:hFadeUp .8s ease .65s both;">
+            <div style="font-size:26px;font-weight:700;color:#fff;line-height:1;">{{ $hero->stat2_number }}</div>
+            <div style="font-size:11px;margin-top:4px;color:rgba(255,255,255,0.35);">{{ $hero->stat2_label }}</div>
+        </div>
+        @endif
+
+        {{-- Indicador de scroll --}}
+        <div style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:3;display:flex;flex-direction:column;align-items:center;gap:6px;animation:hFadeUp 1s ease 1s both;">
+            <div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,0.18);">Scroll</div>
+            <div style="width:1px;height:40px;background:linear-gradient(to bottom,rgba(255,255,255,0.2),transparent);"></div>
+        </div>
+
+    </section>
+
+    {{-- ============================================================
+         2. TARJETAS DE CATEGORÍA
+         ============================================================ --}}
+    <section class="py-16 md:py-24" style="background: #F4F6F9;">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto reveal">
+                <span class="inline-block text-sm font-semibold tracking-wider uppercase mb-3" style="color: #378ADD;">Categorías</span>
+                <h2 class="font-brand text-3xl md:text-4xl font-bold" style="color: #1a1a2e;">Encuentra tus lentes ideales</h2>
+                <p class="mt-4" style="color: #6b7280;">Con o sin graduación, tenemos el modelo perfecto para ti.</p>
+            </div>
+
+            <div class="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8">
+                @php
+                $categories = [
+                    [
+                        'name' => 'Sin Graduación',
+                        'slug' => 'sin_graduacion',
+                        'desc' => 'Protección de luz azul sin necesidad de receta. Ideales para uso diario frente a pantallas.',
+                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>',
+                    ],
+                    [
+                        'name' => 'Lectura',
+                        'slug' => 'lectura',
+                        'desc' => 'Lentes con graduación para lectura y filtro de luz azul. De +1.00 a +4.00.',
+                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/>',
+                    ],
+                    [
+                        'name' => 'Miopía',
+                        'slug' => 'miopia',
+                        'desc' => 'Lentes con graduación para miopía y filtro de luz azul. De -1.00 a -4.00.',
+                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7.5 3.75H6A2.25 2.25 0 0 0 3.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0 1 20.25 6v1.5m0 9V18A2.25 2.25 0 0 1 18 20.25h-1.5m-9 0H6A2.25 2.25 0 0 1 3.75 18v-1.5M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>',
+                    ],
+                ];
+                @endphp
+
+                @foreach($categories as $catIndex => $cat)
+                <a href="{{ route('products.index', ['tipo' => $cat['slug']]) }}"
+                   class="reveal group bg-white rounded-2xl p-6 md:p-8 text-center border transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl"
+                   style="border-color: #e5e7eb; transition-delay: {{ $catIndex * 120 }}ms;"
+                   onmouseover="this.style.borderColor='#378ADD';this.style.boxShadow='0 20px 40px rgba(55,138,221,0.12)'"
+                   onmouseout="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'">
+                    <div class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
+                         style="background: rgba(55,138,221,0.1);">
+                        <svg class="w-7 h-7" style="color: #378ADD;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            {!! $cat['icon'] !!}
+                        </svg>
+                    </div>
+                    <h3 class="mt-5 font-brand text-lg font-semibold" style="color: #1a1a2e;">{{ $cat['name'] }}</h3>
+                    <p class="mt-2 text-sm leading-relaxed" style="color: #6b7280;">{{ $cat['desc'] }}</p>
+                    <span class="mt-4 inline-flex items-center gap-1 text-sm font-semibold transition-all duration-200 group-hover:gap-2"
+                          style="color: #378ADD;">
+                        Ver modelos
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+                    </span>
+                </a>
+                @endforeach
             </div>
         </div>
     </section>
 
-    {{-- Scroll-driven product image strip — glass effect --}}
-    <div class="relative overflow-hidden py-6 md:py-8 bg-white/60 backdrop-blur-xl border-y border-white/40 shadow-[0_4px_30px_rgba(0,0,0,0.05)]"
-         x-data @scroll.window.throttle.30ms="$el.querySelector('.strip-track').style.transform = `translateX(-${window.scrollY * 0.5}px)`">
-        <div class="strip-track flex gap-10 md:gap-14 items-center will-change-transform" style="transition: transform 0.1s linear;">
-            @for($set = 0; $set < 3; $set++)
-                @foreach($heroImages as $img)
-                <img src="{{ asset('storage/products/' . $img) }}"
-                     alt="nuvion glass"
-                     class="h-20 md:h-28 w-auto flex-shrink-0 object-contain opacity-50 hover:opacity-100 hover:scale-105 transition-all duration-300">
-                @endforeach
-            @endfor
-        </div>
-    </div>
-
     {{-- ============================================================
-         3. PRODUCTOS DESTACADOS (3 top)
-         Fondo blanco
+         3. CATÁLOGO DE PRODUCTOS CON FILTROS (client-side)
          ============================================================ --}}
-    <section class="py-16 md:py-24 bg-white">
+    <section class="py-16 md:py-24 bg-white"
+             x-data="{
+                activeType: 'all',
+                activeColor: null,
+                filterProducts() {
+                    const cards = document.querySelectorAll('[data-product-card]');
+                    cards.forEach(card => {
+                        const type = card.dataset.type;
+                        const colors = card.dataset.colors ? card.dataset.colors.split(',') : [];
+                        const matchType = this.activeType === 'all' || type === this.activeType;
+                        const matchColor = !this.activeColor || colors.includes(this.activeColor);
+                        card.style.display = (matchType && matchColor) ? '' : 'none';
+                    });
+                }
+             }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-2xl mx-auto" x-data x-reveal.once>
-                <span class="inline-block text-secondary text-sm font-semibold tracking-wider uppercase mb-3">Catálogo</span>
-                <h2 class="font-brand text-3xl md:text-4xl font-bold text-text-dark">Nuestros lentes destacados</h2>
-                <p class="mt-4 text-text-muted">Sin graduación o con ella — hay un nuvion para ti.</p>
+            {{-- Header --}}
+            <div class="text-center max-w-2xl mx-auto reveal">
+                <span class="inline-block text-sm font-semibold tracking-wider uppercase mb-3" style="color: #378ADD;">Catálogo</span>
+                <h2 class="font-brand text-3xl md:text-4xl font-bold" style="color: #1a1a2e;">Nuestros lentes</h2>
+                <p class="mt-4" style="color: #6b7280;">Todos con filtro de luz azul y promoción 2×1.</p>
             </div>
 
-            <div class="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                @foreach($featuredProducts->take(3) as $index => $product)
-                <div class="reveal group bg-bg-light rounded-2xl overflow-hidden border border-border-light
-                            hover:shadow-xl hover:shadow-secondary/10 hover:-translate-y-1.5 hover:border-secondary/30
-                            transition-all duration-300"
-                     style="transition-delay: {{ $index * 150 }}ms">
+            {{-- Filtros --}}
+            <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-6 reveal">
+                {{-- Filtro por tipo --}}
+                <div class="flex flex-wrap justify-center gap-2">
+                    @php
+                    $typeFilters = [
+                        ['key' => 'all', 'label' => 'Todos'],
+                        ['key' => 'sin_graduacion', 'label' => 'Sin Graduación'],
+                        ['key' => 'lectura', 'label' => 'Lectura'],
+                        ['key' => 'miopia', 'label' => 'Miopía'],
+                    ];
+                    @endphp
+                    @foreach($typeFilters as $filter)
+                    <button @click="activeType = '{{ $filter['key'] }}'; filterProducts()"
+                            class="px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200"
+                            :style="activeType === '{{ $filter['key'] }}'
+                                ? 'background: #378ADD; color: white; border-color: #378ADD;'
+                                : 'background: white; color: #6b7280; border-color: #e5e7eb;'"
+                            :class="activeType === '{{ $filter['key'] }}' ? 'shadow-md' : 'hover:border-gray-400'">
+                        {{ $filter['label'] }}
+                    </button>
+                    @endforeach
+                </div>
+
+                {{-- Separador --}}
+                <div class="hidden sm:block w-px h-8" style="background: #e5e7eb;"></div>
+
+                {{-- Filtro por color --}}
+                <div class="flex flex-wrap justify-center items-center gap-2">
+                    <span class="text-xs font-medium mr-1" style="color: #9ca3af;">Color:</span>
+                    <button @click="activeColor = null; filterProducts()"
+                            class="w-7 h-7 rounded-full border-2 transition-all duration-200 flex items-center justify-center"
+                            :style="!activeColor ? 'border-color: #378ADD;' : 'border-color: #e5e7eb;'"
+                            title="Todos los colores">
+                        <span class="text-xs font-bold" style="color: #6b7280;">∅</span>
+                    </button>
+                    @foreach(\App\Helpers\ColorHelper::all() as $colorName => $hex)
+                        @if($coloresDisponibles->contains($colorName))
+                        <button @click="activeColor = activeColor === '{{ $colorName }}' ? null : '{{ $colorName }}'; filterProducts()"
+                                class="w-7 h-7 rounded-full border-2 transition-all duration-200 hover:scale-110"
+                                :style="activeColor === '{{ $colorName }}' ? 'border-color: #378ADD; box-shadow: 0 0 0 2px rgba(55,138,221,0.3);' : 'border-color: #e5e7eb;'"
+                                style="background: {{ $hex }};"
+                                title="{{ $colorName }}">
+                        </button>
+                        @endif
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- Grid de productos --}}
+            <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                @foreach($lentes as $index => $product)
+                <div data-product-card
+                     data-type="{{ $product->type }}"
+                     data-colors="{{ $product->variants->where('is_active', true)->pluck('color')->unique()->filter()->implode(',') }}"
+                     class="reveal group bg-white rounded-2xl overflow-hidden border transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl"
+                     style="border-color: #e5e7eb; transition-delay: {{ ($index % 6) * 100 }}ms;"
+                     onmouseover="this.style.borderColor='rgba(55,138,221,0.3)';this.style.boxShadow='0 20px 40px rgba(55,138,221,0.1)'"
+                     onmouseout="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'">
                     {{-- Imagen --}}
                     <a href="{{ route('products.show', $product->slug) }}" class="block relative aspect-[4/3] overflow-hidden">
                         @if($product->images && count($product->images) > 0)
@@ -247,51 +313,67 @@
                                      loading="lazy">
                             </div>
                         @else
-                            {{-- Attractive gradient placeholder --}}
-                            @php
-                                $gradients = [
-                                    'from-primary/10 via-secondary/5 to-primary/15',
-                                    'from-secondary/10 via-primary/5 to-secondary/15',
-                                    'from-primary/15 via-secondary/10 to-primary/5',
-                                ];
-                            @endphp
-                            <div class="w-full h-full bg-gradient-to-br {{ $gradients[$index % 3] }} flex items-center justify-center relative">
-                                {{-- Animated decorative elements --}}
+                            <div class="w-full h-full flex items-center justify-center relative"
+                                 style="background: linear-gradient(135deg, rgba(55,138,221,0.08), rgba(0,47,109,0.12));">
                                 <div class="absolute inset-0 overflow-hidden">
-                                    <div class="absolute top-6 right-6 w-20 h-20 rounded-full bg-secondary/10 blur-xl"></div>
-                                    <div class="absolute bottom-8 left-8 w-16 h-16 rounded-full bg-primary/10 blur-lg"></div>
+                                    <div class="absolute top-6 right-6 w-20 h-20 rounded-full blur-xl" style="background: rgba(55,138,221,0.1);"></div>
+                                    <div class="absolute bottom-8 left-8 w-16 h-16 rounded-full blur-lg" style="background: rgba(0,47,109,0.1);"></div>
                                 </div>
-                                {{-- Glasses icon --}}
                                 <div class="relative text-center transition-transform duration-500 group-hover:scale-110">
-                                    <svg class="w-20 h-20 mx-auto text-secondary/25" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-20 h-20 mx-auto" style="color: rgba(55,138,221,0.25);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="0.75" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="0.75" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
                                     </svg>
-                                    <p class="mt-1 text-xs font-semibold text-secondary/40 tracking-wide">Próximamente</p>
+                                    <p class="mt-1 text-xs font-semibold tracking-wide" style="color: rgba(55,138,221,0.4);">Foto próximamente</p>
                                 </div>
                             </div>
                         @endif
-                        {{-- Badge de oferta --}}
-                        @if($product->compare_price && $product->compare_price > $product->price)
-                            @php $discount = round((1 - $product->price / $product->compare_price) * 100); @endphp
-                            <span class="absolute top-4 left-4 bg-secondary text-white text-xs font-bold px-3 py-1 rounded-full">-{{ $discount }}%</span>
-                        @endif
+
+                        {{-- Badges --}}
+                        <div class="absolute top-3 left-3 flex flex-col gap-1.5">
+                            @if($product->compare_price && $product->compare_price > $product->price)
+                                @php $discount = round((1 - $product->price / $product->compare_price) * 100); @endphp
+                                <span class="text-white text-xs font-bold px-3 py-1 rounded-full" style="background: #378ADD;">-{{ $discount }}%</span>
+                            @endif
+                            @if($product->badge_2x1)
+                                <span class="text-white text-xs font-bold px-3 py-1 rounded-full" style="background: #002F6D;">2×1</span>
+                            @endif
+                        </div>
                     </a>
+
                     {{-- Info --}}
                     <div class="p-5 md:p-6">
-                        <p class="text-xs text-secondary font-medium uppercase tracking-wide">{{ $product->category->name ?? '' }}</p>
-                        <h3 class="mt-1 font-brand text-lg font-semibold text-text-dark">{{ $product->name }}</h3>
-                        <p class="mt-1.5 text-sm text-text-muted leading-relaxed line-clamp-2">{{ $product->description }}</p>
+                        <p class="text-xs font-medium uppercase tracking-wide" style="color: #378ADD;">
+                            {{ str_replace('_', ' ', $product->type) }}
+                        </p>
+                        <h3 class="mt-1 font-brand text-lg font-semibold" style="color: #1a1a2e;">{{ $product->name }}</h3>
+                        <p class="mt-1.5 text-sm leading-relaxed line-clamp-2" style="color: #6b7280;">{{ $product->description }}</p>
+
+                        {{-- Colores disponibles --}}
+                        @php $productColors = $product->variants->where('is_active', true)->pluck('color')->unique()->filter(); @endphp
+                        @if($productColors->count() > 0)
+                        <div class="mt-3 flex items-center gap-1.5">
+                            @foreach($productColors->take(6) as $colorName)
+                            <span class="w-4 h-4 rounded-full border" style="background: {{ \App\Helpers\ColorHelper::hex($colorName) }}; border-color: #e5e7eb;" title="{{ $colorName }}"></span>
+                            @endforeach
+                            @if($productColors->count() > 6)
+                            <span class="text-xs" style="color: #9ca3af;">+{{ $productColors->count() - 6 }}</span>
+                            @endif
+                        </div>
+                        @endif
+
                         <div class="mt-4 flex items-center justify-between">
                             <div>
-                                <span class="text-2xl font-bold text-primary">${{ number_format($product->price, 0, '.', ',') }}</span>
+                                <span class="text-2xl font-bold" style="color: #002F6D;">${{ number_format($product->price, 0, '.', ',') }}</span>
                                 @if($product->compare_price && $product->compare_price > $product->price)
-                                    <span class="ml-1.5 text-sm text-text-muted line-through">${{ number_format($product->compare_price, 0, '.', ',') }}</span>
+                                    <span class="ml-1.5 text-sm line-through" style="color: #9ca3af;">${{ number_format($product->compare_price, 0, '.', ',') }}</span>
                                 @endif
                             </div>
                             <a href="{{ route('products.show', $product->slug) }}"
-                               class="bg-primary hover:bg-primary-light text-white px-5 py-2.5 rounded-xl text-sm font-semibold
-                                      transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/20 active:translate-y-0">
+                               class="text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
+                               style="background: #002F6D;"
+                               onmouseover="this.style.background='#003d8f';this.style.boxShadow='0 4px 12px rgba(0,47,109,0.3)'"
+                               onmouseout="this.style.background='#002F6D';this.style.boxShadow='none'">
                                 Ver detalle
                             </a>
                         </div>
@@ -301,8 +383,8 @@
             </div>
 
             <div class="mt-10 text-center">
-                <a href="{{ route('products.index') }}" class="inline-flex items-center gap-2 text-secondary font-semibold hover:underline text-base">
-                    Ver todos los lentes
+                <a href="{{ route('products.index') }}" class="inline-flex items-center gap-2 font-semibold text-base hover:underline" style="color: #378ADD;">
+                    Ver catálogo completo
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
                 </a>
             </div>
@@ -310,216 +392,179 @@
     </section>
 
     {{-- ============================================================
-         4. BENEFICIOS VISUALES CON ÍCONOS
-         Fondo claro #F4F6F9
+         4. BANNER 2×1
          ============================================================ --}}
-    <section class="py-16 md:py-24 bg-bg-light">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-2xl mx-auto" x-data x-reveal.once>
-                <span class="inline-block text-secondary text-sm font-semibold tracking-wider uppercase mb-3">Beneficios</span>
-                <h2 class="font-brand text-3xl md:text-4xl font-bold text-text-dark">¿Por qué elegir nuvion?</h2>
-                <p class="mt-4 text-text-muted">Tecnología que cuida tu visión. Diseño que querrás usar todo el día.</p>
-            </div>
+    <section class="relative py-16 md:py-24 overflow-hidden"
+             style="background: linear-gradient(135deg, #002F6D 0%, #001a40 100%);">
+        {{-- Decorativos --}}
+        <div class="absolute top-0 right-0 w-96 h-96 rounded-full blur-[100px] pointer-events-none"
+             style="background: rgba(55,138,221,0.15); animation: pulseDot 5s ease-in-out infinite;"></div>
+        <div class="absolute bottom-0 left-0 w-64 h-64 rounded-full blur-[80px] pointer-events-none"
+             style="background: rgba(0,47,109,0.3); animation: pulseDot 7s ease-in-out 1s infinite;"></div>
 
-            <div class="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-                @php
-                $benefits = [
-                    [
-                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>',
-                        'title' => 'Reduce fatiga visual',
-                        'desc' => 'Filtra entre 30-50% de la luz azul dañina para que tus ojos descansen.',
-                    ],
-                    [
-                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"/>',
-                        'title' => 'Mejora tu sueño',
-                        'desc' => 'Bloquea la luz azul que altera tu ritmo circadiano y tu calidad de descanso.',
-                    ],
-                    [
-                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.182 15.182a4.5 4.5 0 0 1-6.364 0M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Z"/>',
-                        'title' => 'Menos dolores de cabeza',
-                        'desc' => 'Reduce la tensión ocular que causa migrañas y dolores frecuentes.',
-                    ],
-                    [
-                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 0 0-2.455 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/>',
-                        'title' => 'Diseño moderno',
-                        'desc' => 'Marcos premium que se ven increíbles. Lentes que querrás usar todo el día.',
-                    ],
-                ];
-                @endphp
-
-                @foreach($benefits as $benefitIndex => $benefit)
-                <div class="reveal bg-white rounded-2xl p-6 md:p-8 text-center border border-border-light
-                            hover:shadow-lg hover:shadow-secondary/5 hover:-translate-y-1 transition-all duration-300 group"
-                     style="transition-delay: {{ $benefitIndex * 100 }}ms">
-                    <div class="w-14 h-14 mx-auto bg-secondary/10 rounded-2xl flex items-center justify-center
-                                transition-transform duration-300 group-hover:scale-110 group-hover:bg-secondary/20">
-                        <svg class="w-7 h-7 text-secondary transition-transform duration-300 group-hover:-translate-y-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            {!! $benefit['icon'] !!}
-                        </svg>
+        <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+                <div class="reveal">
+                    <span class="inline-block text-sm font-bold tracking-wider uppercase mb-4 px-3 py-1 rounded-full"
+                          style="color: #378ADD; background: rgba(55,138,221,0.15);">Promoción</span>
+                    <h2 class="font-brand text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1]">
+                        2×1 en<br>todos los lentes
+                    </h2>
+                    <p class="mt-5 text-lg leading-relaxed" style="color: rgba(255,255,255,0.7);">
+                        Compra un par y llévate el segundo <strong class="text-white">completamente gratis</strong>.
+                        Todos los modelos, todos los colores, todas las graduaciones.
+                    </p>
+                    <div class="mt-4 flex items-center gap-3">
+                        <span class="text-3xl font-bold text-white">$499<span class="text-lg">.90</span></span>
+                        <span class="text-sm" style="color: rgba(255,255,255,0.5);">por par · el segundo es gratis</span>
                     </div>
-                    <h3 class="mt-5 font-brand text-lg font-semibold text-text-dark">{{ $benefit['title'] }}</h3>
-                    <p class="mt-2 text-sm text-text-muted leading-relaxed">{{ $benefit['desc'] }}</p>
+                    <a href="{{ route('products.index') }}"
+                       class="mt-8 inline-flex items-center justify-center text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
+                       style="background: #378ADD; box-shadow: 0 10px 30px rgba(55,138,221,0.3);"
+                       onmouseover="this.style.background='#2d7acc';this.style.boxShadow='0 14px 35px rgba(55,138,221,0.4)'"
+                       onmouseout="this.style.background='#378ADD';this.style.boxShadow='0 10px 30px rgba(55,138,221,0.3)'">
+                        Aprovecha ahora
+                        <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+                    </a>
                 </div>
-                @endforeach
+
+                {{-- Visual decorativo --}}
+                <div class="reveal delay-200 hidden lg:flex items-center justify-center">
+                    <div class="relative">
+                        <div class="w-64 h-64 rounded-full flex items-center justify-center"
+                             style="background: rgba(55,138,221,0.1); border: 1px solid rgba(55,138,221,0.2);">
+                            <div class="w-48 h-48 rounded-full flex items-center justify-center"
+                                 style="background: rgba(55,138,221,0.15); border: 1px solid rgba(55,138,221,0.25);">
+                                <span class="font-brand text-7xl font-bold text-white">2×1</span>
+                            </div>
+                        </div>
+                        <div class="absolute -top-4 -right-4 px-4 py-2 rounded-xl text-white text-sm font-bold"
+                             style="background: #378ADD; animation: pulseDot 3s ease-in-out infinite;">
+                            ¡GRATIS!
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
     {{-- ============================================================
-         5. COMPARATIVO con / sin protección
-         Fondo blanco
+         5. TOALLITAS
          ============================================================ --}}
+    <section class="py-16 md:py-24" style="background: #F4F6F9;">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                {{-- Texto --}}
+                <div class="reveal">
+                    <span class="inline-block text-sm font-semibold tracking-wider uppercase mb-3" style="color: #378ADD;">Accesorios</span>
+                    <h2 class="font-brand text-3xl md:text-4xl font-bold" style="color: #1a1a2e;">Cuida tus lentes</h2>
+                    <p class="mt-4 leading-relaxed" style="color: #6b7280;">
+                        Toallitas limpiadoras 2 en 1: paño húmedo con fórmula sin alcohol + paño seco. Resultados inmediatos para lentes, pantallas, cámaras y tablets.
+                    </p>
+                    <div class="mt-6 space-y-3">
+                        @php
+                        $features = [
+                            'Fórmula sin alcohol — segura para cualquier lente',
+                            'Sistema 2 en 1 — limpieza húmeda + secado',
+                            'Resultados inmediatos sin residuos',
+                            'Sirve para lentes, pantallas y cámaras',
+                        ];
+                        @endphp
+                        @foreach($features as $fIdx => $feature)
+                        <div class="flex items-center gap-3 reveal" style="transition-delay: {{ $fIdx * 80 }}ms;">
+                            <span class="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center"
+                                  style="background: rgba(55,138,221,0.1);">
+                                <svg class="w-3 h-3" style="color: #378ADD;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="m4.5 12.75 6 6 9-13.5"/></svg>
+                            </span>
+                            <span class="text-sm" style="color: #4b5563;">{{ $feature }}</span>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- Cards de toallitas --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    @foreach($toallitas as $tIdx => $toallita)
+                    <div class="reveal group bg-white rounded-2xl overflow-hidden border transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl"
+                         style="border-color: #e5e7eb; transition-delay: {{ $tIdx * 120 }}ms;"
+                         onmouseover="this.style.borderColor='rgba(55,138,221,0.3)';this.style.boxShadow='0 20px 40px rgba(55,138,221,0.1)'"
+                         onmouseout="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'">
+                        {{-- Imagen --}}
+                        <a href="{{ route('products.show', $toallita->slug) }}" class="block relative aspect-square overflow-hidden">
+                            @if($toallita->images && count($toallita->images) > 0)
+                                <div class="w-full h-full bg-white flex items-center justify-center">
+                                    <img src="{{ asset('storage/' . $toallita->images[0]) }}"
+                                         alt="{{ $toallita->name }}"
+                                         class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
+                                         loading="lazy">
+                                </div>
+                            @else
+                                <div class="w-full h-full flex items-center justify-center"
+                                     style="background: linear-gradient(135deg, rgba(55,138,221,0.06), rgba(0,47,109,0.1));">
+                                    <div class="text-center">
+                                        <svg class="w-16 h-16 mx-auto" style="color: rgba(55,138,221,0.2);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="0.75" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            @endif
+                        </a>
+                        {{-- Info --}}
+                        <div class="p-4">
+                            <h3 class="font-brand text-sm font-semibold leading-tight" style="color: #1a1a2e;">{{ $toallita->name }}</h3>
+                            <div class="mt-3 flex items-center justify-between">
+                                <span class="text-xl font-bold" style="color: #002F6D;">${{ number_format($toallita->price, 0, '.', ',') }}</span>
+                                <a href="{{ route('products.show', $toallita->slug) }}"
+                                   class="text-white px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 hover:-translate-y-0.5"
+                                   style="background: #002F6D;"
+                                   onmouseover="this.style.background='#003d8f'"
+                                   onmouseout="this.style.background='#002F6D'">
+                                    Ver producto
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- ============================================================
+         6. FAQ + CONFIANZA + CTA FINAL
+         ============================================================ --}}
+    {{-- FAQ --}}
     <section class="py-16 md:py-24 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto">
-                <span class="inline-block text-secondary text-sm font-semibold tracking-wider uppercase mb-3">Comparativo</span>
-                <h2 class="font-brand text-3xl md:text-4xl font-bold text-text-dark">Con vs. sin protección</h2>
-                <p class="mt-4 text-text-muted">Mira la diferencia real de usar lentes con protección de luz azul.</p>
-            </div>
-
-            <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-4xl mx-auto">
-                {{-- Sin protección --}}
-                <div class="reveal rounded-2xl border-2 border-danger/20 bg-danger/5 p-6 md:p-8">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="w-10 h-10 rounded-full bg-danger/10 flex items-center justify-center">
-                            <svg class="w-5 h-5 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 18 6M6 6l12 12"/></svg>
-                        </div>
-                        <h3 class="font-brand text-xl font-bold text-danger">Sin protección</h3>
-                    </div>
-                    <ul class="space-y-4">
-                        @php
-                        $noProtection = [
-                            'Ojos cansados y secos después de 2 horas',
-                            'Dolores de cabeza frecuentes al final del día',
-                            'Dificultad para conciliar el sueño',
-                            'Visión borrosa y tensión constante',
-                        ];
-                        @endphp
-                        @foreach($noProtection as $npIndex => $item)
-                        <li class="reveal flex items-start gap-3" style="transition-delay: {{ 100 + $npIndex * 80 }}ms">
-                            <span class="flex-shrink-0 w-5 h-5 mt-0.5 rounded-full bg-danger/10 flex items-center justify-center">
-                                <svg class="w-3 h-3 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18 18 6M6 6l12 12"/></svg>
-                            </span>
-                            <span class="text-text-dark/80">{{ $item }}</span>
-                        </li>
-                        @endforeach
-                    </ul>
-                </div>
-
-                {{-- Con nuvion --}}
-                <div class="reveal delay-150 rounded-2xl border-2 border-success/20 bg-success/5 p-6 md:p-8">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center">
-                            <svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m4.5 12.75 6 6 9-13.5"/></svg>
-                        </div>
-                        <h3 class="font-brand text-xl font-bold text-success">Con nuvion glass</h3>
-                    </div>
-                    <ul class="space-y-4">
-                        @php
-                        $withProtection = [
-                            'Vista cómoda todo el día sin fatiga',
-                            'Menos dolores de cabeza y migrañas',
-                            'Mejor calidad de sueño y descanso',
-                            'Mayor rendimiento y concentración',
-                        ];
-                        @endphp
-                        @foreach($withProtection as $wpIndex => $item)
-                        <li class="reveal flex items-start gap-3" style="transition-delay: {{ 150 + $wpIndex * 80 }}ms">
-                            <span class="flex-shrink-0 w-5 h-5 mt-0.5 rounded-full bg-success/10 flex items-center justify-center">
-                                <svg class="w-3 h-3 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="m4.5 12.75 6 6 9-13.5"/></svg>
-                            </span>
-                            <span class="text-text-dark/80">{{ $item }}</span>
-                        </li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {{-- ============================================================
-         6. TESTIMONIOS / PRUEBA SOCIAL
-         Fondo claro #F4F6F9
-         ============================================================ --}}
-    <section class="py-16 md:py-24 bg-bg-light">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-2xl mx-auto" x-data x-reveal.once>
-                <span class="inline-block text-secondary text-sm font-semibold tracking-wider uppercase mb-3">Testimonios</span>
-                <h2 class="font-brand text-3xl md:text-4xl font-bold text-text-dark">Lo que dicen nuestros clientes</h2>
-            </div>
-
-            <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-                @php
-                $testimonials = [
-                    ['name' => 'María G.', 'role' => 'Diseñadora gráfica', 'text' => 'Desde que uso mis nuvion, ya no termino el día con los ojos rojos. Son súper cómodos y se ven increíbles.', 'avatar' => 'M'],
-                    ['name' => 'Carlos R.', 'role' => 'Programador', 'text' => 'Trabajo 10 horas frente a la pantalla y estos lentes cambiaron todo. Menos dolor de cabeza y duermo mejor.', 'avatar' => 'C'],
-                    ['name' => 'Ana L.', 'role' => 'Estudiante', 'text' => 'Los compré sin graduación y me encantan. El diseño es moderno y realmente siento la diferencia.', 'avatar' => 'A'],
-                ];
-                @endphp
-
-                @foreach($testimonials as $tIndex => $testimonial)
-                <div class="reveal bg-white rounded-2xl p-6 md:p-8 border border-border-light shadow-sm
-                            hover:shadow-lg hover:shadow-secondary/5 hover:-translate-y-1 transition-all duration-300"
-                     style="transition-delay: {{ $tIndex * 150 }}ms">
-                    {{-- Stars --}}
-                    <div class="flex items-center gap-1">
-                        @for($i = 0; $i < 5; $i++)
-                        <svg class="w-5 h-5 text-warning anim-scale-in" style="animation-delay: {{ 300 + ($i * 80) }}ms" fill="currentColor" viewBox="0 0 24 24"><path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z"/></svg>
-                        @endfor
-                    </div>
-
-                    {{-- Quote --}}
-                    <p class="mt-4 text-text-dark/80 leading-relaxed">"{{ $testimonial['text'] }}"</p>
-
-                    {{-- Author --}}
-                    <div class="mt-6 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">
-                            {{ $testimonial['avatar'] }}
-                        </div>
-                        <div>
-                            <p class="font-semibold text-text-dark text-sm">{{ $testimonial['name'] }}</p>
-                            <p class="text-xs text-text-muted">{{ $testimonial['role'] }}</p>
-                        </div>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-        </div>
-    </section>
-
-    {{-- ============================================================
-         7. FAQ — RESPONDE OBJECIONES (Alpine.js accordion)
-         Fondo blanco
-         ============================================================ --}}
-    <section class="py-16 md:py-24 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-2xl mx-auto">
-                <span class="inline-block text-secondary text-sm font-semibold tracking-wider uppercase mb-3">FAQ</span>
-                <h2 class="font-brand text-3xl md:text-4xl font-bold text-text-dark">Preguntas frecuentes</h2>
-                <p class="mt-4 text-text-muted">Todo lo que necesitas saber antes de proteger tu visión.</p>
+                <span class="inline-block text-sm font-semibold tracking-wider uppercase mb-3" style="color: #378ADD;">FAQ</span>
+                <h2 class="font-brand text-3xl md:text-4xl font-bold" style="color: #1a1a2e;">Preguntas frecuentes</h2>
+                <p class="mt-4" style="color: #6b7280;">Todo lo que necesitas saber antes de proteger tu visión.</p>
             </div>
 
             <div class="mt-12 max-w-3xl mx-auto space-y-3 reveal visible" x-data="{ openFaq: null }">
                 @php
                 $faqs = [
-                    ['q' => '¿De verdad funcionan los lentes de luz azul?', 'a' => 'Sí. Nuestros lentes filtran entre el 30% y 50% de la luz azul de alta energía emitida por pantallas y focos LED. Esto reduce la fatiga visual, dolores de cabeza y mejora la calidad del sueño. Múltiples estudios respaldan los beneficios de la filtración de luz azul.'],
+                    ['q' => '¿De verdad funcionan los lentes de luz azul?', 'a' => 'Sí. Nuestros lentes filtran entre el 30% y 50% de la luz azul de alta energía emitida por pantallas y focos LED. Esto reduce la fatiga visual, dolores de cabeza y mejora la calidad del sueño.'],
                     ['q' => '¿Puedo usarlos si no tengo graduación?', 'a' => 'Por supuesto. Tenemos modelos sin graduación diseñados específicamente para personas que no necesitan corrección visual pero quieren proteger sus ojos de la luz azul de pantallas.'],
-                    ['q' => '¿Cuánto tarda el envío?', 'a' => 'El envío estándar tarda de 3 a 5 días hábiles a cualquier parte de México. Ofrecemos envío gratis en compras mayores a $999 MXN.'],
+                    ['q' => '¿Cómo funciona el 2×1?', 'a' => 'Al agregar 2 pares de lentes al carrito, el segundo par (de igual o menor valor) es completamente gratis. Aplica para todos los modelos y colores.'],
+                    ['q' => '¿Cuánto tarda el envío?', 'a' => 'El envío estándar tarda de 3 a 5 días hábiles a cualquier parte de México. Envío gratis en compras mayores a $999 MXN.'],
                     ['q' => '¿Tienen garantía?', 'a' => 'Todos nuestros lentes incluyen 6 meses de garantía contra defectos de fabricación. Si no estás satisfecho, puedes devolverlos en los primeros 30 días.'],
-                    ['q' => '¿Puedo pedir lentes con mi graduación?', 'a' => 'Sí. Ofrecemos lentes con graduación para miopía y lectura. Solo necesitas seleccionar la opción "con graduación" en la ficha del producto e indicar tus dioptrías.'],
                 ];
                 @endphp
 
                 @foreach($faqs as $index => $faq)
-                <div class="border border-border-light rounded-xl overflow-hidden bg-bg-light" x-data>
+                <div class="border rounded-xl overflow-hidden" style="border-color: #e5e7eb; background: #F4F6F9;">
                     <button @click="openFaq = openFaq === {{ $index }} ? null : {{ $index }}"
-                            class="w-full flex items-center justify-between px-5 md:px-6 py-4 text-left
-                                   hover:bg-white transition-all duration-200 group"
-                            :class="openFaq === {{ $index }} ? 'bg-white' : ''">
-                        <span class="font-semibold text-text-dark pr-4 transition-colors duration-200"
-                              :class="openFaq === {{ $index }} ? 'text-secondary' : ''">{{ $faq['q'] }}</span>
-                        <span class="flex-shrink-0 w-8 h-8 rounded-full bg-white border border-border-light flex items-center justify-center">
-                            <svg :class="openFaq === {{ $index }} ? 'rotate-180' : ''" class="w-4 h-4 text-primary transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="w-full flex items-center justify-between px-5 md:px-6 py-4 text-left transition-all duration-200 group"
+                            :style="openFaq === {{ $index }} ? 'background: white;' : ''"
+                            onmouseover="if(!this.classList.contains('bg-white'))this.style.background='white'"
+                            onmouseout="this.style.background=''">
+                        <span class="font-semibold pr-4 transition-colors duration-200"
+                              :style="openFaq === {{ $index }} ? 'color: #378ADD;' : 'color: #1a1a2e;'">{{ $faq['q'] }}</span>
+                        <span class="flex-shrink-0 w-8 h-8 rounded-full bg-white border flex items-center justify-center"
+                              style="border-color: #e5e7eb;">
+                            <svg :class="openFaq === {{ $index }} ? 'rotate-180' : ''" class="w-4 h-4 transition-transform duration-200" style="color: #002F6D;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
                             </svg>
                         </span>
@@ -532,7 +577,7 @@
                          x-transition:leave-start="opacity-100"
                          x-transition:leave-end="opacity-0"
                          class="px-5 md:px-6 pb-5">
-                        <p class="text-text-muted leading-relaxed">{{ $faq['a'] }}</p>
+                        <p class="leading-relaxed" style="color: #6b7280;">{{ $faq['a'] }}</p>
                     </div>
                 </div>
                 @endforeach
@@ -540,48 +585,93 @@
         </div>
     </section>
 
-    {{-- ============================================================
-         8. CTA FINAL — fondo oscuro (azul primario)
-         ============================================================ --}}
-    <section class="py-16 md:py-24 bg-primary relative overflow-hidden">
-        {{-- Glow decorativo --}}
-        <div class="absolute top-0 right-0 w-96 h-96 bg-secondary/10 rounded-full blur-[100px] pointer-events-none"
-             style="animation: pulseDot 5s ease-in-out infinite;"></div>
-        <div class="absolute bottom-0 left-0 w-64 h-64 bg-primary/20 rounded-full blur-[80px] pointer-events-none"
-             style="animation: pulseDot 7s ease-in-out 1s infinite;"></div>
+    {{-- Confianza + CTA Final --}}
+    <section class="relative py-16 md:py-24 overflow-hidden"
+             style="background: linear-gradient(135deg, #0A0E1A 0%, #001a40 50%, #0A0E1A 100%);">
+        <div class="absolute top-0 right-0 w-96 h-96 rounded-full blur-[100px] pointer-events-none"
+             style="background: rgba(55,138,221,0.08); animation: pulseDot 5s ease-in-out infinite;"></div>
 
-        <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 class="font-brand text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight reveal visible anim-fade-up">
-                ¿Listo para proteger tu visión?
-            </h2>
-            <p class="mt-5 text-lg text-white/80 max-w-xl mx-auto reveal visible anim-fade-up delay-200">
-                Ven mejor, duerme mejor, rinde más. Únete a miles de personas que ya cuidan sus ojos con nuvion.
-            </p>
-            <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a href="{{ route('products.index') }}"
-                   class="relative inline-flex items-center justify-center bg-secondary hover:bg-secondary/90 text-white px-10 py-4 rounded-xl font-semibold text-lg transition-all duration-300
-                          shadow-lg shadow-secondary/25 hover:shadow-xl hover:shadow-secondary/40 hover:-translate-y-0.5
-                          overflow-hidden group active:translate-y-0">
-                    <span class="shimmer-inner absolute inset-0 w-full h-full"
-                          style="background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-                                 transform: translateX(-100%);
-                                 transition: transform 500ms ease;"></span>
-                    Comprar ahora
-                    <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
-                </a>
-                <a href="{{ route('blue-light') }}"
-                   class="inline-flex items-center justify-center border border-white/30 text-white hover:bg-white/10 px-10 py-4 rounded-xl font-medium text-lg transition-colors">
-                    Aprende más
-                </a>
+        <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            {{-- Trust badges --}}
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-16">
+                @php
+                $trustBadges = [
+                    [
+                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/>',
+                        'title' => 'Envío gratis',
+                        'desc' => 'En compras +$999',
+                    ],
+                    [
+                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/>',
+                        'title' => 'Garantía 6 meses',
+                        'desc' => 'Contra defectos',
+                    ],
+                    [
+                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182"/>',
+                        'title' => '30 días',
+                        'desc' => 'Devolución sin costo',
+                    ],
+                    [
+                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z"/>',
+                        'title' => 'Pago seguro',
+                        'desc' => 'Stripe encriptado',
+                    ],
+                ];
+                @endphp
+
+                @foreach($trustBadges as $bIdx => $badge)
+                <div class="reveal text-center" style="transition-delay: {{ $bIdx * 100 }}ms;">
+                    <div class="w-12 h-12 mx-auto rounded-xl flex items-center justify-center"
+                         style="background: rgba(55,138,221,0.15);">
+                        <svg class="w-6 h-6" style="color: #378ADD;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            {!! $badge['icon'] !!}
+                        </svg>
+                    </div>
+                    <h3 class="mt-3 font-brand text-sm font-semibold text-white">{{ $badge['title'] }}</h3>
+                    <p class="mt-1 text-xs" style="color: rgba(255,255,255,0.5);">{{ $badge['desc'] }}</p>
+                </div>
+                @endforeach
             </div>
 
-            {{-- Trust --}}
-            <div class="mt-10 flex flex-wrap items-center justify-center gap-6 text-sm text-white/50">
-                <span>Envío gratis a todo México</span>
-                <span class="hidden sm:inline">|</span>
-                <span>Garantía 6 meses</span>
-                <span class="hidden sm:inline">|</span>
-                <span>30 días de devolución</span>
+            {{-- Separador --}}
+            <div class="flex justify-center my-12 md:my-16">
+                <div class="w-24 h-px" style="background: linear-gradient(90deg, transparent, rgba(55,138,221,0.3), transparent);"></div>
+            </div>
+
+            {{-- CTA --}}
+            <div class="text-center max-w-2xl mx-auto">
+                <h2 class="font-brand text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight reveal">
+                    ¿Listo para proteger<br class="hidden sm:inline"> tu visión?
+                </h2>
+                <p class="mt-6 text-lg leading-relaxed max-w-xl mx-auto reveal" style="color: rgba(255,255,255,0.65);">
+                    Ve mejor, duerme mejor, rinde más. Únete a quienes ya cuidan sus ojos con nuvion.
+                </p>
+                <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 reveal">
+                    <a href="{{ route('products.index') }}"
+                       class="inline-flex items-center justify-center text-white px-10 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
+                       style="background: #378ADD; box-shadow: 0 10px 30px rgba(55,138,221,0.3);"
+                       onmouseover="this.style.background='#2d7acc';this.style.boxShadow='0 14px 35px rgba(55,138,221,0.4)'"
+                       onmouseout="this.style.background='#378ADD';this.style.boxShadow='0 10px 30px rgba(55,138,221,0.3)'">
+                        Comprar ahora
+                        <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+                    </a>
+                    <a href="{{ route('blue-light') }}"
+                       class="inline-flex items-center justify-center border px-10 py-4 rounded-xl font-medium text-lg transition-colors"
+                       style="border-color: rgba(255,255,255,0.25); color: white;"
+                       onmouseover="this.style.background='rgba(255,255,255,0.08)'"
+                       onmouseout="this.style.background='transparent'">
+                        Aprende más
+                    </a>
+                </div>
+
+                <div class="mt-12 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm"
+                     style="color: rgba(255,255,255,0.4);">
+                    <span>Envío gratis +$999</span>
+                    <span class="hidden sm:inline">·</span>
+                    <span>Garantía 6 meses</span>
+                    <span class="hidden sm:inline">·</span>
+                    <span>30 días de devolución</span>
+                </div>
             </div>
         </div>
     </section>
