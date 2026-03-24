@@ -2,16 +2,25 @@
 
 @section('body_class', 'bg-bg-light text-text-dark')
 
-@section('title', 'nuvion - glass | Protege tus ojos de la luz azul')
-@section('meta_description', 'Lentes con protección de luz azul. Con o sin graduación. Diseño moderno que querrás usar todo el día. Envío gratis a todo México.')
-@section('og_title', 'nuvion - glass | Lentes con protección de luz azul')
-@section('og_description', 'Protege tus ojos de las pantallas. Lentes con filtro de luz azul, con o sin graduación. Envío gratis.')
-@section('twitter_title', 'nuvion - glass | Lentes con protección de luz azul')
-@section('twitter_description', 'Protege tus ojos de las pantallas. Lentes con filtro de luz azul, con o sin graduación. Envío gratis.')
+@section('title', $seoSettings->meta_title ?? 'nuvion - glass | Protege tus ojos de la luz azul')
+@section('meta_description', $seoSettings->meta_description ?? 'Lentes con protección de luz azul. Con o sin graduación. Diseño moderno que querrás usar todo el día. Envío gratis a todo México.')
+@section('robots', $seoSettings->robots ?? 'index, follow')
+@section('canonical', $seoSettings->canonical_url ?? url()->current())
+@section('og_type', $seoSettings->og_type ?? 'website')
+@section('og_title', $seoSettings->og_title ?? $seoSettings->meta_title ?? 'nuvion - glass | Lentes con protección de luz azul')
+@section('og_description', $seoSettings->og_description ?? $seoSettings->meta_description ?? 'Protege tus ojos de las pantallas. Lentes con filtro de luz azul, con o sin graduación. Envío gratis.')
+@section('og_image', $seoSettings->og_image_url ?? asset('images/og-default.jpg'))
+@section('twitter_card', $seoSettings->twitter_card ?? 'summary_large_image')
+@section('twitter_title', $seoSettings->twitter_title ?? $seoSettings->meta_title ?? 'nuvion - glass | Lentes con protección de luz azul')
+@section('twitter_description', $seoSettings->twitter_description ?? $seoSettings->meta_description ?? 'Protege tus ojos de las pantallas. Lentes con filtro de luz azul, con o sin graduación. Envío gratis.')
+@section('twitter_image', $seoSettings->twitter_image_url ?? $seoSettings->og_image_url ?? asset('images/og-default.jpg'))
 
 @push('schema')
     {!! $organizationSchema !!}
     {!! $faqSchema !!}
+    @if($seoSettings && $seoSettings->custom_schema_markup)
+        {!! $seoSettings->custom_schema_markup !!}
+    @endif
 @endpush
 
 @section('content')
@@ -411,37 +420,14 @@
     <section class="py-16 md:py-24" style="background: #F4F6F9;">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto reveal">
-                <span class="inline-block text-sm font-semibold tracking-wider uppercase mb-3" style="color: #378ADD;">Categorías</span>
-                <h2 class="font-brand text-3xl md:text-4xl font-bold" style="color: #1a1a2e;">Encuentra tus lentes ideales</h2>
-                <p class="mt-4" style="color: #6b7280;">Con o sin graduación, tenemos el modelo perfecto para ti.</p>
+                <span class="inline-block text-sm font-semibold tracking-wider uppercase mb-3" style="color: #378ADD;">{{ $homePage->categories_label ?? 'Categorías' }}</span>
+                <h2 class="font-brand text-3xl md:text-4xl font-bold" style="color: #1a1a2e;">{{ $homePage->categories_title ?? 'Encuentra tus lentes ideales' }}</h2>
+                <p class="mt-4" style="color: #6b7280;">{{ $homePage->categories_subtitle ?? 'Con o sin graduación, tenemos el modelo perfecto para ti.' }}</p>
             </div>
 
             <div class="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8">
-                @php
-                $categories = [
-                    [
-                        'name' => 'Sin Graduación',
-                        'slug' => 'sin_graduacion',
-                        'desc' => 'Protección de luz azul sin necesidad de receta. Ideales para uso diario frente a pantallas.',
-                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>',
-                    ],
-                    [
-                        'name' => 'Lectura',
-                        'slug' => 'lectura',
-                        'desc' => 'Lentes con graduación para lectura y filtro de luz azul. De +1.00 a +4.00.',
-                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/>',
-                    ],
-                    [
-                        'name' => 'Miopía',
-                        'slug' => 'miopia',
-                        'desc' => 'Lentes con graduación para miopía y filtro de luz azul. De -1.00 a -4.00.',
-                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7.5 3.75H6A2.25 2.25 0 0 0 3.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0 1 20.25 6v1.5m0 9V18A2.25 2.25 0 0 1 18 20.25h-1.5m-9 0H6A2.25 2.25 0 0 1 3.75 18v-1.5M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>',
-                    ],
-                ];
-                @endphp
-
-                @foreach($categories as $catIndex => $cat)
-                <a href="{{ route('products.index', ['tipo' => $cat['slug']]) }}"
+                @foreach(($homePage->category_cards ?? []) as $catIndex => $cat)
+                <a href="{{ route('products.index', ['tipo' => $cat['link_param'] ?? '']) }}"
                    class="reveal group bg-white rounded-2xl p-6 md:p-8 text-center border transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl"
                    style="border-color: #e5e7eb; transition-delay: {{ $catIndex * 120 }}ms;"
                    onmouseover="this.style.borderColor='#378ADD';this.style.boxShadow='0 20px 40px rgba(55,138,221,0.12)'"
@@ -449,11 +435,11 @@
                     <div class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
                          style="background: rgba(55,138,221,0.1);">
                         <svg class="w-7 h-7" style="color: #378ADD;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            {!! $cat['icon'] !!}
+                            {!! $cat['icon_svg'] ?? '' !!}
                         </svg>
                     </div>
                     <h3 class="mt-5 font-brand text-lg font-semibold" style="color: #1a1a2e;">{{ $cat['name'] }}</h3>
-                    <p class="mt-2 text-sm leading-relaxed" style="color: #6b7280;">{{ $cat['desc'] }}</p>
+                    <p class="mt-2 text-sm leading-relaxed" style="color: #6b7280;">{{ $cat['description'] ?? '' }}</p>
                     <span class="mt-4 inline-flex items-center gap-1 text-sm font-semibold transition-all duration-200 group-hover:gap-2"
                           style="color: #378ADD;">
                         Ver modelos
@@ -486,9 +472,9 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {{-- Header --}}
             <div class="text-center max-w-2xl mx-auto reveal">
-                <span class="inline-block text-sm font-semibold tracking-wider uppercase mb-3" style="color: #378ADD;">Catálogo</span>
-                <h2 class="font-brand text-3xl md:text-4xl font-bold" style="color: #1a1a2e;">Nuestros lentes</h2>
-                <p class="mt-4" style="color: #6b7280;">Todos con filtro de luz azul y promoción 2×1.</p>
+                <span class="inline-block text-sm font-semibold tracking-wider uppercase mb-3" style="color: #378ADD;">{{ $homePage->catalog_label ?? 'Catálogo' }}</span>
+                <h2 class="font-brand text-3xl md:text-4xl font-bold" style="color: #1a1a2e;">{{ $homePage->catalog_title ?? 'Nuestros lentes' }}</h2>
+                <p class="mt-4" style="color: #6b7280;">{{ $homePage->catalog_subtitle ?? 'Todos con filtro de luz azul y promoción 2×1.' }}</p>
             </div>
 
             {{-- Filtros --}}
@@ -653,24 +639,23 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
                 <div class="reveal">
                     <span class="inline-block text-sm font-bold tracking-wider uppercase mb-4 px-3 py-1 rounded-full"
-                          style="color: #378ADD; background: rgba(55,138,221,0.15);">Promoción</span>
+                          style="color: #378ADD; background: rgba(55,138,221,0.15);">{{ $homePage->promo_label ?? 'Promoción' }}</span>
                     <h2 class="font-brand text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1]">
-                        2×1 en<br>todos los lentes
+                        {!! nl2br(e($homePage->promo_title ?? '2×1 en todos los lentes')) !!}
                     </h2>
                     <p class="mt-5 text-lg leading-relaxed" style="color: rgba(255,255,255,0.7);">
-                        Compra un par y llévate el segundo <strong class="text-white">completamente gratis</strong>.
-                        Todos los modelos, todos los colores, todas las graduaciones.
+                        {{ $homePage->promo_description ?? 'Compra un par y llévate el segundo completamente gratis. Todos los modelos, todos los colores, todas las graduaciones.' }}
                     </p>
                     <div class="mt-4 flex items-center gap-3">
-                        <span class="text-3xl font-bold text-white">$499<span class="text-lg">.90</span></span>
-                        <span class="text-sm" style="color: rgba(255,255,255,0.5);">por par · el segundo es gratis</span>
+                        <span class="text-3xl font-bold text-white">{{ $homePage->promo_price ?? '$499.90' }}</span>
+                        <span class="text-sm" style="color: rgba(255,255,255,0.5);">{{ $homePage->promo_price_note ?? 'por par · el segundo es gratis' }}</span>
                     </div>
                     <a href="{{ route('products.index') }}"
                        class="mt-8 inline-flex items-center justify-center text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
                        style="background: #378ADD; box-shadow: 0 10px 30px rgba(55,138,221,0.3);"
                        onmouseover="this.style.background='#2d7acc';this.style.boxShadow='0 14px 35px rgba(55,138,221,0.4)'"
                        onmouseout="this.style.background='#378ADD';this.style.boxShadow='0 10px 30px rgba(55,138,221,0.3)'">
-                        Aprovecha ahora
+                        {{ $homePage->promo_btn_text ?? 'Aprovecha ahora' }}
                         <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
                     </a>
                 </div>
@@ -703,21 +688,13 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 {{-- Texto --}}
                 <div class="reveal">
-                    <span class="inline-block text-sm font-semibold tracking-wider uppercase mb-3" style="color: #378ADD;">Accesorios</span>
-                    <h2 class="font-brand text-3xl md:text-4xl font-bold" style="color: #1a1a2e;">Cuida tus lentes</h2>
+                    <span class="inline-block text-sm font-semibold tracking-wider uppercase mb-3" style="color: #378ADD;">{{ $homePage->wipes_label ?? 'Accesorios' }}</span>
+                    <h2 class="font-brand text-3xl md:text-4xl font-bold" style="color: #1a1a2e;">{{ $homePage->wipes_title ?? 'Cuida tus lentes' }}</h2>
                     <p class="mt-4 leading-relaxed" style="color: #6b7280;">
-                        Toallitas limpiadoras 2 en 1: paño húmedo con fórmula sin alcohol + paño seco. Resultados inmediatos para lentes, pantallas, cámaras y tablets.
+                        {{ $homePage->wipes_description ?? 'Toallitas limpiadoras 2 en 1: paño húmedo con fórmula sin alcohol + paño seco. Resultados inmediatos para lentes, pantallas, cámaras y tablets.' }}
                     </p>
                     <div class="mt-6 space-y-3">
-                        @php
-                        $features = [
-                            'Fórmula sin alcohol — segura para cualquier lente',
-                            'Sistema 2 en 1 — limpieza húmeda + secado',
-                            'Resultados inmediatos sin residuos',
-                            'Sirve para lentes, pantallas y cámaras',
-                        ];
-                        @endphp
-                        @foreach($features as $fIdx => $feature)
+                        @foreach(($homePage->wipes_features ?? []) as $fIdx => $feature)
                         <div class="flex items-center gap-3 reveal" style="transition-delay: {{ $fIdx * 80 }}ms;">
                             <span class="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center"
                                   style="background: rgba(55,138,221,0.1);">
@@ -790,17 +767,7 @@
             </div>
 
             <div class="mt-12 max-w-3xl mx-auto space-y-3 reveal visible" x-data="{ openFaq: null }">
-                @php
-                $faqs = [
-                    ['q' => '¿De verdad funcionan los lentes de luz azul?', 'a' => 'Sí. Nuestros lentes filtran entre el 30% y 50% de la luz azul de alta energía emitida por pantallas y focos LED. Esto reduce la fatiga visual, dolores de cabeza y mejora la calidad del sueño.'],
-                    ['q' => '¿Puedo usarlos si no tengo graduación?', 'a' => 'Por supuesto. Tenemos modelos sin graduación diseñados específicamente para personas que no necesitan corrección visual pero quieren proteger sus ojos de la luz azul de pantallas.'],
-                    ['q' => '¿Cómo funciona el 2×1?', 'a' => 'Al agregar 2 pares de lentes al carrito, el segundo par (de igual o menor valor) es completamente gratis. Aplica para todos los modelos y colores.'],
-                    ['q' => '¿Cuánto tarda el envío?', 'a' => 'El envío estándar tarda de 3 a 5 días hábiles a cualquier parte de México. Envío gratis en compras mayores a $999 MXN.'],
-                    ['q' => '¿Tienen garantía?', 'a' => 'Todos nuestros lentes incluyen 6 meses de garantía contra defectos de fabricación. Si no estás satisfecho, puedes devolverlos en los primeros 30 días.'],
-                ];
-                @endphp
-
-                @foreach($faqs as $index => $faq)
+                @foreach(($homePage->faqs ?? []) as $index => $faq)
                 <div class="border rounded-xl overflow-hidden" style="border-color: #e5e7eb; background: #F4F6F9;">
                     <button @click="openFaq = openFaq === {{ $index }} ? null : {{ $index }}"
                             class="w-full flex items-center justify-between px-5 md:px-6 py-4 text-left transition-all duration-200 group"
@@ -841,41 +808,16 @@
         <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             {{-- Trust badges --}}
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-16">
-                @php
-                $trustBadges = [
-                    [
-                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/>',
-                        'title' => 'Envío gratis',
-                        'desc' => 'En compras +$999',
-                    ],
-                    [
-                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/>',
-                        'title' => 'Garantía 6 meses',
-                        'desc' => 'Contra defectos',
-                    ],
-                    [
-                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182"/>',
-                        'title' => '30 días',
-                        'desc' => 'Devolución sin costo',
-                    ],
-                    [
-                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z"/>',
-                        'title' => 'Pago seguro',
-                        'desc' => 'Stripe encriptado',
-                    ],
-                ];
-                @endphp
-
-                @foreach($trustBadges as $bIdx => $badge)
+                @foreach(($homePage->trust_badges ?? []) as $bIdx => $badge)
                 <div class="reveal text-center" style="transition-delay: {{ $bIdx * 100 }}ms;">
                     <div class="w-12 h-12 mx-auto rounded-xl flex items-center justify-center"
                          style="background: rgba(55,138,221,0.15);">
                         <svg class="w-6 h-6" style="color: #378ADD;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            {!! $badge['icon'] !!}
+                            {!! $badge['icon_svg'] ?? '' !!}
                         </svg>
                     </div>
                     <h3 class="mt-3 font-brand text-sm font-semibold text-white">{{ $badge['title'] }}</h3>
-                    <p class="mt-1 text-xs" style="color: rgba(255,255,255,0.5);">{{ $badge['desc'] }}</p>
+                    <p class="mt-1 text-xs" style="color: rgba(255,255,255,0.5);">{{ $badge['description'] ?? '' }}</p>
                 </div>
                 @endforeach
             </div>
@@ -888,10 +830,10 @@
             {{-- CTA --}}
             <div class="text-center max-w-2xl mx-auto">
                 <h2 class="font-brand text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight reveal">
-                    ¿Listo para proteger<br class="hidden sm:inline"> tu visión?
+                    {{ $homePage->cta_title ?? '¿Listo para proteger tu visión?' }}
                 </h2>
                 <p class="mt-6 text-lg leading-relaxed max-w-xl mx-auto reveal" style="color: rgba(255,255,255,0.65);">
-                    Ve mejor, duerme mejor, rinde más. Únete a quienes ya cuidan sus ojos con nuvion.
+                    {{ $homePage->cta_subtitle ?? 'Ve mejor, duerme mejor, rinde más. Únete a quienes ya cuidan sus ojos con nuvion.' }}
                 </p>
                 <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 reveal">
                     <a href="{{ route('products.index') }}"
@@ -899,7 +841,7 @@
                        style="background: #378ADD; box-shadow: 0 10px 30px rgba(55,138,221,0.3);"
                        onmouseover="this.style.background='#2d7acc';this.style.boxShadow='0 14px 35px rgba(55,138,221,0.4)'"
                        onmouseout="this.style.background='#378ADD';this.style.boxShadow='0 10px 30px rgba(55,138,221,0.3)'">
-                        Comprar ahora
+                        {{ $homePage->cta_btn_primary_text ?? 'Comprar ahora' }}
                         <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
                     </a>
                     <a href="{{ route('blue-light') }}"
@@ -907,17 +849,18 @@
                        style="border-color: rgba(255,255,255,0.25); color: white;"
                        onmouseover="this.style.background='rgba(255,255,255,0.08)'"
                        onmouseout="this.style.background='transparent'">
-                        Aprende más
+                        {{ $homePage->cta_btn_secondary_text ?? 'Aprende más' }}
                     </a>
                 </div>
 
                 <div class="mt-12 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm"
                      style="color: rgba(255,255,255,0.4);">
-                    <span>Envío gratis +$999</span>
-                    <span class="hidden sm:inline">·</span>
-                    <span>Garantía 6 meses</span>
-                    <span class="hidden sm:inline">·</span>
-                    <span>30 días de devolución</span>
+                    @foreach(($homePage->cta_trust_items ?? []) as $ctaIdx => $trustItem)
+                        @if($ctaIdx > 0)
+                            <span class="hidden sm:inline">·</span>
+                        @endif
+                        <span>{{ $trustItem }}</span>
+                    @endforeach
                 </div>
             </div>
         </div>

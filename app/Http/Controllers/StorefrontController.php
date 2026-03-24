@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Helpers\ColorHelper;
 use App\Models\BlogPost;
 use App\Models\HeroSetting;
+use App\Models\HomePageSetting;
 use App\Models\InfographicImage;
+use App\Models\SeoSetting;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Services\SeoService;
@@ -48,30 +50,16 @@ class StorefrontController extends Controller
 
         $organizationSchema = $this->seo->organizationSchema();
 
-        $faqSchema = $this->seo->faqSchema([
-            [
-                'question' => '¿Qué es la luz azul y por qué es dañina?',
-                'answer' => 'La luz azul es una porción del espectro visible (380-500nm) emitida por pantallas y LEDs. La sobreexposición puede causar fatiga visual, dolores de cabeza y alteraciones del sueño.',
-            ],
-            [
-                'question' => '¿Los lentes nuvion tienen graduación?',
-                'answer' => 'Sí, ofrecemos lentes con y sin graduación. Nuestra línea incluye modelos para miopía, lectura y sin graduación.',
-            ],
-            [
-                'question' => '¿Cuánto tarda el envío?',
-                'answer' => 'El envío estándar tarda 3-5 días hábiles. Envío gratis en pedidos mayores a $999.',
-            ],
-            [
-                'question' => '¿Puedo devolver los lentes si no me gustan?',
-                'answer' => 'Sí, tienes 30 días para devolverlos si no estás satisfecho. Aplican términos y condiciones.',
-            ],
-            [
-                'question' => '¿Qué es la promoción 2×1?',
-                'answer' => 'Al comprar 2 pares de lentes, el segundo par (de igual o menor valor) es completamente gratis. Aplica para todos los modelos de lentes.',
-            ],
-        ]);
-
         $hero = HeroSetting::getCurrent();
+        $homePage = HomePageSetting::getCurrent();
+        $seoSettings = SeoSetting::getForPage('home');
+
+        $faqSchema = $this->seo->faqSchema(
+            collect($homePage->faqs ?? [])->map(fn ($faq) => [
+                'question' => $faq['q'] ?? '',
+                'answer' => $faq['a'] ?? '',
+            ])->all()
+        );
 
         // Producto estrella para el split layout del hero
         $heroProduct = Product::active()
@@ -89,7 +77,7 @@ class StorefrontController extends Controller
         }
 
         return view('storefront.home', compact(
-            'hero', 'heroProduct', 'heroMode',
+            'hero', 'heroProduct', 'heroMode', 'homePage', 'seoSettings',
             'lentes', 'toallitas', 'coloresDisponibles',
             'recentPosts', 'infographics', 'organizationSchema', 'faqSchema',
         ));

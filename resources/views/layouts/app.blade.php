@@ -8,6 +8,7 @@
     {{-- SEO Meta (overridable per page) --}}
     <title>@yield('title', 'nuvion - glass | Lentes con protección de luz azul')</title>
     <meta name="description" content="@yield('meta_description', 'Protege tus ojos de la luz azul con lentes nuvion glass. Con o sin graduación. Diseño moderno, envío gratis.')">
+    <meta name="robots" content="@yield('robots', 'index, follow')">
 
     {{-- Canonical --}}
     <link rel="canonical" href="@yield('canonical', url()->current())">

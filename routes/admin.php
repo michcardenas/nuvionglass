@@ -8,7 +8,9 @@ use App\Http\Controllers\Admin\BlogAdminController;
 use App\Http\Controllers\Admin\CategoryAdminController;
 use App\Http\Controllers\Admin\DiscountCodeAdminController;
 use App\Http\Controllers\Admin\AdminHeroController;
+use App\Http\Controllers\Admin\AdminHomePageController;
 use App\Http\Controllers\Admin\InfographicAdminController;
+use App\Http\Controllers\Admin\AdminSeoController;
 use App\Http\Controllers\Admin\ShippingAdminController;
 use Illuminate\Support\Facades\Route;
 
@@ -61,3 +63,11 @@ Route::resource('infographics', InfographicAdminController::class)->except(['sho
 // Hero settings
 Route::get('hero', [AdminHeroController::class, 'edit'])->name('hero.edit');
 Route::put('hero', [AdminHeroController::class, 'update'])->name('hero.update');
+
+// Home page sections editor
+Route::get('pages/home', [AdminHomePageController::class, 'edit'])->name('pages.home.edit');
+Route::put('pages/home', [AdminHomePageController::class, 'update'])->name('pages.home.update');
+
+// SEO settings per page
+Route::get('seo/{pageKey}', [AdminSeoController::class, 'edit'])->name('seo.edit');
+Route::put('seo/{pageKey}', [AdminSeoController::class, 'update'])->name('seo.update');
