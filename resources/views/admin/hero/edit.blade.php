@@ -113,6 +113,56 @@
                     </div>
                 </div>
 
+                {{-- Card: Galería de imágenes (Hero Split) --}}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
+                     x-data="{
+                        existing: @json($hero->hero_images ?? []),
+                        previews: [],
+                        removeImage(idx) { this.existing.splice(idx, 1); },
+                        previewFiles(e) {
+                            this.previews = [];
+                            for (const f of e.target.files) {
+                                this.previews.push(URL.createObjectURL(f));
+                            }
+                        },
+                        get total() { return this.existing.length + this.previews.length; }
+                     }">
+                    <h3 class="text-base font-semibold text-gray-900 mb-1">Galería de imágenes (Hero Split)</h3>
+                    <p class="text-xs text-gray-400 mb-4">Máximo 10 imágenes. Si hay más de 1, se mostrará un carrusel automático en el hero.</p>
+
+                    {{-- Imágenes existentes --}}
+                    <div class="flex flex-wrap gap-3 mb-4">
+                        <template x-for="(img, idx) in existing" :key="'ex-'+idx">
+                            <div class="relative group">
+                                <img :src="'{{ asset('storage') }}/' + img"
+                                     class="w-24 h-24 rounded-lg object-cover border border-gray-200">
+                                <input type="hidden" name="hero_images_existing[]" :value="img">
+                                <button type="button" @click="removeImage(idx)"
+                                        class="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                                        title="Eliminar">&times;</button>
+                            </div>
+                        </template>
+
+                        {{-- Previews de archivos nuevos --}}
+                        <template x-for="(src, idx) in previews" :key="'new-'+idx">
+                            <div class="relative">
+                                <img :src="src" class="w-24 h-24 rounded-lg object-cover border-2 border-blue-300">
+                                <span class="absolute bottom-1 right-1 bg-blue-500 text-white text-[9px] px-1.5 py-0.5 rounded">Nuevo</span>
+                            </div>
+                        </template>
+                    </div>
+
+                    {{-- Contador --}}
+                    <p class="text-xs mb-2" :class="total > 10 ? 'text-red-500 font-medium' : 'text-gray-400'"
+                       x-text="total + '/10 imágenes' + (total > 10 ? ' — se guardarán solo las primeras 10' : '')"></p>
+
+                    {{-- Upload --}}
+                    <input type="file" name="hero_images_files[]" multiple accept="image/jpeg,image/png,image/webp"
+                           @change="previewFiles($event)"
+                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    <p class="text-xs text-gray-400 mt-1">Selecciona varias imágenes a la vez. .jpg, .png o .webp</p>
+                </div>
+
                 {{-- Card: Textos del hero --}}
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <h3 class="text-base font-semibold text-gray-900 mb-4">Textos del hero</h3>

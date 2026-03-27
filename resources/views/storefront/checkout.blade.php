@@ -172,6 +172,26 @@
                     <div class="bg-white rounded-2xl p-6 md:p-8 border border-border-light shadow-sm sticky top-24">
                         <h2 class="font-brand text-xl font-semibold text-text-dark mb-6">Resumen del pedido</h2>
 
+                        {{-- 2x1 hint: odd number of eligible lenses --}}
+                        @if($eligibleLensCount > 0 && $eligibleLensCount % 2 !== 0)
+                        <div class="mb-4 flex items-center gap-2 px-2.5 py-2 rounded-lg bg-blue-50/70 border border-blue-100">
+                            <svg class="w-3.5 h-3.5 text-secondary/70 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/>
+                            </svg>
+                            <p class="text-[11px] text-text-muted leading-tight">Tus lentes son 2×1 — <a href="{{ route('products.index') }}" class="text-secondary hover:underline">escoge otro</a> y va gratis</p>
+                        </div>
+                        @endif
+
+                        {{-- 2x1 applied --}}
+                        @if($discount2x1 > 0)
+                        <div class="mb-4 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-green-50/70 border border-green-100">
+                            <svg class="w-3 h-3 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="m4.5 12.75 6 6 9-13.5"/>
+                            </svg>
+                            <p class="text-[11px] text-green-700 leading-tight">2×1 aplicado — {{ implode(', ', $freeItems) }} gratis</p>
+                        </div>
+                        @endif
+
                         {{-- Cart items --}}
                         <div class="space-y-4 max-h-80 overflow-y-auto pr-1">
                             @foreach($items as $item)
@@ -239,13 +259,19 @@
                                 <span class="text-text-muted">Subtotal</span>
                                 <span class="text-text-dark">${{ number_format($subtotal, 2) }}</span>
                             </div>
+                            @if($discount2x1 > 0)
+                            <div class="flex justify-between text-green-600">
+                                <span>Descuento 2×1</span>
+                                <span>-${{ number_format($discount2x1, 2) }}</span>
+                            </div>
+                            @endif
                             <div class="flex justify-between">
                                 <span class="text-text-muted">Envío</span>
                                 <span class="text-text-dark">{{ $shipping > 0 ? '$' . number_format($shipping, 2) : 'Gratis' }}</span>
                             </div>
                             <template x-if="coupon.discount_amount > 0">
                                 <div class="flex justify-between text-green-600">
-                                    <span>Descuento</span>
+                                    <span>Cupón</span>
                                     <span x-text="'-$' + Number(coupon.discount_amount).toFixed(2)"></span>
                                 </div>
                             </template>

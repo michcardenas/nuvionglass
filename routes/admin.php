@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\AdminHomePageController;
 use App\Http\Controllers\Admin\InfographicAdminController;
 use App\Http\Controllers\Admin\AdminSeoController;
 use App\Http\Controllers\Admin\ShippingAdminController;
+use App\Http\Controllers\Admin\TestimonialAdminController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -67,6 +68,9 @@ Route::put('hero', [AdminHeroController::class, 'update'])->name('hero.update');
 // Home page sections editor
 Route::get('pages/home', [AdminHomePageController::class, 'edit'])->name('pages.home.edit');
 Route::put('pages/home', [AdminHomePageController::class, 'update'])->name('pages.home.update');
+
+// Testimonials CRUD
+Route::resource('testimonials', TestimonialAdminController::class)->except(['show']);
 
 // SEO settings per page
 Route::get('seo/{pageKey}', [AdminSeoController::class, 'edit'])->name('seo.edit');

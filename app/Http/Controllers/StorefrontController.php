@@ -8,6 +8,8 @@ use App\Models\HeroSetting;
 use App\Models\HomePageSetting;
 use App\Models\InfographicImage;
 use App\Models\SeoSetting;
+use App\Models\Category;
+use App\Models\Testimonial;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Services\SeoService;
@@ -76,10 +78,14 @@ class StorefrontController extends Controller
             $heroMode = 'video';
         }
 
+        $categories = Category::orderBy('sort_order')->get();
+        $testimonials = Testimonial::where('is_active', true)->orderBy('sort_order')->get();
+
         return view('storefront.home', compact(
             'hero', 'heroProduct', 'heroMode', 'homePage', 'seoSettings',
             'lentes', 'toallitas', 'coloresDisponibles',
             'recentPosts', 'infographics', 'organizationSchema', 'faqSchema',
+            'categories', 'testimonials',
         ));
     }
 

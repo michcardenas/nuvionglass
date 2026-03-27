@@ -12,7 +12,7 @@
 
     <p class="text-sm text-gray-500 mb-6">Edita el texto, iconos y contenido de las secciones del inicio. Los cambios se reflejan inmediatamente en la tienda.</p>
 
-    <form method="POST" action="{{ route('admin.pages.home.update') }}">
+    <form method="POST" action="{{ route('admin.pages.home.update') }}" enctype="multipart/form-data">
         @method('PUT')
         @csrf
 
@@ -166,6 +166,31 @@
                     <input type="text" name="promo_btn_text" value="{{ $page->promo_btn_text }}"
                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
                 </div>
+
+                {{-- Fondo imagen/video --}}
+                <div class="border-t pt-4 mt-4">
+                    <h4 class="text-sm font-semibold text-gray-800 mb-3">Fondo del banner (imagen o video)</h4>
+
+                    @if($page->promo_background)
+                    <div class="mb-3">
+                        @php $ext = strtolower(pathinfo($page->promo_background, PATHINFO_EXTENSION)); @endphp
+                        @if(in_array($ext, ['mp4','webm']))
+                        <video src="{{ asset('storage/' . $page->promo_background) }}" class="h-32 rounded-lg border border-gray-200" muted autoplay loop playsinline></video>
+                        @else
+                        <img src="{{ asset('storage/' . $page->promo_background) }}" alt="Fondo promo" class="h-32 rounded-lg border border-gray-200 object-cover">
+                        @endif
+                        <label class="flex items-center gap-2 mt-2 text-sm text-red-600 cursor-pointer">
+                            <input type="checkbox" name="promo_background_remove" value="1" class="rounded border-gray-300 text-red-600 focus:ring-red-500">
+                            Eliminar fondo actual
+                        </label>
+                    </div>
+                    @endif
+
+                    <input type="file" name="promo_background_file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
+                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    <p class="mt-2 text-xs text-gray-400">JPG, PNG, WebP (imagen) o MP4, WebM (video). Máximo 10MB.</p>
+                    <p class="mt-1 text-xs text-blue-600">Recomendado: 1920×800 px para imagen. Si no se sube nada, se usa el gradiente azul por defecto.</p>
+                </div>
             </div>
         </div>
 
@@ -200,6 +225,105 @@
                               class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                               placeholder="Fórmula sin alcohol&#10;Sistema 2 en 1">{{ implode("\n", $page->wipes_features ?? []) }}</textarea>
                 </div>
+            </div>
+        </div>
+
+        {{-- ═══════════ BENEFICIOS ═══════════ --}}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-4">
+            <button type="button" @click="toggle('benefits')"
+                    class="w-full flex items-center justify-between px-6 py-4 text-left">
+                <h3 class="text-base font-semibold text-gray-900">Beneficios (¿Por qué elegir nuvion?)</h3>
+                <svg :class="openSection === 'benefits' && 'rotate-180'" class="w-5 h-5 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
+                </svg>
+            </button>
+            <div x-show="openSection === 'benefits'" x-collapse class="px-6 pb-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Etiqueta superior</label>
+                    <input type="text" name="benefits_label" value="{{ $page->benefits_label }}"
+                           class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Título</label>
+                    <input type="text" name="benefits_title" value="{{ $page->benefits_title }}"
+                           class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Subtítulo</label>
+                    <input type="text" name="benefits_subtitle" value="{{ $page->benefits_subtitle }}"
+                           class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                </div>
+
+                <div class="border-t pt-4 mt-4">
+                    <h4 class="text-sm font-semibold text-gray-800 mb-3">Tarjetas de beneficios</h4>
+                    <div x-data="benefitsRepeater()" x-init="init()">
+                        <template x-for="(card, idx) in items" :key="idx">
+                            <div class="bg-gray-50 rounded-lg p-4 mb-3">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-semibold text-gray-500" x-text="'Beneficio ' + (idx + 1)"></span>
+                                        <template x-if="card.icon_svg">
+                                            <div class="w-7 h-7 rounded flex items-center justify-center" style="background:rgba(55,138,221,0.1);">
+                                                <svg class="w-4 h-4" style="color:#378ADD;" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-html="card.icon_svg"></svg>
+                                            </div>
+                                        </template>
+                                    </div>
+                                    <button type="button" @click="items.splice(idx, 1)" class="text-xs text-red-500 hover:text-red-700">Eliminar</button>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Título</label>
+                                        <input type="text" :name="'benefits_cards[' + idx + '][title]'" x-model="card.title"
+                                               class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Descripción</label>
+                                        <input type="text" :name="'benefits_cards[' + idx + '][description]'" x-model="card.description"
+                                               class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+                                    </div>
+                                </div>
+                                <div class="mt-2" x-data="{ showSvg: false }">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <label class="text-xs font-medium text-gray-600">Icono SVG</label>
+                                        <button type="button" @click="showSvg = !showSvg"
+                                                class="text-xs text-blue-500 hover:text-blue-700"
+                                                x-text="showSvg ? 'Ocultar SVG' : 'Editar SVG'"></button>
+                                    </div>
+                                    <div x-show="showSvg" x-collapse>
+                                        <textarea :name="'benefits_cards[' + idx + '][icon_svg]'" x-model="card.icon_svg" rows="2"
+                                                  class="w-full rounded-lg border-gray-300 shadow-sm text-xs font-mono focus:border-blue-500 focus:ring-blue-500"
+                                                  placeholder="Pega los <path> del SVG aquí"></textarea>
+                                    </div>
+                                    <input x-show="!showSvg" type="hidden" :name="'benefits_cards[' + idx + '][icon_svg]'" x-model="card.icon_svg">
+                                </div>
+                            </div>
+                        </template>
+                        <button type="button" @click="items.push({icon_svg:'', title:'', description:''})"
+                                class="mt-2 flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15"/>
+                            </svg>
+                            Agregar beneficio
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- ═══════════ TESTIMONIOS ═══════════ --}}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-4">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div>
+                    <h3 class="text-base font-semibold text-gray-900">Testimonios de clientes</h3>
+                    <p class="text-xs text-gray-400 mt-0.5">Se muestran en el home después de las preguntas frecuentes.</p>
+                </div>
+                <a href="{{ route('admin.testimonials.index') }}"
+                   class="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/>
+                    </svg>
+                    Gestionar testimonios
+                </a>
             </div>
         </div>
 
@@ -376,6 +500,23 @@ function trustRepeater() {
         items: [],
         init() {
             this.items = @json($page->trust_badges ?? []);
+        }
+    };
+}
+
+function benefitsRepeater() {
+    return {
+        items: [],
+        init() {
+            this.items = @json($page->benefits_cards ?? []);
+            if (this.items.length === 0) {
+                this.items = [
+                    { icon_svg: '<path d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>', title: 'Reduce fatiga visual', description: 'Filtra entre el 50% de la luz azul dañina para que los ojos descansen.' },
+                    { icon_svg: '<path d="M21.752 15.002A9.718 9.718 0 0118 15.75 9.75 9.75 0 018.25 6c0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25 9.75 9.75 0 0012.75 21a9.753 9.753 0 009.002-5.998z"/>', title: 'Mejora tu sueño', description: 'Bloquea la luz azul que altera tu ritmo circadiano y tu calidad de descanso.' },
+                    { icon_svg: '<path d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z"/>', title: 'Menos dolores de cabeza', description: 'Reduce la tensión ocular que causa migrañas y dolores frecuentes.' },
+                    { icon_svg: '<path d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42"/>', title: 'Diseño moderno', description: 'Marcos premium que se ven increíbles. Lentes que querrás usar todo el día.' },
+                ];
+            }
         }
     };
 }

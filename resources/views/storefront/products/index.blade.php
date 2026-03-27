@@ -37,110 +37,182 @@
     {{-- ============================================================
          FILTROS STICKY
          ============================================================ --}}
-    <section style="background:#f8f9fa;padding:20px 24px;border-bottom:1px solid rgba(0,0,0,0.06);position:sticky;top:72px;z-index:10;">
-        <div style="max-width:1200px;margin:0 auto;">
+    @php
+        $tipos = [
+            'todos' => 'Todos',
+            'miopia' => 'Miopía',
+            'lectura' => 'Lectura',
+            'sin_graduacion' => 'Sin Graduación',
+            'toallitas' => 'Toallitas',
+        ];
+        $activeFilterCount = ($tipoFiltro !== 'todos' ? 1 : 0) + ($graduacionFiltro ? 1 : 0) + ($colorFiltro ? 1 : 0);
+    @endphp
+    <section x-data="{ filtersOpen: false }" style="background:#f8f9fa;border-bottom:1px solid rgba(0,0,0,0.06);position:sticky;top:72px;z-index:10;">
 
-            {{-- Fila 1: Tipo --}}
-            <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
-                <span style="font-size:12px;color:#888;margin-right:4px;">Tipo:</span>
-                @php
-                    $tipos = [
-                        'todos' => 'Todos',
-                        'miopia' => 'Miopía',
-                        'lectura' => 'Lectura',
-                        'sin_graduacion' => 'Sin Graduación',
-                        'toallitas' => 'Toallitas',
-                    ];
-                @endphp
-                @foreach($tipos as $value => $label)
-                    @php
-                        $isActive = $tipoFiltro === $value;
-                    @endphp
-                    <button onclick="setFilter('type','{{ $value }}')"
-                            style="border:1px solid {{ $isActive ? '#378ADD' : '#ddd' }};
-                                   background:{{ $isActive ? '#378ADD' : '#fff' }};
-                                   color:{{ $isActive ? '#fff' : '#555' }};
-                                   border-radius:20px;padding:5px 14px;font-size:13px;
-                                   cursor:pointer;transition:all .2s;font-family:inherit;
-                                   white-space:nowrap;"
-                            onmouseover="@if(!$isActive)this.style.borderColor='#378ADD';this.style.color='#378ADD'@endif"
-                            onmouseout="@if(!$isActive)this.style.borderColor='#ddd';this.style.color='#555'@endif">
-                        {{ $label }}
+        {{-- Mobile toggle bar (visible ≤640px) --}}
+        <div class="filters-mobile-toggle" style="display:none;padding:12px 24px;">
+            <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+                    <button @click="filtersOpen = !filtersOpen"
+                            style="display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #ddd;
+                                   border-radius:8px;padding:8px 14px;font-size:13px;color:#555;cursor:pointer;
+                                   font-family:inherit;transition:all .2s;white-space:nowrap;"
+                            :style="filtersOpen ? 'border-color:#378ADD;color:#378ADD;background:#EBF4FF' : ''">
+                        <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75"/>
+                        </svg>
+                        Filtros
+                        @if($activeFilterCount > 0)
+                        <span style="background:#378ADD;color:#fff;font-size:11px;font-weight:600;
+                                     width:18px;height:18px;border-radius:50%;display:flex;
+                                     align-items:center;justify-content:center;">{{ $activeFilterCount }}</span>
+                        @endif
                     </button>
-                @endforeach
-            </div>
 
-            {{-- Fila 2: Graduación --}}
-            @if($graduacionesDisponibles->count() > 0)
-            <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:14px;">
-                <span style="font-size:12px;color:#888;margin-right:4px;">Graduación:</span>
-                <button onclick="setFilter('graduation','')"
-                        style="border:1px solid {{ !$graduacionFiltro ? '#378ADD' : '#ddd' }};
-                               background:{{ !$graduacionFiltro ? '#378ADD' : '#fff' }};
-                               color:{{ !$graduacionFiltro ? '#fff' : '#555' }};
-                               border-radius:20px;padding:4px 12px;font-size:12px;
-                               cursor:pointer;transition:all .2s;font-family:inherit;">
-                    Todas
-                </button>
-                @foreach($graduacionesDisponibles as $grad)
-                    @php
-                        $isActiveGrad = $graduacionFiltro === $grad;
-                    @endphp
-                    <button onclick="setFilter('graduation','{{ $grad }}')"
-                            style="border:1px solid {{ $isActiveGrad ? '#378ADD' : '#ddd' }};
-                                   background:{{ $isActiveGrad ? '#378ADD' : '#fff' }};
-                                   color:{{ $isActiveGrad ? '#fff' : '#555' }};
+                    {{-- Active filter pills (compact summary) --}}
+                    @if($activeFilterCount > 0)
+                    <div style="display:flex;align-items:center;gap:6px;overflow-x:auto;flex:1;min-width:0;
+                                scrollbar-width:none;-ms-overflow-style:none;">
+                        @if($tipoFiltro !== 'todos')
+                        <span style="background:#EBF4FF;color:#185FA5;font-size:11px;padding:4px 10px;
+                                     border-radius:20px;white-space:nowrap;display:flex;align-items:center;gap:4px;">
+                            {{ $tipos[$tipoFiltro] ?? $tipoFiltro }}
+                            <span onclick="setFilter('type','todos')" style="cursor:pointer;font-size:13px;line-height:1;">&times;</span>
+                        </span>
+                        @endif
+                        @if($graduacionFiltro)
+                        <span style="background:#EBF4FF;color:#185FA5;font-size:11px;padding:4px 10px;
+                                     border-radius:20px;white-space:nowrap;display:flex;align-items:center;gap:4px;">
+                            {{ $graduacionFiltro }}
+                            <span onclick="setFilter('graduation','')" style="cursor:pointer;font-size:13px;line-height:1;">&times;</span>
+                        </span>
+                        @endif
+                        @if($colorFiltro)
+                        <span style="background:#EBF4FF;color:#185FA5;font-size:11px;padding:4px 10px;
+                                     border-radius:20px;white-space:nowrap;display:flex;align-items:center;gap:4px;">
+                            <span style="width:10px;height:10px;border-radius:50%;background:{{ \App\Helpers\ColorHelper::hex($colorFiltro) }};
+                                         display:inline-block;border:1px solid rgba(0,0,0,0.1);"></span>
+                            {{ $colorFiltro }}
+                            <span onclick="setFilter('color','')" style="cursor:pointer;font-size:13px;line-height:1;">&times;</span>
+                        </span>
+                        @endif
+                    </div>
+                    @endif
+                </div>
+
+                <span style="font-size:12px;color:#888;white-space:nowrap;margin-left:10px;">
+                    {{ $products->count() }} resultado{{ $products->count() !== 1 ? 's' : '' }}
+                </span>
+            </div>
+        </div>
+
+        {{-- Filter content (always visible on desktop, collapsible on mobile) --}}
+        <div class="filters-content" :class="{ 'filters-hidden-mobile': !filtersOpen }"
+             style="padding:20px 24px;">
+            <div style="max-width:1200px;margin:0 auto;">
+
+                {{-- Fila 1: Tipo --}}
+                <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
+                    <span style="font-size:12px;color:#888;margin-right:4px;">Tipo:</span>
+                    @foreach($tipos as $value => $label)
+                        @php
+                            $isActive = $tipoFiltro === $value;
+                        @endphp
+                        <button onclick="setFilter('type','{{ $value }}')"
+                                style="border:1px solid {{ $isActive ? '#378ADD' : '#ddd' }};
+                                       background:{{ $isActive ? '#378ADD' : '#fff' }};
+                                       color:{{ $isActive ? '#fff' : '#555' }};
+                                       border-radius:20px;padding:5px 14px;font-size:13px;
+                                       cursor:pointer;transition:all .2s;font-family:inherit;
+                                       white-space:nowrap;"
+                                onmouseover="@if(!$isActive)this.style.borderColor='#378ADD';this.style.color='#378ADD'@endif"
+                                onmouseout="@if(!$isActive)this.style.borderColor='#ddd';this.style.color='#555'@endif">
+                            {{ $label }}
+                        </button>
+                    @endforeach
+                </div>
+
+                {{-- Fila 2: Graduación --}}
+                @if($graduacionesDisponibles->count() > 0)
+                <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:14px;">
+                    <span style="font-size:12px;color:#888;margin-right:4px;">Graduación:</span>
+                    <button onclick="setFilter('graduation','')"
+                            style="border:1px solid {{ !$graduacionFiltro ? '#378ADD' : '#ddd' }};
+                                   background:{{ !$graduacionFiltro ? '#378ADD' : '#fff' }};
+                                   color:{{ !$graduacionFiltro ? '#fff' : '#555' }};
                                    border-radius:20px;padding:4px 12px;font-size:12px;
                                    cursor:pointer;transition:all .2s;font-family:inherit;">
-                        {{ $grad }}
+                        Todas
                     </button>
-                @endforeach
-            </div>
-            @endif
-
-            {{-- Fila 3: Color --}}
-            @if($coloresDisponibles->count() > 0)
-            <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;">
-                <span style="font-size:12px;color:#888;margin-right:4px;">Color:</span>
-                {{-- Clear color --}}
-                <button onclick="setFilter('color','')"
-                        title="Todos los colores"
-                        style="width:24px;height:24px;border-radius:50%;
-                               border:2px solid {{ !$colorFiltro ? '#378ADD' : '#ddd' }};
-                               background:#fff;cursor:pointer;display:flex;
-                               align-items:center;justify-content:center;
-                               font-size:11px;color:#999;transition:all .2s;
-                               {{ !$colorFiltro ? 'box-shadow:0 0 0 2px rgba(55,138,221,0.3);' : '' }}">
-                    ✕
-                </button>
-                @foreach($coloresDisponibles as $color)
-                    @php
-                        $isActiveColor = $colorFiltro === $color;
-                        $hex = \App\Helpers\ColorHelper::hex($color);
-                    @endphp
-                    <button onclick="setFilter('color','{{ $color }}')"
-                            title="{{ $color }}"
-                            style="width:24px;height:24px;border-radius:50%;
-                                   background:{{ $hex }};cursor:pointer;
-                                   border:2px solid {{ $isActiveColor ? '#378ADD' : 'transparent' }};
-                                   transition:all .2s;
-                                   {{ $isActiveColor ? 'box-shadow:0 0 0 2px rgba(55,138,221,0.3);' : '' }}">
-                    </button>
-                @endforeach
-            </div>
-            @endif
-
-            {{-- Conteo --}}
-            <p style="font-size:13px;color:#888;margin-top:12px;">
-                {{ $products->count() }} producto{{ $products->count() !== 1 ? 's' : '' }} encontrado{{ $products->count() !== 1 ? 's' : '' }}
-                @if($tipoFiltro !== 'todos' || $colorFiltro || $graduacionFiltro)
-                    <a href="{{ route('products.index') }}" style="color:#378ADD;margin-left:8px;text-decoration:none;font-size:12px;"
-                       onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
-                        Limpiar filtros
-                    </a>
+                    @foreach($graduacionesDisponibles as $grad)
+                        @php
+                            $isActiveGrad = $graduacionFiltro === $grad;
+                        @endphp
+                        <button onclick="setFilter('graduation','{{ $grad }}')"
+                                style="border:1px solid {{ $isActiveGrad ? '#378ADD' : '#ddd' }};
+                                       background:{{ $isActiveGrad ? '#378ADD' : '#fff' }};
+                                       color:{{ $isActiveGrad ? '#fff' : '#555' }};
+                                       border-radius:20px;padding:4px 12px;font-size:12px;
+                                       cursor:pointer;transition:all .2s;font-family:inherit;">
+                            {{ $grad }}
+                        </button>
+                    @endforeach
+                </div>
                 @endif
-            </p>
 
+                {{-- Fila 3: Color --}}
+                @if($coloresDisponibles->count() > 0)
+                <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;">
+                    <span style="font-size:12px;color:#888;margin-right:4px;">Color:</span>
+                    {{-- Clear color --}}
+                    <button onclick="setFilter('color','')"
+                            title="Todos los colores"
+                            style="width:24px;height:24px;border-radius:50%;
+                                   border:2px solid {{ !$colorFiltro ? '#378ADD' : '#ddd' }};
+                                   background:#fff;cursor:pointer;display:flex;
+                                   align-items:center;justify-content:center;
+                                   font-size:11px;color:#999;transition:all .2s;
+                                   {{ !$colorFiltro ? 'box-shadow:0 0 0 2px rgba(55,138,221,0.3);' : '' }}">
+                        ✕
+                    </button>
+                    @foreach($coloresDisponibles as $color)
+                        @php
+                            $isActiveColor = $colorFiltro === $color;
+                            $hex = \App\Helpers\ColorHelper::hex($color);
+                        @endphp
+                        <button onclick="setFilter('color','{{ $color }}')"
+                                title="{{ $color }}"
+                                style="width:24px;height:24px;border-radius:50%;
+                                       background:{{ $hex }};cursor:pointer;
+                                       border:2px solid {{ $isActiveColor ? '#378ADD' : 'transparent' }};
+                                       transition:all .2s;
+                                       {{ $isActiveColor ? 'box-shadow:0 0 0 2px rgba(55,138,221,0.3);' : '' }}">
+                        </button>
+                    @endforeach
+                </div>
+                @endif
+
+                {{-- Conteo (desktop) --}}
+                <p class="filters-count-desktop" style="font-size:13px;color:#888;margin-top:12px;">
+                    {{ $products->count() }} producto{{ $products->count() !== 1 ? 's' : '' }} encontrado{{ $products->count() !== 1 ? 's' : '' }}
+                    @if($tipoFiltro !== 'todos' || $colorFiltro || $graduacionFiltro)
+                        <a href="{{ route('products.index') }}" style="color:#378ADD;margin-left:8px;text-decoration:none;font-size:12px;"
+                           onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                            Limpiar filtros
+                        </a>
+                    @endif
+                </p>
+
+                {{-- Limpiar filtros link (mobile, inside expanded panel) --}}
+                @if($tipoFiltro !== 'todos' || $colorFiltro || $graduacionFiltro)
+                <div class="filters-clear-mobile" style="display:none;margin-top:12px;">
+                    <a href="{{ route('products.index') }}" style="color:#378ADD;font-size:13px;text-decoration:none;">
+                        Limpiar todos los filtros
+                    </a>
+                </div>
+                @endif
+
+            </div>
         </div>
     </section>
 
@@ -435,6 +507,26 @@ function setFilter(key, value) {
     .catalog-grid {
         grid-template-columns: 1fr;
     }
+    /* Mobile: show toggle bar, collapse filters */
+    .filters-mobile-toggle {
+        display: flex !important;
+    }
+    .filters-hidden-mobile {
+        display: none !important;
+    }
+    .filters-content {
+        border-top: 1px solid rgba(0,0,0,0.06);
+    }
+    .filters-count-desktop {
+        display: none !important;
+    }
+    .filters-clear-mobile {
+        display: block !important;
+    }
+}
+/* Hide scrollbar on active filter pills */
+.filters-mobile-toggle div::-webkit-scrollbar {
+    display: none;
 }
 </style>
 @endpush

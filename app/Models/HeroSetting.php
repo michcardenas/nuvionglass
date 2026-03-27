@@ -11,6 +11,7 @@ class HeroSetting extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'trust_items' => 'array',
+        'hero_images' => 'array',
         'overlay_opacity' => 'float',
     ];
 

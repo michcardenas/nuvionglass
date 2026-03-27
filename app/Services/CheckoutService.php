@@ -74,6 +74,7 @@ class CheckoutService
         $subtotal = $this->cart->getSubtotal();
         $shipping = $this->cart->getShipping();
         $discountAmount = (float) ($data['discount_amount'] ?? 0);
+        $discount2x1 = (float) ($data['discount_2x1'] ?? 0);
         $total = max(0, $subtotal - $discountAmount + $shipping);
 
         return Order::create([

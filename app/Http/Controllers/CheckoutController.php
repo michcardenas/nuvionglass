@@ -27,17 +27,31 @@ class CheckoutController extends Controller
                 ->with('error', 'Tu carrito está vacío.');
         }
 
+        $items = $this->cart->getItems();
         $subtotal = $this->cart->getSubtotal();
+        $promo = $this->cart->calculate2x1();
+        $discount2x1 = $promo['discount'];
+        $freeItems = $promo['free_items'];
+        $subtotalAfter2x1 = $subtotal - $discount2x1;
         $shipping = $this->cart->getShipping();
-        $discount = $this->getSessionDiscount($subtotal);
+        $couponDiscount = $this->getSessionDiscount($subtotalAfter2x1);
+
+        // Count eligible lens units to detect odd count (suggest picking another)
+        $eligibleLensCount = $items->filter(fn ($item) =>
+            $item['product']->badge_2x1
+            && in_array($item['product']->type, ['miopia', 'lectura', 'sin_graduacion'])
+        )->sum('qty');
 
         return view('storefront.checkout', [
-            'items' => $this->cart->getItems(),
+            'items' => $items,
             'subtotal' => $subtotal,
+            'discount2x1' => $discount2x1,
+            'freeItems' => $freeItems,
+            'eligibleLensCount' => $eligibleLensCount,
             'shipping' => $shipping,
-            'discount' => $discount,
-            'total' => max(0, $subtotal - $discount['amount'] + $shipping),
-            'appliedCoupon' => $discount['code'],
+            'discount' => $couponDiscount,
+            'total' => max(0, $subtotalAfter2x1 - $couponDiscount['amount'] + $shipping),
+            'appliedCoupon' => $couponDiscount['code'],
         ]);
     }
 
@@ -55,15 +69,17 @@ class CheckoutController extends Controller
         }
 
         $subtotal = $this->cart->getSubtotal();
+        $discount2x1 = $this->cart->calculate2x1()['discount'];
+        $subtotalAfter2x1 = $subtotal - $discount2x1;
 
-        if (! $discountCode->isValid($subtotal)) {
+        if (! $discountCode->isValid($subtotalAfter2x1)) {
             $message = 'Código de descuento no válido.';
 
             if ($discountCode->expires_at?->isPast()) {
                 $message = 'Este código ha expirado.';
             } elseif ($discountCode->max_uses !== null && $discountCode->times_used >= $discountCode->max_uses) {
                 $message = 'Este código ha alcanzado su límite de usos.';
-            } elseif ($discountCode->min_order_amount && $subtotal < (float) $discountCode->min_order_amount) {
+            } elseif ($discountCode->min_order_amount && $subtotalAfter2x1 < (float) $discountCode->min_order_amount) {
                 $message = 'Compra mínima de $' . number_format($discountCode->min_order_amount, 2) . ' requerida.';
             } elseif (! $discountCode->is_active) {
                 $message = 'Este código no está activo.';
@@ -72,9 +88,9 @@ class CheckoutController extends Controller
             return response()->json(['message' => $message], 422);
         }
 
-        $discountAmount = $discountCode->calculateDiscount($subtotal);
+        $discountAmount = $discountCode->calculateDiscount($subtotalAfter2x1);
         $shipping = $this->cart->getShipping();
-        $newTotal = max(0, $subtotal - $discountAmount + $shipping);
+        $newTotal = max(0, $subtotalAfter2x1 - $discountAmount + $shipping);
 
         session(['discount_code_id' => $discountCode->id]);
 
@@ -94,11 +110,12 @@ class CheckoutController extends Controller
         session()->forget('discount_code_id');
 
         $subtotal = $this->cart->getSubtotal();
+        $discount2x1 = $this->cart->calculate2x1()['discount'];
         $shipping = $this->cart->getShipping();
 
         return response()->json([
             'success' => true,
-            'new_total' => $subtotal + $shipping,
+            'new_total' => max(0, $subtotal - $discount2x1 + $shipping),
         ]);
     }
 
@@ -109,9 +126,11 @@ class CheckoutController extends Controller
         }
 
         $subtotal = $this->cart->getSubtotal();
+        $discount2x1 = $this->cart->calculate2x1()['discount'];
+        $subtotalAfter2x1 = $subtotal - $discount2x1;
         $shipping = $this->cart->getShipping();
-        $discount = $this->getSessionDiscount($subtotal);
-        $total = max(0, $subtotal - $discount['amount'] + $shipping);
+        $discount = $this->getSessionDiscount($subtotalAfter2x1);
+        $total = max(0, $subtotalAfter2x1 - $discount['amount'] + $shipping);
 
         Stripe::setApiKey(config('services.stripe.secret'));
 
@@ -121,6 +140,7 @@ class CheckoutController extends Controller
             'automatic_payment_methods' => ['enabled' => true],
             'metadata' => [
                 'cart_total' => $total,
+                'discount_2x1' => $discount2x1,
                 'discount_code' => $discount['code'] ?? '',
                 'discount_amount' => $discount['amount'],
             ],
@@ -147,10 +167,13 @@ class CheckoutController extends Controller
         ]);
 
         $subtotal = $this->cart->getSubtotal();
-        $discount = $this->getSessionDiscount($subtotal);
+        $discount2x1 = $this->cart->calculate2x1()['discount'];
+        $subtotalAfter2x1 = $subtotal - $discount2x1;
+        $couponDiscount = $this->getSessionDiscount($subtotalAfter2x1);
 
-        $validated['discount_code'] = $discount['code'];
-        $validated['discount_amount'] = $discount['amount'];
+        $validated['discount_code'] = $couponDiscount['code'];
+        $validated['discount_amount'] = $discount2x1 + $couponDiscount['amount'];
+        $validated['discount_2x1'] = $discount2x1;
 
         // If card payment, verify with Stripe that payment succeeded
         if ($validated['payment_method'] === 'card' && !empty($validated['stripe_payment_intent_id'])) {
@@ -165,8 +188,8 @@ class CheckoutController extends Controller
 
         $order = $this->checkout->process($validated);
 
-        if ($discount['model']) {
-            $discount['model']->increment('times_used');
+        if ($couponDiscount['model']) {
+            $couponDiscount['model']->increment('times_used');
         }
 
         session()->forget('discount_code_id');

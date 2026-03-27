@@ -45,6 +45,7 @@
             <input type="file" name="image" accept="image/*"
                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
             <p class="mt-2 text-xs text-gray-400">JPG, PNG o WebP. Máximo 2MB.</p>
+            <p class="mt-1 text-xs text-blue-600">Tamaño recomendado: 800×450 px (proporción 16:9, horizontal). La imagen se recorta automáticamente a 180 px de alto en la card.</p>
         </div>
 
         <div class="flex items-center justify-end space-x-3">

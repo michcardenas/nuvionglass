@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\HomePageSetting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdminHomePageController extends Controller
 {
@@ -76,6 +77,38 @@ class AdminHomePageController extends Controller
             $data['cta_trust_items'] = array_values($items);
             unset($data['cta_trust_items_text']);
         }
+
+        // Benefits cards — array of objects
+        if ($request->has('benefits_cards')) {
+            $cards = [];
+            foreach ($request->input('benefits_cards', []) as $card) {
+                if (!empty($card['title'])) {
+                    $cards[] = [
+                        'icon_svg' => $card['icon_svg'] ?? '',
+                        'title' => $card['title'],
+                        'description' => $card['description'] ?? '',
+                    ];
+                }
+            }
+            $data['benefits_cards'] = $cards;
+        }
+
+        // Promo background — imagen o video
+        if ($request->hasFile('promo_background_file')) {
+            if ($page->promo_background) {
+                Storage::disk('public')->delete($page->promo_background);
+            }
+            $data['promo_background'] = $request->file('promo_background_file')->store('promo', 'public');
+        }
+
+        if ($request->boolean('promo_background_remove') && !$request->hasFile('promo_background_file')) {
+            if ($page->promo_background) {
+                Storage::disk('public')->delete($page->promo_background);
+            }
+            $data['promo_background'] = null;
+        }
+
+        unset($data['promo_background_file'], $data['promo_background_remove']);
 
         $page->update($data);
 

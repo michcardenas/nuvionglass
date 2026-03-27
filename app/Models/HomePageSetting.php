@@ -15,6 +15,7 @@ class HomePageSetting extends Model
         'faqs' => 'array',
         'trust_badges' => 'array',
         'cta_trust_items' => 'array',
+        'benefits_cards' => 'array',
     ];
 
     public static function getCurrent(): static
