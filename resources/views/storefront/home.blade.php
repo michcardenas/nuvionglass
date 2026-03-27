@@ -841,7 +841,7 @@
             {{-- Grid 3 columnas — flip cards --}}
             <div class="cats-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
 
-                @foreach($categories as $catIndex => $cat)
+                @foreach($categories->filter(fn($c) => $c->slug !== 'toallitas')->values() as $catIndex => $cat)
 
                 @php
                     $gradients = [
@@ -1246,44 +1246,45 @@
          6. BENEFICIOS — ¿Por qué elegir nuvion?
          ============================================================ --}}
     @php
-        $benefitCards = $homePage->benefits_cards ?? [
+        $benefitCards = array_slice($homePage->benefits_cards ?? [
             ['icon_svg' => '<path d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>', 'title' => 'Reduce fatiga visual', 'description' => 'Filtra entre el 50% de la luz azul dañina para que los ojos descansen.'],
             ['icon_svg' => '<path d="M21.752 15.002A9.718 9.718 0 0118 15.75 9.75 9.75 0 018.25 6c0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25 9.75 9.75 0 0012.75 21a9.753 9.753 0 009.002-5.998z"/>', 'title' => 'Mejora tu sueño', 'description' => 'Bloquea la luz azul que altera tu ritmo circadiano y tu calidad de descanso.'],
             ['icon_svg' => '<path d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z"/>', 'title' => 'Menos dolores de cabeza', 'description' => 'Reduce la tensión ocular que causa migrañas y dolores frecuentes.'],
-            ['icon_svg' => '<path d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42"/>', 'title' => 'Diseño moderno', 'description' => 'Marcos premium que se ven increíbles. Lentes que querrás usar todo el día.'],
-        ];
+        ], 0, 3);
     @endphp
     @if(count($benefitCards))
-    <section class="py-16 md:py-24" style="background:#F4F6F9;">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section style="background:#F4F6F9;padding:80px 0 90px;">
+        <div style="max-width:1200px;margin:0 auto;padding:0 24px;">
 
             {{-- Header --}}
-            <div class="text-center max-w-2xl mx-auto mb-14 reveal">
-                <span style="display:inline-block;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#378ADD;margin-bottom:12px;">{{ $homePage->benefits_label ?? 'Beneficios' }}</span>
-                <h2 style="font-size:clamp(26px,4vw,40px);font-weight:700;color:#1a1a2e;line-height:1.15;font-family:'Bai Jamjuree',sans-serif;">{{ $homePage->benefits_title ?? '¿Por qué elegir nuvion?' }}</h2>
-                <p style="margin-top:12px;font-size:15px;color:#6b7280;">{{ $homePage->benefits_subtitle ?? 'Tecnología que cuida tu visión. Diseño que querrás usar todo el día.' }}</p>
+            <div class="reveal" style="text-align:center;max-width:600px;margin:0 auto 60px;">
+                <span style="display:inline-block;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#378ADD;margin-bottom:14px;">{{ $homePage->benefits_label ?? 'Beneficios' }}</span>
+                <h2 style="font-size:clamp(28px,4.5vw,42px);font-weight:700;color:#1a1a2e;line-height:1.15;font-family:'Bai Jamjuree',sans-serif;margin:0 0 16px;">{{ $homePage->benefits_title ?? '¿Por qué elegir nuvion?' }}</h2>
+                <p style="font-size:16px;color:#6b7280;line-height:1.6;margin:0;">{{ $homePage->benefits_subtitle ?? 'Tecnología que cuida tu visión. Diseño que querrás usar todo el día.' }}</p>
+                {{-- Línea decorativa --}}
+                <div style="width:48px;height:3px;background:#378ADD;border-radius:2px;margin:24px auto 0;"></div>
             </div>
 
             {{-- Grid de cards --}}
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px;max-width:1000px;margin:0 auto;">
                 @foreach($benefitCards as $bIdx => $benefit)
                 <div class="reveal"
-                     style="background:#ffffff;border-radius:16px;padding:32px 24px;text-align:center;border:1px solid #e5e7eb;transition:transform .25s ease,box-shadow .25s ease;animation-delay:{{ $bIdx * 100 }}ms;"
-                     onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 16px 32px rgba(0,0,0,0.08)'"
+                     style="background:#ffffff;border-radius:16px;padding:40px 28px;text-align:center;border:1px solid #e5e7eb;transition:transform .25s ease,box-shadow .25s ease;animation-delay:{{ $bIdx * 100 }}ms;"
+                     onmouseover="this.style.transform='translateY(-6px)';this.style.boxShadow='0 20px 40px rgba(0,47,109,0.08)'"
                      onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
 
                     {{-- Ícono --}}
-                    <div style="width:56px;height:56px;border-radius:50%;background:rgba(55,138,221,0.08);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#378ADD" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <div style="width:60px;height:60px;border-radius:50%;background:rgba(55,138,221,0.08);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#378ADD" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                             {!! $benefit['icon_svg'] ?? '' !!}
                         </svg>
                     </div>
 
                     {{-- Título --}}
-                    <h3 style="font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:8px;font-family:'Bai Jamjuree',sans-serif;">{{ $benefit['title'] ?? '' }}</h3>
+                    <h3 style="font-size:17px;font-weight:700;color:#1a1a2e;margin-bottom:10px;font-family:'Bai Jamjuree',sans-serif;">{{ $benefit['title'] ?? '' }}</h3>
 
                     {{-- Descripción --}}
-                    <p style="font-size:13px;color:#6b7280;line-height:1.6;">{{ $benefit['description'] ?? '' }}</p>
+                    <p style="font-size:14px;color:#6b7280;line-height:1.65;margin:0;">{{ $benefit['description'] ?? '' }}</p>
                 </div>
                 @endforeach
             </div>
@@ -1340,23 +1341,25 @@
          TESTIMONIOS — Lo que dicen nuestros clientes
          ============================================================ --}}
     @php
-        $displayTestimonials = $testimonials->count() ? $testimonials->toArray() : [
-            ['name' => 'María G.', 'role' => 'Diseñadora gráfica', 'body' => 'Desde que uso mis nuvion, ya no termino el día con los ojos rojos. Son súper cómodos y se ven increíbles.', 'rating' => 5, 'avatar_color' => '#378ADD'],
-            ['name' => 'Carlos R.', 'role' => 'Programador', 'body' => 'Trabajo 10 horas frente a la pantalla y estos lentes cambiaron todo. Menos dolor de cabeza y duermo mejor.', 'rating' => 5, 'avatar_color' => '#16a34a'],
-            ['name' => 'Ana L.', 'role' => 'Estudiante', 'body' => 'Los compré sin graduación y me encantan. El diseño es moderno y realmente sientes la diferencia.', 'rating' => 5, 'avatar_color' => '#7c3aed'],
-        ];
+        $displayTestimonials = array_slice(
+            $testimonials->count() ? $testimonials->toArray() : [
+                ['name' => 'María G.', 'role' => 'Diseñadora gráfica', 'body' => 'Desde que uso mis nuvion, ya no termino el día con los ojos rojos. Son súper cómodos y se ven increíbles.', 'rating' => 5, 'avatar_color' => '#378ADD'],
+                ['name' => 'Carlos R.', 'role' => 'Programador', 'body' => 'Trabajo 10 horas frente a la pantalla y estos lentes cambiaron todo. Menos dolor de cabeza y duermo mejor.', 'rating' => 5, 'avatar_color' => '#16a34a'],
+                ['name' => 'Ana L.', 'role' => 'Estudiante', 'body' => 'Los compré sin graduación y me encantan. El diseño es moderno y realmente sientes la diferencia.', 'rating' => 5, 'avatar_color' => '#7c3aed'],
+            ], 0, 3);
     @endphp
-    <section class="py-16 md:py-24" style="background:#F4F6F9;">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section style="background:#F4F6F9;padding:80px 0 90px;">
+        <div style="max-width:1200px;margin:0 auto;padding:0 24px;">
 
             {{-- Header --}}
-            <div class="text-center max-w-2xl mx-auto mb-20 reveal">
-                <span style="display:inline-block;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#378ADD;margin-bottom:16px;">TESTIMONIOS</span>
-                <h2 style="font-size:clamp(26px,4vw,40px);font-weight:700;color:#1a1a2e;line-height:1.15;font-family:'Bai Jamjuree',sans-serif;margin-top:4px;">Lo que dicen nuestros clientes</h2>
+            <div class="reveal" style="text-align:center;max-width:600px;margin:0 auto 60px;">
+                <span style="display:inline-block;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#378ADD;margin-bottom:14px;">TESTIMONIOS</span>
+                <h2 style="font-size:clamp(28px,4.5vw,42px);font-weight:700;color:#1a1a2e;line-height:1.15;font-family:'Bai Jamjuree',sans-serif;margin:0 0 16px;">Lo que dicen nuestros clientes</h2>
+                <div style="width:48px;height:3px;background:#378ADD;border-radius:2px;margin:24px auto 0;"></div>
             </div>
 
             {{-- Grid de testimonios --}}
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:1000px;margin:0 auto;">
                 @foreach($displayTestimonials as $tIdx => $t)
                 @php
                     $tName = is_array($t) ? ($t['name'] ?? '') : $t->name;
@@ -1366,8 +1369,8 @@
                     $tColor = is_array($t) ? ($t['avatar_color'] ?? '#378ADD') : ($t->avatar_color ?? '#378ADD');
                 @endphp
                 <div class="reveal"
-                     style="background:#ffffff;border-radius:16px;padding:28px 24px;border:1px solid #e5e7eb;transition:transform .25s ease,box-shadow .25s ease;animation-delay:{{ $tIdx * 100 }}ms;"
-                     onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 16px 32px rgba(0,0,0,0.08)'"
+                     style="background:#ffffff;border-radius:16px;padding:36px 28px;border:1px solid #e5e7eb;transition:transform .25s ease,box-shadow .25s ease;animation-delay:{{ $tIdx * 100 }}ms;"
+                     onmouseover="this.style.transform='translateY(-6px)';this.style.boxShadow='0 20px 40px rgba(0,47,109,0.08)'"
                      onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
 
                     {{-- Estrellas --}}
@@ -1401,64 +1404,69 @@
     </section>
 
     {{-- Confianza + CTA Final --}}
-    <section class="relative py-16 md:py-24 overflow-hidden"
-             style="background: linear-gradient(135deg, #0A0E1A 0%, #001a40 50%, #0A0E1A 100%);">
+    <section class="relative overflow-hidden"
+             style="background: linear-gradient(135deg, #0A0E1A 0%, #001a40 50%, #0A0E1A 100%);padding:80px 0 90px;">
         <div class="absolute top-0 right-0 w-96 h-96 rounded-full blur-[100px] pointer-events-none"
              style="background: rgba(55,138,221,0.08); animation: pulseDot 5s ease-in-out infinite;"></div>
 
-        <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div style="position:relative;max-width:1000px;margin:0 auto;padding:0 24px;">
+
+            {{-- Header de sección --}}
+            <div class="reveal" style="text-align:center;max-width:600px;margin:0 auto 60px;">
+                <span style="display:inline-block;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#378ADD;margin-bottom:14px;">CONFIANZA</span>
+                <h2 style="font-size:clamp(28px,4.5vw,42px);font-weight:700;color:#ffffff;line-height:1.15;font-family:'Bai Jamjuree',sans-serif;margin:0;">
+                    {{ $homePage->cta_title ?? '¿Listo para proteger tu visión?' }}
+                </h2>
+                <p style="font-size:16px;color:rgba(255,255,255,0.6);line-height:1.6;margin:16px 0 0;">
+                    {{ $homePage->cta_subtitle ?? 'Ve mejor, duerme mejor, rinde más. Únete a quienes ya cuidan sus ojos con nuvion.' }}
+                </p>
+                <div style="width:48px;height:3px;background:#378ADD;border-radius:2px;margin:24px auto 0;"></div>
+            </div>
+
             {{-- Trust badges --}}
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-16">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px;max-width:900px;margin:0 auto 60px;">
                 @foreach(($homePage->trust_badges ?? []) as $bIdx => $badge)
-                <div class="reveal text-center" style="transition-delay: {{ $bIdx * 100 }}ms;">
-                    <div class="w-12 h-12 mx-auto rounded-xl flex items-center justify-center"
-                         style="background: rgba(55,138,221,0.15);">
-                        <svg class="w-6 h-6" style="color: #378ADD;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="reveal" style="text-align:center;transition-delay:{{ $bIdx * 100 }}ms;">
+                    <div style="width:56px;height:56px;border-radius:14px;background:rgba(55,138,221,0.12);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+                        <svg style="width:26px;height:26px;color:#378ADD;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             {!! $badge['icon_svg'] ?? '' !!}
                         </svg>
                     </div>
-                    <h3 class="mt-5 font-brand text-sm font-semibold text-white">{{ $badge['title'] }}</h3>
-                    <p class="mt-2 text-xs" style="color: rgba(255,255,255,0.5);">{{ $badge['description'] ?? '' }}</p>
+                    <h3 style="font-size:14px;font-weight:600;color:#ffffff;font-family:'Bai Jamjuree',sans-serif;margin:0 0 8px;">{{ $badge['title'] }}</h3>
+                    <p style="font-size:12px;color:rgba(255,255,255,0.45);line-height:1.5;margin:0;">{{ $badge['description'] ?? '' }}</p>
                 </div>
                 @endforeach
             </div>
 
             {{-- Separador --}}
-            <div class="flex justify-center my-12 md:my-16">
-                <div class="w-24 h-px" style="background: linear-gradient(90deg, transparent, rgba(55,138,221,0.3), transparent);"></div>
+            <div style="display:flex;justify-content:center;margin:0 auto 50px;">
+                <div style="width:96px;height:1px;background:linear-gradient(90deg,transparent,rgba(55,138,221,0.3),transparent);"></div>
             </div>
 
-            {{-- CTA --}}
-            <div class="text-center max-w-2xl mx-auto">
-                <h2 class="font-brand text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight reveal">
-                    {{ $homePage->cta_title ?? '¿Listo para proteger tu visión?' }}
-                </h2>
-                <p class="mt-6 text-lg leading-relaxed max-w-xl mx-auto reveal" style="color: rgba(255,255,255,0.65);">
-                    {{ $homePage->cta_subtitle ?? 'Ve mejor, duerme mejor, rinde más. Únete a quienes ya cuidan sus ojos con nuvion.' }}
-                </p>
-                <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 reveal">
+            {{-- CTA buttons --}}
+            <div class="reveal" style="text-align:center;">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:16px;">
                     <a href="{{ route('products.index') }}"
-                       class="inline-flex items-center justify-center text-white px-10 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
-                       style="background: #378ADD; box-shadow: 0 10px 30px rgba(55,138,221,0.3);"
-                       onmouseover="this.style.background='#2d7acc';this.style.boxShadow='0 14px 35px rgba(55,138,221,0.4)'"
-                       onmouseout="this.style.background='#378ADD';this.style.boxShadow='0 10px 30px rgba(55,138,221,0.3)'">
+                       style="display:inline-flex;align-items:center;justify-content:center;color:#fff;padding:16px 40px;border-radius:12px;font-weight:600;font-size:18px;font-family:inherit;text-decoration:none;
+                              background:#378ADD;box-shadow:0 10px 30px rgba(55,138,221,0.3);transition:all .3s;"
+                       onmouseover="this.style.background='#2d7acc';this.style.boxShadow='0 14px 35px rgba(55,138,221,0.4)';this.style.transform='translateY(-2px)'"
+                       onmouseout="this.style.background='#378ADD';this.style.boxShadow='0 10px 30px rgba(55,138,221,0.3)';this.style.transform='translateY(0)'">
                         {{ $homePage->cta_btn_primary_text ?? 'Comprar ahora' }}
-                        <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+                        <svg style="margin-left:8px;width:20px;height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
                     </a>
                     <a href="{{ route('blue-light') }}"
-                       class="inline-flex items-center justify-center border px-10 py-4 rounded-xl font-medium text-lg transition-colors"
-                       style="border-color: rgba(255,255,255,0.25); color: white;"
+                       style="display:inline-flex;align-items:center;justify-content:center;padding:16px 40px;border-radius:12px;font-weight:500;font-size:18px;font-family:inherit;text-decoration:none;
+                              border:1px solid rgba(255,255,255,0.25);color:#fff;transition:all .2s;"
                        onmouseover="this.style.background='rgba(255,255,255,0.08)'"
                        onmouseout="this.style.background='transparent'">
                         {{ $homePage->cta_btn_secondary_text ?? 'Aprende más' }}
                     </a>
                 </div>
 
-                <div class="mt-12 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm"
-                     style="color: rgba(255,255,255,0.4);">
+                <div style="margin-top:40px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:16px;font-size:13px;color:rgba(255,255,255,0.35);">
                     @foreach(($homePage->cta_trust_items ?? []) as $ctaIdx => $trustItem)
                         @if($ctaIdx > 0)
-                            <span class="hidden sm:inline">·</span>
+                            <span style="display:none;" class="sm:inline-block">·</span>
                         @endif
                         <span>{{ $trustItem }}</span>
                     @endforeach

@@ -47,7 +47,7 @@
         ];
         $activeFilterCount = ($tipoFiltro !== 'todos' ? 1 : 0) + ($graduacionFiltro ? 1 : 0) + ($colorFiltro ? 1 : 0);
     @endphp
-    <section x-data="{ filtersOpen: false }" style="background:#f8f9fa;border-bottom:1px solid rgba(0,0,0,0.06);position:sticky;top:72px;z-index:10;">
+    <section x-data="{ filtersOpen: true }" style="background:#f8f9fa;border-bottom:1px solid rgba(0,0,0,0.06);position:sticky;top:72px;z-index:10;">
 
         {{-- Mobile toggle bar (visible ≤640px) --}}
         <div class="filters-mobile-toggle" style="display:none;padding:12px 24px;">
@@ -378,7 +378,7 @@
     {{-- ============================================================
          SECCIÓN TOALLITAS
          ============================================================ --}}
-    @if(($tipoFiltro === 'todos' || $tipoFiltro === 'toallitas') && $toallitas->count() > 0)
+    @if($tipoFiltro !== 'toallitas' && $toallitas->count() > 0)
     <section style="background:#fff;padding:48px 24px;">
         <div style="max-width:1200px;margin:0 auto;">
 
