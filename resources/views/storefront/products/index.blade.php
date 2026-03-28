@@ -378,7 +378,7 @@
     {{-- ============================================================
          SECCIÓN TOALLITAS
          ============================================================ --}}
-    @if($tipoFiltro !== 'toallitas' && $toallitas->count() > 0)
+    @if(!in_array($tipoFiltro, ['todos', 'toallitas']) && $toallitas->count() > 0)
     <section style="background:#fff;padding:48px 24px;">
         <div style="max-width:1200px;margin:0 auto;">
 
