@@ -213,8 +213,8 @@
                 {{-- Help --}}
                 <div class="bg-primary/5 border border-primary/10 rounded-xl p-6 text-center">
                     <p class="text-sm text-text-muted">¿Necesitas ayuda?</p>
-                    <a href="mailto:nuvionglass@nutraes.com" class="text-sm font-semibold text-primary hover:underline">
-                        nuvionglass@nutraes.com
+                    <a href="mailto:contacto@nuvionglass.com.mx" class="text-sm font-semibold text-primary hover:underline">
+                        contacto@nuvionglass.com.mx
                     </a>
                 </div>
             </div>

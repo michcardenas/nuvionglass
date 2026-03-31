@@ -122,7 +122,7 @@
             <td align="center" style="border-top:1px solid #E5E7EB;padding:20px 0 0;">
                 <p style="margin:0 0 4px;font-size:13px;color:#9CA3AF;">¿Tienes dudas sobre tu envío?</p>
                 <p style="margin:0;font-size:13px;">
-                    <a href="mailto:nuvionglass@nutraes.com" style="color:#3A8DDE;text-decoration:none;font-weight:600;">nuvionglass@nutraes.com</a>
+                    <a href="mailto:contacto@nuvionglass.com.mx" style="color:#3A8DDE;text-decoration:none;font-weight:600;">contacto@nuvionglass.com.mx</a>
                 </p>
             </td>
         </tr>

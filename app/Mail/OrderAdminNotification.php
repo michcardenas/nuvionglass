@@ -5,12 +5,10 @@ namespace App\Mail;
 use App\Models\Order;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Envelope;
 
-class OrderConfirmation extends Mailable
+class OrderAdminNotification extends Mailable
 {
-
     public function __construct(
         public Order $order,
     ) {}
@@ -18,17 +16,14 @@ class OrderConfirmation extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "Pedido #{$this->order->id} confirmado — nuvion glass",
-            replyTo: [
-                new Address(config('mail.contacto'), 'Nuvion Glass'),
-            ],
+            subject: "Nuevo pedido #{$this->order->id} — nuvion glass",
         );
     }
 
     public function content(): Content
     {
         return new Content(
-            view: 'emails.order-confirmation',
+            view: 'emails.order-admin-notification',
         );
     }
 }

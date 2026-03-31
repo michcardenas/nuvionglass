@@ -5,6 +5,7 @@ namespace App\Mail;
 use App\Models\Order;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Envelope;
 
 class OrderShipped extends Mailable
@@ -17,6 +18,9 @@ class OrderShipped extends Mailable
     {
         return new Envelope(
             subject: "Tu pedido #{$this->order->id} va en camino — nuvion glass",
+            replyTo: [
+                new Address(config('mail.contacto'), 'Nuvion Glass'),
+            ],
         );
     }
 

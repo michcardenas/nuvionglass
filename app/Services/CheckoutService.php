@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Mail\OrderAdminNotification;
 use App\Mail\OrderConfirmation;
 use App\Models\Customer;
 use App\Models\Order;
@@ -34,6 +35,12 @@ class CheckoutService
 
         try {
             Mail::to($order->customer->email)->send(new OrderConfirmation($order));
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        try {
+            Mail::to(config('mail.admin'))->send(new OrderAdminNotification($order));
         } catch (\Throwable $e) {
             report($e);
         }
