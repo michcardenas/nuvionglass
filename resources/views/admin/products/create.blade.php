@@ -119,16 +119,16 @@
         </div>
 
         {{-- Variants --}}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6" x-data="{ variants: [{ name: 'Color', value: '', color: '', price_modifier: 0, stock: 0 }] }">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6" x-data="{ variants: [{ name: 'Color', value: '', color: '', color_hex: '', price_modifier: 0, stock: 0 }] }">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold text-gray-800">Variantes</h2>
-                <button type="button" @click="variants.push({ name: 'Color', value: '', color: '', price_modifier: 0, stock: 0 })"
+                <button type="button" @click="variants.push({ name: 'Color', value: '', color: '', color_hex: '', price_modifier: 0, stock: 0 })"
                         class="text-sm text-blue-600 hover:text-blue-800">+ Agregar variante</button>
             </div>
             <p class="text-xs text-gray-500 mb-3">Agrega una imagen por variante para que se muestre al seleccionar el color en la tienda.</p>
             <template x-for="(variant, index) in variants" :key="index">
                 <div class="border border-gray-100 rounded-lg p-3 mb-3 bg-gray-50/50">
-                    <div class="grid grid-cols-2 md:grid-cols-6 gap-3 items-end">
+                    <div class="grid grid-cols-2 md:grid-cols-7 gap-3 items-end">
                         <div>
                             <label class="block text-xs text-gray-500 mb-1">Atributo</label>
                             <input type="text" :name="'variants['+index+'][name]'" x-model="variant.name" placeholder="Color"
@@ -143,6 +143,15 @@
                             <label class="block text-xs text-gray-500 mb-1">Color (filtro)</label>
                             <input type="text" :name="'variants['+index+'][color]'" x-model="variant.color" placeholder="Negro"
                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Hex del círculo</label>
+                            <div class="flex items-center gap-1">
+                                <input type="color" :name="'variants['+index+'][color_hex]'" x-model="variant.color_hex"
+                                       class="w-10 h-9 p-1 border border-gray-300 rounded-lg cursor-pointer">
+                                <input type="text" x-model="variant.color_hex" placeholder="#000000" maxlength="7"
+                                       class="flex-1 border border-gray-300 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
                         </div>
                         <div>
                             <label class="block text-xs text-gray-500 mb-1">Mod. precio</label>

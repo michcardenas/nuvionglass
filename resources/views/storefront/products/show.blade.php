@@ -19,10 +19,14 @@
 @section('content')
 
     @php
-        // Map color => first variant image_path (if any) for color-based image swap
+        // Maps color => image_path and color => hex (first variant per color wins)
         $variantImagesByColor = [];
+        $variantHexByColor = [];
         $firstVariantImage = null;
         foreach ($product->variants as $v) {
+            if ($v->color && $v->color_hex && ! isset($variantHexByColor[$v->color])) {
+                $variantHexByColor[$v->color] = $v->color_hex;
+            }
             if ($v->image_path) {
                 if ($v->color && ! isset($variantImagesByColor[$v->color])) {
                     $variantImagesByColor[$v->color] = asset('storage/' . $v->image_path);
@@ -198,10 +202,11 @@
                     </p>
                     <div style="display:flex;flex-wrap:wrap;gap:8px;">
                         @foreach($colores as $color)
+                        @php $hex = $variantHexByColor[$color] ?? \App\Helpers\ColorHelper::hex($color); @endphp
                         <div class="color-btn"
                              data-color="{{ $color }}"
                              style="width:28px;height:28px;border-radius:50%;
-                                    background:{{ \App\Helpers\ColorHelper::hex($color) }};
+                                    background:{{ $hex }};
                                     border:2px solid transparent;cursor:pointer;
                                     transition:all .15s;display:inline-block;"
                              title="{{ $color }}"

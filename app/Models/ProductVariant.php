@@ -14,6 +14,7 @@ class ProductVariant extends Model
         'price_modifier',
         'stock',
         'color',
+        'color_hex',
         'graduation',
         'graduation_type',
         'image_path',
