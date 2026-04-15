@@ -85,8 +85,10 @@
                 <table class="w-full">
                     <thead class="bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         <tr>
+                            <th class="px-6 py-3">Imagen</th>
                             <th class="px-6 py-3">Atributo</th>
                             <th class="px-6 py-3">Valor</th>
+                            <th class="px-6 py-3">Color</th>
                             <th class="px-6 py-3">Mod. precio</th>
                             <th class="px-6 py-3">Stock</th>
                         </tr>
@@ -94,8 +96,16 @@
                     <tbody class="divide-y divide-gray-200">
                         @foreach($product->variants as $variant)
                             <tr>
+                                <td class="px-6 py-3">
+                                    @if($variant->image_path)
+                                        <img src="{{ asset('storage/' . $variant->image_path) }}" alt="" class="w-12 h-12 object-cover rounded-lg border border-gray-200">
+                                    @else
+                                        <span class="text-xs text-gray-400">—</span>
+                                    @endif
+                                </td>
                                 <td class="px-6 py-3 text-sm">{{ $variant->name }}</td>
                                 <td class="px-6 py-3 text-sm font-medium">{{ $variant->value }}</td>
+                                <td class="px-6 py-3 text-sm">{{ $variant->color ?? '—' }}</td>
                                 <td class="px-6 py-3 text-sm">{{ $variant->price_modifier > 0 ? '+' : '' }}${{ number_format($variant->price_modifier, 2) }}</td>
                                 <td class="px-6 py-3 text-sm">{{ $variant->stock }}</td>
                             </tr>

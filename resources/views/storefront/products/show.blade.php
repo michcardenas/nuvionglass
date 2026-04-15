@@ -39,27 +39,27 @@
                 @php $firstImage = $product->images[0] ?? null; @endphp
 
                 @if($firstImage)
-                    <div style="position:relative;border-radius:16px;overflow:hidden;cursor:zoom-in;"
+                    <div style="position:relative;border-radius:16px;overflow:hidden;cursor:zoom-in;min-height:300px;"
                          @click="openLightbox()">
                         @foreach($product->images as $i => $image)
                         <img src="{{ asset('storage/' . $image) }}"
                              alt="{{ $product->name }} - imagen {{ $i + 1 }}"
+                             class="product-main-image"
+                             data-image-index="{{ $i }}"
                              style="width:100%;max-height:480px;object-fit:cover;border-radius:16px;
-                                    {{ $i > 0 ? 'position:absolute;top:0;left:0;' : '' }}"
-                             x-show="!variantImage && activeImage === {{ $i }}"
+                                    {{ $i > 0 ? 'position:absolute;top:0;left:0;display:none;' : '' }}"
+                             x-show="activeImage === {{ $i }}"
                              x-transition:enter="transition ease-out duration-300"
                              x-transition:enter-start="opacity-0"
                              x-transition:enter-end="opacity-100">
                         @endforeach
 
-                        {{-- Variant color image overlay --}}
-                        <img :src="variantImage"
-                             :alt="'{{ $product->name }} - ' + (selectedColorLabel || '')"
-                             x-show="variantImage"
-                             x-transition:enter="transition ease-out duration-300"
-                             x-transition:enter-start="opacity-0"
-                             x-transition:enter-end="opacity-100"
-                             style="width:100%;max-height:480px;object-fit:cover;border-radius:16px;">
+                        {{-- Variant color image overlay (plain JS controlled) --}}
+                        <img id="variant-color-image"
+                             src=""
+                             alt="{{ $product->name }}"
+                             style="width:100%;max-height:480px;object-fit:cover;border-radius:16px;
+                                    position:absolute;top:0;left:0;display:none;z-index:1;">
 
                         {{-- Badge 2x1 --}}
                         @if($product->badge_2x1)
@@ -75,11 +75,11 @@
                     @if(count($product->images) > 1)
                     <div style="display:flex;gap:10px;margin-top:12px;overflow-x:auto;padding-bottom:4px;">
                         @foreach($product->images as $i => $image)
-                        <button @click="activeImage = {{ $i }}; variantImage = null"
+                        <button @click="activeImage = {{ $i }}; hideVariantImage()"
                                 style="flex-shrink:0;width:72px;height:72px;border-radius:10px;
                                        overflow:hidden;cursor:pointer;transition:all .2s;
                                        opacity:0.5;"
-                                :style="!variantImage && activeImage === {{ $i }} ? 'opacity:1;box-shadow:0 0 0 2px #378ADD;' : 'opacity:0.5;'">
+                                :style="activeImage === {{ $i }} ? 'opacity:1;box-shadow:0 0 0 2px #378ADD;' : 'opacity:0.5;'">
                             <img src="{{ asset('storage/' . $image) }}" alt=""
                                  style="width:100%;height:100%;object-fit:cover;">
                         </button>
@@ -485,6 +485,14 @@
 /* ── Variant images map (color → image URL) ── */
 window.variantImagesByColor = @json($variantImagesByColor);
 
+function hideVariantImage() {
+    var overlay = document.getElementById('variant-color-image');
+    if (overlay) {
+        overlay.style.display = 'none';
+        overlay.src = '';
+    }
+}
+
 /* ── Color selector ── */
 function selectColor(color) {
     document.querySelectorAll('.color-btn').forEach(function(b) {
@@ -499,10 +507,18 @@ function selectColor(color) {
     var label = document.getElementById('selected-color-name');
     if (label) label.textContent = color;
 
-    // Dispatch event so the Alpine component can swap the main image
-    window.dispatchEvent(new CustomEvent('variant-color-change', {
-        detail: { color: color, image: window.variantImagesByColor[color] || null }
-    }));
+    // Swap main image to the variant image for this color (if any)
+    var overlay = document.getElementById('variant-color-image');
+    if (overlay) {
+        var url = window.variantImagesByColor[color];
+        if (url) {
+            overlay.src = url;
+            overlay.style.display = 'block';
+        } else {
+            overlay.src = '';
+            overlay.style.display = 'none';
+        }
+    }
 }
 
 /* ── Graduation selector ── */
@@ -534,16 +550,6 @@ function productDetail() {
         adding: false,
         added: false,
         hoverBtn: false,
-        variantImage: null,
-        selectedColorLabel: '',
-
-        init() {
-            var self = this;
-            window.addEventListener('variant-color-change', function(e) {
-                self.selectedColorLabel = e.detail.color || '';
-                self.variantImage = e.detail.image || null;
-            });
-        },
 
         openLightbox() {
             this.lightboxOpen = true;
