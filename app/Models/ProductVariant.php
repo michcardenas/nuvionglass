@@ -16,6 +16,7 @@ class ProductVariant extends Model
         'color',
         'graduation',
         'graduation_type',
+        'image_path',
         'is_active',
     ];
 

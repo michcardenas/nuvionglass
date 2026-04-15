@@ -18,6 +18,16 @@
 
 @section('content')
 
+    @php
+        // Map color => first variant image_path (if any) for color-based image swap
+        $variantImagesByColor = [];
+        foreach ($product->variants as $v) {
+            if ($v->color && $v->image_path && ! isset($variantImagesByColor[$v->color])) {
+                $variantImagesByColor[$v->color] = asset('storage/' . $v->image_path);
+            }
+        }
+    @endphp
+
     {{-- ============================================================
          FICHA PRINCIPAL: IMAGEN + DATOS
          ============================================================ --}}
@@ -36,11 +46,20 @@
                              alt="{{ $product->name }} - imagen {{ $i + 1 }}"
                              style="width:100%;max-height:480px;object-fit:cover;border-radius:16px;
                                     {{ $i > 0 ? 'position:absolute;top:0;left:0;' : '' }}"
-                             x-show="activeImage === {{ $i }}"
+                             x-show="!variantImage && activeImage === {{ $i }}"
                              x-transition:enter="transition ease-out duration-300"
                              x-transition:enter-start="opacity-0"
                              x-transition:enter-end="opacity-100">
                         @endforeach
+
+                        {{-- Variant color image overlay --}}
+                        <img :src="variantImage"
+                             :alt="'{{ $product->name }} - ' + (selectedColorLabel || '')"
+                             x-show="variantImage"
+                             x-transition:enter="transition ease-out duration-300"
+                             x-transition:enter-start="opacity-0"
+                             x-transition:enter-end="opacity-100"
+                             style="width:100%;max-height:480px;object-fit:cover;border-radius:16px;">
 
                         {{-- Badge 2x1 --}}
                         @if($product->badge_2x1)
@@ -56,11 +75,11 @@
                     @if(count($product->images) > 1)
                     <div style="display:flex;gap:10px;margin-top:12px;overflow-x:auto;padding-bottom:4px;">
                         @foreach($product->images as $i => $image)
-                        <button @click="activeImage = {{ $i }}"
+                        <button @click="activeImage = {{ $i }}; variantImage = null"
                                 style="flex-shrink:0;width:72px;height:72px;border-radius:10px;
                                        overflow:hidden;cursor:pointer;transition:all .2s;
                                        opacity:0.5;"
-                                :style="activeImage === {{ $i }} ? 'opacity:1;box-shadow:0 0 0 2px #378ADD;' : 'opacity:0.5;'">
+                                :style="!variantImage && activeImage === {{ $i }} ? 'opacity:1;box-shadow:0 0 0 2px #378ADD;' : 'opacity:0.5;'">
                             <img src="{{ asset('storage/' . $image) }}" alt=""
                                  style="width:100%;height:100%;object-fit:cover;">
                         </button>
@@ -463,6 +482,9 @@
 
 @push('scripts')
 <script>
+/* ── Variant images map (color → image URL) ── */
+window.variantImagesByColor = @json($variantImagesByColor);
+
 /* ── Color selector ── */
 function selectColor(color) {
     document.querySelectorAll('.color-btn').forEach(function(b) {
@@ -476,6 +498,11 @@ function selectColor(color) {
     }
     var label = document.getElementById('selected-color-name');
     if (label) label.textContent = color;
+
+    // Dispatch event so the Alpine component can swap the main image
+    window.dispatchEvent(new CustomEvent('variant-color-change', {
+        detail: { color: color, image: window.variantImagesByColor[color] || null }
+    }));
 }
 
 /* ── Graduation selector ── */
@@ -507,6 +534,16 @@ function productDetail() {
         adding: false,
         added: false,
         hoverBtn: false,
+        variantImage: null,
+        selectedColorLabel: '',
+
+        init() {
+            var self = this;
+            window.addEventListener('variant-color-change', function(e) {
+                self.selectedColorLabel = e.detail.color || '';
+                self.variantImage = e.detail.image || null;
+            });
+        },
 
         openLightbox() {
             this.lightboxOpen = true;

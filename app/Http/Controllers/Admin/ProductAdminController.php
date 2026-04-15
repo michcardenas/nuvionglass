@@ -58,8 +58,10 @@ class ProductAdminController extends Controller
             'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
             'variants.*.name' => 'nullable|string|max:100',
             'variants.*.value' => 'nullable|string|max:100',
+            'variants.*.color' => 'nullable|string|max:100',
             'variants.*.price_modifier' => 'nullable|numeric',
             'variants.*.stock' => 'nullable|integer|min:0',
+            'variants.*.image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
@@ -77,13 +79,19 @@ class ProductAdminController extends Controller
         $product = Product::create($validated);
 
         if ($request->has('variants')) {
-            foreach ($request->variants as $variant) {
+            foreach ($request->variants as $index => $variant) {
                 if (! empty($variant['name']) && ! empty($variant['value'])) {
+                    $imagePath = null;
+                    if ($request->hasFile("variants.$index.image")) {
+                        $imagePath = $request->file("variants.$index.image")->store('variants', 'public');
+                    }
                     $product->variants()->create([
                         'name' => $variant['name'],
                         'value' => $variant['value'],
+                        'color' => $variant['color'] ?? $variant['value'],
                         'price_modifier' => $variant['price_modifier'] ?? 0,
                         'stock' => $variant['stock'] ?? 0,
+                        'image_path' => $imagePath,
                     ]);
                 }
             }
@@ -126,8 +134,11 @@ class ProductAdminController extends Controller
             'variants.*.id' => 'nullable|integer',
             'variants.*.name' => 'nullable|string|max:100',
             'variants.*.value' => 'nullable|string|max:100',
+            'variants.*.color' => 'nullable|string|max:100',
             'variants.*.price_modifier' => 'nullable|numeric',
             'variants.*.stock' => 'nullable|integer|min:0',
+            'variants.*.image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'variants.*.remove_image' => 'nullable|boolean',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
@@ -157,29 +168,54 @@ class ProductAdminController extends Controller
         // Sync variants
         if ($request->has('variants')) {
             $keepIds = [];
-            foreach ($request->variants as $variant) {
+            foreach ($request->variants as $index => $variant) {
                 if (! empty($variant['name']) && ! empty($variant['value'])) {
+                    $payload = [
+                        'name' => $variant['name'],
+                        'value' => $variant['value'],
+                        'color' => $variant['color'] ?? $variant['value'],
+                        'price_modifier' => $variant['price_modifier'] ?? 0,
+                        'stock' => $variant['stock'] ?? 0,
+                    ];
+
                     if (! empty($variant['id'])) {
-                        $product->variants()->where('id', $variant['id'])->update([
-                            'name' => $variant['name'],
-                            'value' => $variant['value'],
-                            'price_modifier' => $variant['price_modifier'] ?? 0,
-                            'stock' => $variant['stock'] ?? 0,
-                        ]);
-                        $keepIds[] = $variant['id'];
+                        $existing = $product->variants()->find($variant['id']);
+                        if ($existing) {
+                            if (! empty($variant['remove_image']) && $existing->image_path) {
+                                Storage::disk('public')->delete($existing->image_path);
+                                $payload['image_path'] = null;
+                            }
+                            if ($request->hasFile("variants.$index.image")) {
+                                if ($existing->image_path) {
+                                    Storage::disk('public')->delete($existing->image_path);
+                                }
+                                $payload['image_path'] = $request->file("variants.$index.image")->store('variants', 'public');
+                            }
+                            $existing->update($payload);
+                            $keepIds[] = $existing->id;
+                        }
                     } else {
-                        $newVariant = $product->variants()->create([
-                            'name' => $variant['name'],
-                            'value' => $variant['value'],
-                            'price_modifier' => $variant['price_modifier'] ?? 0,
-                            'stock' => $variant['stock'] ?? 0,
-                        ]);
+                        if ($request->hasFile("variants.$index.image")) {
+                            $payload['image_path'] = $request->file("variants.$index.image")->store('variants', 'public');
+                        }
+                        $newVariant = $product->variants()->create($payload);
                         $keepIds[] = $newVariant->id;
                     }
                 }
             }
-            $product->variants()->whereNotIn('id', $keepIds)->delete();
+            $removed = $product->variants()->whereNotIn('id', $keepIds)->get();
+            foreach ($removed as $r) {
+                if ($r->image_path) {
+                    Storage::disk('public')->delete($r->image_path);
+                }
+                $r->delete();
+            }
         } else {
+            foreach ($product->variants as $v) {
+                if ($v->image_path) {
+                    Storage::disk('public')->delete($v->image_path);
+                }
+            }
             $product->variants()->delete();
         }
 
@@ -195,6 +231,11 @@ class ProductAdminController extends Controller
             }
         }
 
+        foreach ($product->variants as $v) {
+            if ($v->image_path) {
+                Storage::disk('public')->delete($v->image_path);
+            }
+        }
         $product->variants()->delete();
         $product->delete();
 

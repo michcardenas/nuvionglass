@@ -200,8 +200,9 @@ class ProductSeeder extends Seeder
 
     /**
      * Seed color-only variants for sin_graduacion products.
+     * $imageMap: optional ['Color' => 'variants/path.jpg'] to attach per-color images.
      */
-    private function seedSimpleVariants(Product $product, array $colors, string $graduationType): void
+    private function seedSimpleVariants(Product $product, array $colors, string $graduationType, array $imageMap = []): void
     {
         foreach ($colors as $color) {
             ProductVariant::updateOrCreate(
@@ -216,6 +217,7 @@ class ProductSeeder extends Seeder
                     'value' => $color,
                     'price_modifier' => 0,
                     'stock' => 99,
+                    'image_path' => $imageMap[$color] ?? null,
                     'is_active' => true,
                 ],
             );
@@ -224,8 +226,9 @@ class ProductSeeder extends Seeder
 
     /**
      * Seed color×graduation variants for lectura/miopia products.
+     * $imageMap: optional ['Color' => 'variants/path.jpg'] to attach per-color images.
      */
-    private function seedGraduatedVariants(Product $product, array $colors, string $graduationType): void
+    private function seedGraduatedVariants(Product $product, array $colors, string $graduationType, array $imageMap = []): void
     {
         $graduations = $graduationType === 'miopia'
             ? ['-100', '-150', '-200', '-250', '-300', '-350', '-400']
@@ -245,6 +248,7 @@ class ProductSeeder extends Seeder
                         'value' => $color,
                         'price_modifier' => 0,
                         'stock' => 99,
+                        'image_path' => $imageMap[$color] ?? null,
                         'is_active' => true,
                     ],
                 );

@@ -136,42 +136,66 @@
         @php
             $existingVariants = old('variants', $product->variants->map(fn($v) => [
                 'id' => $v->id, 'name' => $v->name, 'value' => $v->value,
-                'price_modifier' => $v->price_modifier, 'stock' => $v->stock,
+                'color' => $v->color, 'price_modifier' => $v->price_modifier, 'stock' => $v->stock,
+                'image_path' => $v->image_path,
             ])->toArray());
         @endphp
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
-             x-data="{ variants: {{ json_encode(array_values($existingVariants)) }} }">
+             x-data="{ variants: {{ json_encode(array_values($existingVariants)) }}, storageUrl: '{{ asset('storage') }}' }">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold text-gray-800">Variantes</h2>
-                <button type="button" @click="variants.push({ id: null, name: '', value: '', price_modifier: 0, stock: 0 })"
+                <button type="button" @click="variants.push({ id: null, name: 'Color', value: '', color: '', price_modifier: 0, stock: 0, image_path: null })"
                         class="text-sm text-blue-600 hover:text-blue-800">+ Agregar variante</button>
             </div>
+            <p class="text-xs text-gray-500 mb-3">Agrega una imagen por variante para que se muestre al seleccionar el color en la tienda.</p>
             <template x-for="(variant, index) in variants" :key="index">
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-3 items-end">
+                <div class="border border-gray-100 rounded-lg p-3 mb-3 bg-gray-50/50">
                     <input type="hidden" :name="'variants['+index+'][id]'" :value="variant.id">
-                    <div>
-                        <label class="block text-xs text-gray-500 mb-1">Atributo</label>
-                        <input type="text" :name="'variants['+index+'][name]'" x-model="variant.name" placeholder="Color"
-                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <div class="grid grid-cols-2 md:grid-cols-6 gap-3 items-end">
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Atributo</label>
+                            <input type="text" :name="'variants['+index+'][name]'" x-model="variant.name" placeholder="Color"
+                                   class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Valor</label>
+                            <input type="text" :name="'variants['+index+'][value]'" x-model="variant.value" placeholder="Negro Mate"
+                                   class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Color (filtro)</label>
+                            <input type="text" :name="'variants['+index+'][color]'" x-model="variant.color" placeholder="Negro"
+                                   class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Mod. precio</label>
+                            <input type="number" :name="'variants['+index+'][price_modifier]'" x-model="variant.price_modifier" step="0.01"
+                                   class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Stock</label>
+                            <input type="number" :name="'variants['+index+'][stock]'" x-model="variant.stock" min="0"
+                                   class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <button type="button" @click="variants.splice(index, 1)"
+                                    class="text-red-500 hover:text-red-700 text-sm py-2">Eliminar</button>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-xs text-gray-500 mb-1">Valor</label>
-                        <input type="text" :name="'variants['+index+'][value]'" x-model="variant.value" placeholder="Negro Mate"
-                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-500 mb-1">Mod. precio</label>
-                        <input type="number" :name="'variants['+index+'][price_modifier]'" x-model="variant.price_modifier" step="0.01"
-                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-500 mb-1">Stock</label>
-                        <input type="number" :name="'variants['+index+'][stock]'" x-model="variant.stock" min="0"
-                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <button type="button" @click="variants.splice(index, 1)"
-                                class="text-red-500 hover:text-red-700 text-sm py-2">Eliminar</button>
+                    <div class="mt-3 flex items-end gap-4">
+                        <div x-show="variant.image_path" class="flex items-center gap-2">
+                            <img :src="variant.image_path ? storageUrl + '/' + variant.image_path : ''" alt=""
+                                 class="w-16 h-16 object-cover rounded-lg border border-gray-200">
+                            <label class="flex items-center gap-1 text-xs text-red-600 cursor-pointer">
+                                <input type="checkbox" :name="'variants['+index+'][remove_image]'" value="1" class="w-3 h-3">
+                                Eliminar
+                            </label>
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-xs text-gray-500 mb-1" x-text="variant.image_path ? 'Reemplazar imagen' : 'Imagen de esta variante'"></label>
+                            <input type="file" :name="'variants['+index+'][image]'" accept="image/*"
+                                   class="block w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        </div>
                     </div>
                 </div>
             </template>
