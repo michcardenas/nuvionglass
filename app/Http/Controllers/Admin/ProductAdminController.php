@@ -92,6 +92,7 @@ class ProductAdminController extends Controller
                         'price_modifier' => $variant['price_modifier'] ?? 0,
                         'stock' => $variant['stock'] ?? 0,
                         'image_path' => $imagePath,
+                        'is_active' => true,
                     ]);
                 }
             }
@@ -176,6 +177,7 @@ class ProductAdminController extends Controller
                         'color' => $variant['color'] ?? $variant['value'],
                         'price_modifier' => $variant['price_modifier'] ?? 0,
                         'stock' => $variant['stock'] ?? 0,
+                        'is_active' => true,
                     ];
 
                     if (! empty($variant['id'])) {

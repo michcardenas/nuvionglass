@@ -21,11 +21,20 @@
     @php
         // Map color => first variant image_path (if any) for color-based image swap
         $variantImagesByColor = [];
+        $firstVariantImage = null;
         foreach ($product->variants as $v) {
-            if ($v->color && $v->image_path && ! isset($variantImagesByColor[$v->color])) {
-                $variantImagesByColor[$v->color] = asset('storage/' . $v->image_path);
+            if ($v->image_path) {
+                if ($v->color && ! isset($variantImagesByColor[$v->color])) {
+                    $variantImagesByColor[$v->color] = asset('storage/' . $v->image_path);
+                }
+                if (! $firstVariantImage) {
+                    $firstVariantImage = $v->image_path;
+                }
             }
         }
+
+        // Build the images list used for display: product images first, else fall back to variant image
+        $displayImages = ! empty($product->images) ? $product->images : ($firstVariantImage ? [$firstVariantImage] : []);
     @endphp
 
     {{-- ============================================================
@@ -36,12 +45,12 @@
 
             {{-- ==================== COLUMNA IZQUIERDA: IMAGEN ==================== --}}
             <div style="position:relative;">
-                @php $firstImage = $product->images[0] ?? null; @endphp
+                @php $firstImage = $displayImages[0] ?? null; @endphp
 
                 @if($firstImage)
                     <div style="position:relative;border-radius:16px;overflow:hidden;cursor:zoom-in;min-height:300px;"
                          @click="openLightbox()">
-                        @foreach($product->images as $i => $image)
+                        @foreach($displayImages as $i => $image)
                         <img src="{{ asset('storage/' . $image) }}"
                              alt="{{ $product->name }} - imagen {{ $i + 1 }}"
                              class="product-main-image"
@@ -72,9 +81,9 @@
                     </div>
 
                     {{-- Thumbnails --}}
-                    @if(count($product->images) > 1)
+                    @if(count($displayImages) > 1)
                     <div style="display:flex;gap:10px;margin-top:12px;overflow-x:auto;padding-bottom:4px;">
-                        @foreach($product->images as $i => $image)
+                        @foreach($displayImages as $i => $image)
                         <button @click="activeImage = {{ $i }}; hideVariantImage()"
                                 style="flex-shrink:0;width:72px;height:72px;border-radius:10px;
                                        overflow:hidden;cursor:pointer;transition:all .2s;
@@ -437,7 +446,7 @@
     {{-- ============================================================
          LIGHTBOX
          ============================================================ --}}
-    @if($product->images && count($product->images) > 0)
+    @if(! empty($displayImages))
     <div x-show="lightboxOpen" x-cloak
          style="position:fixed;inset:0;z-index:50;background:rgba(0,0,0,0.9);
                 display:flex;align-items:center;justify-content:center;"
@@ -451,8 +460,8 @@
             </svg>
         </button>
 
-        @if(count($product->images) > 1)
-        <button @click="activeImage = (activeImage - 1 + {{ count($product->images) }}) % {{ count($product->images) }}"
+        @if(count($displayImages) > 1)
+        <button @click="activeImage = (activeImage - 1 + {{ count($displayImages) }}) % {{ count($displayImages) }}"
                 style="position:absolute;left:16px;background:none;border:none;
                        color:rgba(255,255,255,0.7);cursor:pointer;z-index:10;"
                 onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">
@@ -460,7 +469,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 19.5 8.25 12l7.5-7.5"/>
             </svg>
         </button>
-        <button @click="activeImage = (activeImage + 1) % {{ count($product->images) }}"
+        <button @click="activeImage = (activeImage + 1) % {{ count($displayImages) }}"
                 style="position:absolute;right:16px;background:none;border:none;
                        color:rgba(255,255,255,0.7);cursor:pointer;z-index:10;"
                 onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">
@@ -470,7 +479,7 @@
         </button>
         @endif
 
-        @foreach($product->images as $i => $image)
+        @foreach($displayImages as $i => $image)
         <img src="{{ asset('storage/' . $image) }}" alt="{{ $product->name }}"
              style="max-height:85vh;max-width:90vw;object-fit:contain;"
              x-show="activeImage === {{ $i }}">
