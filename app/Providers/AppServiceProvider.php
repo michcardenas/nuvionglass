@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\DiscountCode;
 use App\Models\Product;
 use App\Models\ShippingSetting;
 use App\Services\CartService;
@@ -49,6 +50,25 @@ class AppServiceProvider extends ServiceProvider
                 'total' => $item['total'],
             ])->values();
 
+            // Coupon from session
+            $couponCode = null;
+            $couponDescription = null;
+            $couponDiscount = 0;
+            $discountCodeId = session('discount_code_id');
+
+            if ($discountCodeId) {
+                $discountCode = DiscountCode::find($discountCodeId);
+                if ($discountCode && $discountCode->isValid($subtotalConDescuento)) {
+                    $couponCode = $discountCode->code;
+                    $couponDiscount = $discountCode->calculateDiscount($subtotalConDescuento);
+                    $couponDescription = $discountCode->type === 'percentage'
+                        ? $discountCode->value . '% de descuento'
+                        : '$' . number_format($discountCode->value, 2) . ' de descuento';
+                } else {
+                    session()->forget('discount_code_id');
+                }
+            }
+
             // Toallitas for cart suggestion
             $toallitas = Product::active()->where('type', 'toallitas')->get();
 
@@ -57,8 +77,11 @@ class AppServiceProvider extends ServiceProvider
             $view->with('cartSubtotal', $subtotal);
             $view->with('cartDiscount2x1', $discount);
             $view->with('cartFreeItems', $promo['free_items']);
+            $view->with('cartCouponCode', $couponCode);
+            $view->with('cartCouponDescription', $couponDescription);
+            $view->with('cartCouponDiscount', $couponDiscount);
             $view->with('cartShipping', $shipping);
-            $view->with('cartTotal', $subtotalConDescuento + $shipping);
+            $view->with('cartTotal', max(0, $subtotalConDescuento - $couponDiscount + $shipping));
             $view->with('toallitasCarrito', $toallitas);
         });
     }
