@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     {{-- SEO Meta (overridable per page) --}}
-    <title>@yield('title', 'nuvion - glass | Lentes con protección de luz azul')</title>
+    <title>@yield('title', 'Nuvion Glass | Lentes con protección de luz azul')</title>
     <meta name="description" content="@yield('meta_description', 'Protege tus ojos de la luz azul con lentes nuvion glass. Con o sin graduación. Diseño moderno, envío gratis.')">
     <meta name="robots" content="@yield('robots', 'index, follow')">
 
@@ -15,16 +15,16 @@
 
     {{-- Open Graph --}}
     <meta property="og:type" content="@yield('og_type', 'website')">
-    <meta property="og:title" content="@yield('og_title', 'nuvion - glass')">
+    <meta property="og:title" content="@yield('og_title', 'Nuvion Glass')">
     <meta property="og:description" content="@yield('og_description', 'Lentes con protección de luz azul')">
     <meta property="og:url" content="@yield('canonical', url()->current())">
     <meta property="og:image" content="@yield('og_image', asset('images/og-default.jpg'))">
-    <meta property="og:site_name" content="nuvion - glass">
+    <meta property="og:site_name" content="Nuvion Glass">
     <meta property="og:locale" content="es_MX">
 
     {{-- Twitter Card --}}
     <meta name="twitter:card" content="@yield('twitter_card', 'summary_large_image')">
-    <meta name="twitter:title" content="@yield('twitter_title', 'nuvion - glass')">
+    <meta name="twitter:title" content="@yield('twitter_title', 'Nuvion Glass')">
     <meta name="twitter:description" content="@yield('twitter_description', 'Lentes con protección de luz azul')">
     <meta name="twitter:image" content="@yield('twitter_image', asset('images/og-default.jpg'))">
 
