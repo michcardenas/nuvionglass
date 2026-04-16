@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\OrderShipped;
+use App\Mail\OrderStatusUpdate;
 use App\Models\Order;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -58,12 +59,27 @@ class OrderAdminController extends Controller
     {
         $validated = $request->validate([
             'status' => 'required|in:pending,confirmed,shipped,delivered,cancelled',
+            'notify_status' => 'nullable|boolean',
         ]);
+
+        $notify = $validated['notify_status'] ?? false;
+        unset($validated['notify_status']);
 
         $order->update($validated);
 
+        if ($notify && $order->customer) {
+            try {
+                $order->load('items.product', 'items.variant', 'customer');
+                Mail::to($order->customer->email)->send(new OrderStatusUpdate($order));
+            } catch (\Throwable $e) {
+                report($e);
+                return redirect()->route('admin.orders.show', $order)
+                    ->with('success', 'Estado actualizado, pero no se pudo enviar el correo.');
+            }
+        }
+
         return redirect()->route('admin.orders.show', $order)
-            ->with('success', 'Estado actualizado.');
+            ->with('success', $notify ? 'Estado actualizado y cliente notificado.' : 'Estado actualizado.');
     }
 
     public function verifyPayment(Order $order): RedirectResponse

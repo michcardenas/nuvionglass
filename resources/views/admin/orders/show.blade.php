@@ -229,6 +229,14 @@
                                 <option value="{{ $val }}" {{ $order->status === $val ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
                         </select>
+                        <div class="flex items-center gap-2 mb-3 p-2.5 bg-gray-50 rounded-lg">
+                            <input type="hidden" name="notify_status" value="0">
+                            <input type="checkbox" name="notify_status" value="1" id="notify_status"
+                                   class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" checked>
+                            <label for="notify_status" class="text-xs text-gray-600">
+                                Notificar al cliente
+                            </label>
+                        </div>
                         <button type="submit" class="w-full bg-gray-800 hover:bg-gray-900 text-white py-2 rounded-lg text-sm font-medium transition-colors">
                             Actualizar estado
                         </button>
