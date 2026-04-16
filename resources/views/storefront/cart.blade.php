@@ -175,7 +175,58 @@
                                     ✓ ¡Envío gratis aplicado!
                                 </div>
                             </template>
+
+                            {{-- Coupon discount applied --}}
+                            <template x-if="coupon_code">
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center gap-1.5">
+                                        <span style="color:#16a34a;">Cupón</span>
+                                        <span style="font-size:11px;padding:1px 6px;border-radius:4px;background:#f0fdf4;color:#16a34a;font-weight:600;font-family:monospace;" x-text="coupon_code"></span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span style="color:#16a34a;" x-text="'-$' + fmt(coupon_discount)"></span>
+                                        <button @click="removeCoupon()" style="color:#d1d5db;cursor:pointer;background:none;border:none;padding:0;line-height:1;"
+                                                onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#d1d5db'">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
                         </div>
+
+                        {{-- Coupon input --}}
+                        <template x-if="!coupon_code">
+                            <div style="border-top:1px solid #e5e7eb;padding-top:16px;">
+                                <button @click="couponOpen = !couponOpen" type="button"
+                                        style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:#378ADD;background:none;border:none;cursor:pointer;padding:0;font-family:inherit;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z"/>
+                                    </svg>
+                                    ¿Tienes un cupón de descuento?
+                                </button>
+                                <div x-show="couponOpen" x-collapse x-cloak style="margin-top:10px;">
+                                    <div style="display:flex;gap:8px;">
+                                        <input type="text" x-model="couponInput" @keydown.enter.prevent="applyCoupon()"
+                                               placeholder="Código de cupón"
+                                               style="flex:1;padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:inherit;text-transform:uppercase;outline:none;transition:border-color .2s;"
+                                               onfocus="this.style.borderColor='#378ADD'" onblur="this.style.borderColor='#e5e7eb'">
+                                        <button @click="applyCoupon()" :disabled="couponLoading"
+                                                style="padding:8px 16px;background:#1a1a2e;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:background .2s;font-family:inherit;white-space:nowrap;"
+                                                onmouseover="this.style.background='#378ADD'" onmouseout="this.style.background='#1a1a2e'"
+                                                :style="couponLoading ? 'opacity:0.6;cursor:wait;' : ''">
+                                            <span x-show="!couponLoading">Aplicar</span>
+                                            <span x-show="couponLoading" x-cloak>...</span>
+                                        </button>
+                                    </div>
+                                    <p x-show="couponError" x-cloak x-text="couponError"
+                                       style="font-size:12px;color:#ef4444;margin-top:6px;"></p>
+                                    <p x-show="couponSuccess" x-cloak x-text="couponSuccess"
+                                       style="font-size:12px;color:#16a34a;margin-top:6px;"></p>
+                                </div>
+                            </div>
+                        </template>
 
                         {{-- Total --}}
                         <div class="pt-4 flex justify-between items-center" style="border-top:1px solid #e5e7eb;">
@@ -240,9 +291,17 @@ function cartPage() {
         subtotal: {{ $subtotal }},
         discount_2x1: {{ $discount_2x1 }},
         free_items: @json($free_items),
+        coupon_code: @json($coupon_code ?? null),
+        coupon_description: @json($coupon_description ?? null),
+        coupon_discount: {{ $coupon_discount ?? 0 }},
         shipping: {{ $shipping }},
         total: {{ $total }},
         toallitasData: @json($toallitasJson),
+        couponOpen: false,
+        couponInput: '',
+        couponLoading: false,
+        couponError: '',
+        couponSuccess: '',
 
         fmt(n) {
             return Number(n).toLocaleString('es-MX', { minimumFractionDigits: 2 });
@@ -262,6 +321,9 @@ function cartPage() {
             if (data.subtotal !== undefined) this.subtotal = data.subtotal;
             if (data.discount_2x1 !== undefined) this.discount_2x1 = data.discount_2x1;
             if (data.free_items !== undefined) this.free_items = data.free_items;
+            if (data.coupon_code !== undefined) this.coupon_code = data.coupon_code;
+            if (data.coupon_description !== undefined) this.coupon_description = data.coupon_description;
+            if (data.coupon_discount !== undefined) this.coupon_discount = data.coupon_discount;
             if (data.shipping !== undefined) this.shipping = data.shipping;
             if (data.total !== undefined) this.total = data.total;
             this.updateBadge(data.cart_count ?? this.items.reduce((s, i) => s + i.qty, 0));
@@ -305,6 +367,60 @@ function cartPage() {
                 const data = await res.json();
                 if (res.ok) this.syncFromResponse(data);
             } catch (e) { console.error('Error adding toallita:', e); }
+        },
+
+        async applyCoupon() {
+            if (!this.couponInput.trim() || this.couponLoading) return;
+            this.couponLoading = true;
+            this.couponError = '';
+            this.couponSuccess = '';
+
+            try {
+                const res = await fetch('{{ route("checkout.applyCoupon") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                    body: JSON.stringify({ code: this.couponInput.trim() }),
+                });
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    this.coupon_code = data.code;
+                    this.coupon_description = data.description;
+                    this.coupon_discount = data.discount_amount;
+                    this.total = data.new_total;
+                    this.couponSuccess = data.description + ' aplicado';
+                    this.couponInput = '';
+                    this.couponOpen = false;
+                } else {
+                    this.couponError = data.message || 'Código no válido.';
+                }
+            } catch (e) {
+                this.couponError = 'Error al aplicar el cupón.';
+                console.error('Error applying coupon:', e);
+            } finally {
+                this.couponLoading = false;
+            }
+        },
+
+        async removeCoupon() {
+            try {
+                const res = await fetch('{{ route("checkout.removeCoupon") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    this.coupon_code = null;
+                    this.coupon_description = null;
+                    this.coupon_discount = 0;
+                    this.total = data.new_total;
+                    this.couponError = '';
+                    this.couponSuccess = '';
+                }
+            } catch (e) { console.error('Error removing coupon:', e); }
         },
     };
 }

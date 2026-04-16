@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DiscountCode;
 use App\Models\ShippingSetting;
 use App\Services\CartService;
 use Illuminate\Http\JsonResponse;
@@ -89,7 +90,26 @@ class CartController extends Controller
         $defaultShipping = (float) ShippingSetting::get('default_price', 99.00);
         $shipping = ($threshold > 0 && $subtotalConDescuento >= $threshold) ? 0 : $defaultShipping;
 
-        $total = $subtotalConDescuento + $shipping;
+        // Coupon discount from session
+        $couponCode = null;
+        $couponDescription = null;
+        $couponDiscount = 0;
+        $discountCodeId = session('discount_code_id');
+
+        if ($discountCodeId) {
+            $discountCode = DiscountCode::find($discountCodeId);
+            if ($discountCode && $discountCode->isValid($subtotalConDescuento)) {
+                $couponCode = $discountCode->code;
+                $couponDiscount = $discountCode->calculateDiscount($subtotalConDescuento);
+                $couponDescription = $discountCode->type === 'percentage'
+                    ? $discountCode->value . '% de descuento'
+                    : '$' . number_format($discountCode->value, 2) . ' de descuento';
+            } else {
+                session()->forget('discount_code_id');
+            }
+        }
+
+        $total = $subtotalConDescuento - $couponDiscount + $shipping;
 
         return [
             'cart_count' => $this->cart->count(),
@@ -109,8 +129,11 @@ class CartController extends Controller
             'subtotal' => $subtotal,
             'discount_2x1' => $discount,
             'free_items' => $promo['free_items'],
+            'coupon_code' => $couponCode,
+            'coupon_description' => $couponDescription,
+            'coupon_discount' => $couponDiscount,
             'shipping' => $shipping,
-            'total' => $total,
+            'total' => max(0, $total),
         ];
     }
 }
