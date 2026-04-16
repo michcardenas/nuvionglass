@@ -66,6 +66,17 @@ class OrderAdminController extends Controller
             ->with('success', 'Estado actualizado.');
     }
 
+    public function verifyPayment(Order $order): RedirectResponse
+    {
+        $order->update([
+            'payment_status' => 'paid',
+            'status' => 'confirmed',
+        ]);
+
+        return redirect()->route('admin.orders.show', $order)
+            ->with('success', 'Pago verificado y orden confirmada.');
+    }
+
     public function updateTracking(Request $request, Order $order): RedirectResponse
     {
         $validated = $request->validate([

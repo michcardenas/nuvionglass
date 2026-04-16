@@ -44,6 +44,7 @@ Route::post('/checkout/remove-coupon', [CheckoutController::class, 'removeCoupon
 
 // Order tracking
 Route::get('/pedido/{tracking_token}', [CheckoutController::class, 'track'])->name('order.track');
+Route::post('/pedido/{tracking_token}/comprobante', [CheckoutController::class, 'uploadReceipt'])->name('order.uploadReceipt');
 
 // Stripe webhook
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle'])->name('stripe.webhook');

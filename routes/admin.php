@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\DiscountCodeAdminController;
 use App\Http\Controllers\Admin\AdminHeroController;
 use App\Http\Controllers\Admin\AdminBlogPageController;
 use App\Http\Controllers\Admin\AdminBlueLightPageController;
+use App\Http\Controllers\Admin\BankTransferAdminController;
 use App\Http\Controllers\Admin\AdminHomePageController;
 use App\Http\Controllers\Admin\AdminLentesPageController;
 use App\Http\Controllers\Admin\InfographicAdminController;
@@ -43,6 +44,7 @@ Route::get('orders/export/csv', [OrderAdminController::class, 'exportCsv'])->nam
 Route::resource('orders', OrderAdminController::class)->only(['index', 'show', 'update']);
 Route::patch('orders/{order}/status', [OrderAdminController::class, 'updateStatus'])->name('orders.status');
 Route::patch('orders/{order}/tracking', [OrderAdminController::class, 'updateTracking'])->name('orders.tracking');
+Route::patch('orders/{order}/verify-payment', [OrderAdminController::class, 'verifyPayment'])->name('orders.verify-payment');
 
 // Leads management
 Route::get('leads/export/csv', [LeadAdminController::class, 'exportCsv'])->name('leads.export');
@@ -60,6 +62,10 @@ Route::put('shipping/settings', [ShippingAdminController::class, 'updateSettings
 Route::post('shipping/rates', [ShippingAdminController::class, 'store'])->name('shipping.store');
 Route::put('shipping/rates/{shippingRate}', [ShippingAdminController::class, 'update'])->name('shipping.update');
 Route::delete('shipping/rates/{shippingRate}', [ShippingAdminController::class, 'destroy'])->name('shipping.destroy');
+
+// Bank transfer settings
+Route::get('bank-transfer', [BankTransferAdminController::class, 'index'])->name('bank-transfer.index');
+Route::put('bank-transfer/settings', [BankTransferAdminController::class, 'updateSettings'])->name('bank-transfer.settings');
 
 // Infographics CRUD
 Route::resource('infographics', InfographicAdminController::class)->except(['show']);

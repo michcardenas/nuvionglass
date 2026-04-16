@@ -219,9 +219,45 @@ class CheckoutController extends Controller
             ->with(['items.product', 'items.variant', 'customer'])
             ->firstOrFail();
 
+        $bankDetails = [];
+        if ($order->payment_method === 'transfer') {
+            $bankDetails = [
+                'bank_name' => \App\Models\BankTransferSetting::get('bank_name', ''),
+                'account_holder' => \App\Models\BankTransferSetting::get('account_holder', ''),
+                'clabe' => \App\Models\BankTransferSetting::get('clabe', ''),
+                'account_number' => \App\Models\BankTransferSetting::get('account_number', ''),
+            ];
+        }
+
         return view('storefront.order-tracking', [
             'order' => $order,
+            'bankDetails' => $bankDetails,
         ]);
+    }
+
+    public function uploadReceipt(Request $request, string $tracking_token): RedirectResponse
+    {
+        $order = Order::where('tracking_token', $tracking_token)->firstOrFail();
+
+        if ($order->payment_method !== 'transfer' || $order->payment_status === 'paid') {
+            return redirect()->route('order.track', $tracking_token)
+                ->with('error', 'No es posible subir un comprobante para esta orden.');
+        }
+
+        $request->validate([
+            'receipt' => 'required|file|mimes:jpg,jpeg,png,webp,pdf|max:5120',
+        ]);
+
+        // Delete old receipt if re-uploading
+        if ($order->payment_receipt) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($order->payment_receipt);
+        }
+
+        $path = $request->file('receipt')->store('receipts', 'public');
+        $order->update(['payment_receipt' => $path]);
+
+        return redirect()->route('order.track', $tracking_token)
+            ->with('success', 'Comprobante subido exitosamente. Verificaremos tu pago pronto.');
     }
 
     private function getSessionDiscount(float $subtotal): array

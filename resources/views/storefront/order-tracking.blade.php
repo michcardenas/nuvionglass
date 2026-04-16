@@ -100,6 +100,114 @@
             </div>
         @endif
 
+        {{-- Bank Transfer: Receipt Upload --}}
+        @if($order->payment_method === 'transfer')
+            @if($order->payment_status === 'paid')
+                {{-- Payment verified --}}
+                <div class="bg-green-50 border border-green-200 rounded-xl p-5 mb-6 flex items-center gap-3">
+                    <svg class="w-6 h-6 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m4.5 12.75 6 6 9-13.5"/>
+                    </svg>
+                    <div>
+                        <p class="font-semibold text-green-800">Pago verificado</p>
+                        <p class="text-sm text-green-600">Tu transferencia ha sido confirmada.</p>
+                    </div>
+                </div>
+            @elseif($order->payment_receipt)
+                {{-- Receipt uploaded, pending verification --}}
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-6">
+                    <div class="flex items-center gap-3 mb-3">
+                        <svg class="w-6 h-6 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                        </svg>
+                        <div>
+                            <p class="font-semibold text-amber-800">Comprobante subido</p>
+                            <p class="text-sm text-amber-600">Estamos verificando tu pago. Te notificaremos cuando sea confirmado.</p>
+                        </div>
+                    </div>
+                    @php
+                        $ext = strtolower(pathinfo($order->payment_receipt, PATHINFO_EXTENSION));
+                    @endphp
+                    @if(in_array($ext, ['jpg', 'jpeg', 'png', 'webp']))
+                        <img src="{{ asset('storage/' . $order->payment_receipt) }}" alt="Comprobante de pago"
+                             class="rounded-lg border border-amber-200 max-h-48 mt-2">
+                    @else
+                        <a href="{{ asset('storage/' . $order->payment_receipt) }}" target="_blank"
+                           class="inline-flex items-center gap-2 text-sm text-amber-700 font-medium mt-2 hover:underline">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg>
+                            Ver comprobante (PDF)
+                        </a>
+                    @endif
+
+                    {{-- Allow re-upload --}}
+                    <form method="POST" action="{{ route('order.uploadReceipt', $order->tracking_token) }}" enctype="multipart/form-data" class="mt-4 pt-3 border-t border-amber-200">
+                        @csrf
+                        <p class="text-xs text-amber-600 mb-2">¿Subiste el archivo equivocado? Puedes reemplazarlo:</p>
+                        <div class="flex items-center gap-3">
+                            <input type="file" name="receipt" accept=".jpg,.jpeg,.png,.webp,.pdf" required
+                                   class="text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-amber-100 file:text-amber-700 hover:file:bg-amber-200">
+                            <button type="submit" class="px-4 py-1.5 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">
+                                Reemplazar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            @else
+                {{-- No receipt yet - show upload form + bank details --}}
+                <div class="bg-white border border-secondary/30 rounded-xl overflow-hidden mb-6">
+                    <div class="bg-secondary/5 px-5 py-4 border-b border-secondary/20">
+                        <h3 class="font-brand font-semibold text-text-dark flex items-center gap-2">
+                            <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z"/>
+                            </svg>
+                            Realiza tu transferencia
+                        </h3>
+                    </div>
+                    <div class="p-5 space-y-4">
+                        {{-- Bank details --}}
+                        @if(!empty($bankDetails['clabe']))
+                        <div class="bg-blue-50/50 rounded-lg p-4 space-y-2 text-sm">
+                            @if($bankDetails['bank_name'])
+                            <div class="flex justify-between"><span class="text-text-muted">Banco:</span><span class="font-semibold text-text-dark">{{ $bankDetails['bank_name'] }}</span></div>
+                            @endif
+                            @if($bankDetails['account_holder'])
+                            <div class="flex justify-between"><span class="text-text-muted">Beneficiario:</span><span class="font-semibold text-text-dark">{{ $bankDetails['account_holder'] }}</span></div>
+                            @endif
+                            <div class="flex justify-between"><span class="text-text-muted">CLABE:</span><span class="font-bold text-text-dark font-mono tracking-wider">{{ $bankDetails['clabe'] }}</span></div>
+                            @if($bankDetails['account_number'])
+                            <div class="flex justify-between"><span class="text-text-muted">No. cuenta:</span><span class="font-semibold text-text-dark">{{ $bankDetails['account_number'] }}</span></div>
+                            @endif
+                            <div class="flex justify-between"><span class="text-text-muted">Referencia:</span><span class="font-bold text-secondary">Pedido #{{ $order->id }}</span></div>
+                            <div class="flex justify-between"><span class="text-text-muted">Monto:</span><span class="font-bold text-secondary text-base">${{ number_format($order->total, 2) }} MXN</span></div>
+                        </div>
+                        @endif
+
+                        {{-- Upload form --}}
+                        <form method="POST" action="{{ route('order.uploadReceipt', $order->tracking_token) }}" enctype="multipart/form-data">
+                            @csrf
+                            <p class="text-sm text-text-muted mb-3">Una vez realizada tu transferencia, sube tu comprobante de pago:</p>
+                            <input type="file" name="receipt" accept=".jpg,.jpeg,.png,.webp,.pdf" required
+                                   class="block w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-secondary/10 file:text-secondary hover:file:bg-secondary/20 mb-3">
+                            @error('receipt')
+                                <p class="text-red-500 text-xs mb-2">{{ $message }}</p>
+                            @enderror
+                            <button type="submit" class="w-full bg-secondary hover:bg-secondary/90 text-white py-3 rounded-lg font-semibold transition-colors">
+                                Subir comprobante de pago
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @endif
+
+            {{-- Flash messages --}}
+            @if(session('success'))
+                <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm mb-6">{{ session('success') }}</div>
+            @endif
+            @if(session('error'))
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-6">{{ session('error') }}</div>
+            @endif
+        @endif
+
         {{-- Order Details --}}
         <div class="grid md:grid-cols-3 gap-6">
 

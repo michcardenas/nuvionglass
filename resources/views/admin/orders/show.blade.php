@@ -267,6 +267,52 @@
                     </div>
                 </div>
 
+                {{-- Bank Transfer Receipt --}}
+                @if($order->payment_method === 'transfer')
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Comprobante de transferencia</h2>
+
+                    @if($order->payment_receipt)
+                        @php $ext = strtolower(pathinfo($order->payment_receipt, PATHINFO_EXTENSION)); @endphp
+                        @if(in_array($ext, ['jpg', 'jpeg', 'png', 'webp']))
+                            <a href="{{ asset('storage/' . $order->payment_receipt) }}" target="_blank">
+                                <img src="{{ asset('storage/' . $order->payment_receipt) }}" alt="Comprobante"
+                                     class="rounded-lg border border-gray-200 max-h-64 w-full object-contain bg-gray-50 mb-4">
+                            </a>
+                        @else
+                            <a href="{{ asset('storage/' . $order->payment_receipt) }}" target="_blank"
+                               class="inline-flex items-center gap-2 text-sm text-blue-600 font-medium hover:underline mb-4">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg>
+                                Ver comprobante (PDF)
+                            </a>
+                        @endif
+                    @else
+                        <p class="text-sm text-gray-400 mb-4">El cliente aún no ha subido su comprobante.</p>
+                    @endif
+
+                    @if($order->payment_status !== 'paid')
+                        <form method="POST" action="{{ route('admin.orders.verify-payment', $order) }}"
+                              onsubmit="return confirm('¿Marcar este pedido como pagado?')">
+                            @csrf @method('PATCH')
+                            <button type="submit"
+                                    class="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg text-sm font-medium transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m4.5 12.75 6 6 9-13.5"/>
+                                </svg>
+                                Marcar como pagado
+                            </button>
+                        </form>
+                    @else
+                        <div class="flex items-center gap-2 text-sm text-green-600 font-medium bg-green-50 rounded-lg px-4 py-2.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m4.5 12.75 6 6 9-13.5"/>
+                            </svg>
+                            Pago verificado
+                        </div>
+                    @endif
+                </div>
+                @endif
+
                 {{-- Customer --}}
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <h2 class="text-lg font-semibold text-gray-800 mb-4">Cliente</h2>

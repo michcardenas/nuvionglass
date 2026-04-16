@@ -123,6 +123,47 @@
         </tr>
     </table>
 
+    {{-- Bank transfer details --}}
+    @if($order->payment_method === 'transfer' && !empty($bankDetails['clabe']))
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:12px;">
+        <tr>
+            <td style="padding:0;border-radius:8px;overflow:hidden;border:1px solid #B5D4F4;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td style="background-color:#002F6D;padding:12px 16px;color:#FFFFFF;font-size:15px;font-weight:700;">
+                            Datos para transferencia bancaria
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="background-color:#EBF4FF;padding:16px;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;color:#1a1a2e;">
+                                @if($bankDetails['bank_name'])
+                                <tr><td style="padding:4px 0;color:#6B7280;width:130px;">Banco:</td><td style="padding:4px 0;font-weight:600;">{{ $bankDetails['bank_name'] }}</td></tr>
+                                @endif
+                                @if($bankDetails['account_holder'])
+                                <tr><td style="padding:4px 0;color:#6B7280;">Beneficiario:</td><td style="padding:4px 0;font-weight:600;">{{ $bankDetails['account_holder'] }}</td></tr>
+                                @endif
+                                <tr><td style="padding:4px 0;color:#6B7280;">CLABE:</td><td style="padding:4px 0;font-weight:700;font-family:monospace;letter-spacing:2px;font-size:15px;">{{ $bankDetails['clabe'] }}</td></tr>
+                                @if($bankDetails['account_number'])
+                                <tr><td style="padding:4px 0;color:#6B7280;">No. cuenta:</td><td style="padding:4px 0;font-weight:600;">{{ $bankDetails['account_number'] }}</td></tr>
+                                @endif
+                                <tr><td style="padding:4px 0;color:#6B7280;">Referencia:</td><td style="padding:4px 0;font-weight:700;color:#002F6D;">Pedido #{{ $order->id }}</td></tr>
+                                <tr><td style="padding:4px 0;color:#6B7280;">Monto:</td><td style="padding:4px 0;font-weight:700;color:#002F6D;font-size:16px;">${{ number_format($order->total, 2) }} MXN</td></tr>
+                            </table>
+                            @if($bankDetails['reference_instructions'])
+                            <p style="margin:12px 0 0;font-size:13px;color:#4B5563;">{{ $bankDetails['reference_instructions'] }}</p>
+                            @endif
+                            @if($bankDetails['additional_notes'])
+                            <p style="margin:8px 0 0;font-size:13px;color:#6B7280;font-style:italic;">{{ $bankDetails['additional_notes'] }}</p>
+                            @endif
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    @endif
+
     {{-- Shipping info --}}
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
         <tr>
@@ -142,7 +183,7 @@
             <td align="center">
                 <a href="{{ route('order.track', $order->tracking_token) }}"
                    style="display:inline-block;background-color:#002F6D;color:#FFFFFF;font-size:16px;font-weight:700;text-decoration:none;padding:16px 40px;border-radius:8px;letter-spacing:0.3px;">
-                    Seguir mi pedido
+                    {{ $order->payment_method === 'transfer' ? 'Ya hice mi transferencia' : 'Seguir mi pedido' }}
                 </a>
             </td>
         </tr>
