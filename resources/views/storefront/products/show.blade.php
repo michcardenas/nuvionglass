@@ -345,7 +345,7 @@
                 {{-- 9. Beneficios rápidos --}}
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:24px;">
                     @php
-                        $beneficios = [
+                        $beneficios = $lentesPage->product_benefits ?? [
                             'Envío gratis +$999',
                             'Garantía 6 meses',
                             '30 días devolución',

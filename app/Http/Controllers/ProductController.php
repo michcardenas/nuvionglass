@@ -126,10 +126,12 @@ class ProductController extends Controller
             ['name' => $product->name, 'url' => route('products.show', $product->slug)],
         ]);
 
+        $lentesPage = LentesPageSetting::getCurrent();
+
         return view('storefront.products.show', compact(
             'product', 'colores',
             'graduacionesMiopia', 'graduacionesLectura', 'graduacionesSinGrad',
-            'toallitas', 'seo', 'schema', 'breadcrumbs',
+            'toallitas', 'seo', 'schema', 'breadcrumbs', 'lentesPage',
         ));
     }
 }

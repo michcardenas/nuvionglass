@@ -18,6 +18,9 @@ return new class extends Migration
             $table->string('catalog_title')->nullable();
             $table->string('catalog_subtitle')->nullable();
 
+            // Beneficios rápidos en ficha de producto
+            $table->json('product_benefits')->nullable();
+
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

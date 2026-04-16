@@ -10,6 +10,7 @@ class LentesPageSetting extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'product_benefits' => 'array',
     ];
 
     public static function getCurrent(): static

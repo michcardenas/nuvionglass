@@ -21,6 +21,13 @@ class AdminLentesPageController extends Controller
 
         $data = $request->except(['_token', '_method']);
 
+        // Product benefits — textarea one per line
+        if ($request->has('product_benefits_text')) {
+            $items = array_filter(array_map('trim', explode("\n", $request->input('product_benefits_text', ''))));
+            $data['product_benefits'] = array_values($items);
+            unset($data['product_benefits_text']);
+        }
+
         $page->update($data);
 
         return redirect()->route('admin.pages.lentes.edit')
