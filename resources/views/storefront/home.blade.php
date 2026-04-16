@@ -1246,11 +1246,11 @@
          6. BENEFICIOS — ¿Por qué elegir nuvion?
          ============================================================ --}}
     @php
-        $benefitCards = array_slice($homePage->benefits_cards ?? [
+        $benefitCards = $homePage->benefits_cards ?? [
             ['icon_svg' => '<path d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>', 'title' => 'Reduce fatiga visual', 'description' => 'Filtra entre el 50% de la luz azul dañina para que los ojos descansen.'],
             ['icon_svg' => '<path d="M21.752 15.002A9.718 9.718 0 0118 15.75 9.75 9.75 0 018.25 6c0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25 9.75 9.75 0 0012.75 21a9.753 9.753 0 009.002-5.998z"/>', 'title' => 'Mejora tu sueño', 'description' => 'Bloquea la luz azul que altera tu ritmo circadiano y tu calidad de descanso.'],
             ['icon_svg' => '<path d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z"/>', 'title' => 'Menos dolores de cabeza', 'description' => 'Reduce la tensión ocular que causa migrañas y dolores frecuentes.'],
-        ], 0, 3);
+        ];
     @endphp
     @if(count($benefitCards))
     <section style="background:#F4F6F9;padding:80px 0 90px;">
@@ -1266,7 +1266,7 @@
             </div>
 
             {{-- Grid de cards --}}
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px;max-width:1000px;margin:0 auto;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px;margin:0 auto;">
                 @foreach($benefitCards as $bIdx => $benefit)
                 <div class="reveal"
                      style="background:#ffffff;border-radius:16px;padding:40px 28px;text-align:center;border:1px solid #e5e7eb;transition:transform .25s ease,box-shadow .25s ease;animation-delay:{{ $bIdx * 100 }}ms;"
