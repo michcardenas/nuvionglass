@@ -87,9 +87,42 @@
                             {{-- State --}}
                             <div>
                                 <label for="state" class="block text-sm font-medium text-text-muted mb-1.5">Estado *</label>
-                                <input type="text" id="state" x-model="form.state"
-                                       class="w-full border border-border-light rounded-xl px-4 py-3 text-sm text-text-dark placeholder-text-muted/40 focus:outline-none focus:border-secondary/50 focus:ring-2 focus:ring-secondary/10 transition-colors"
-                                       placeholder="Estado">
+                                <select id="state" x-model="form.state"
+                                        class="w-full border border-border-light rounded-xl px-4 py-3 text-sm text-text-dark focus:outline-none focus:border-secondary/50 focus:ring-2 focus:ring-secondary/10 transition-colors"
+                                        :class="!form.state ? 'text-text-muted/40' : ''">
+                                    <option value="" disabled>Selecciona un estado</option>
+                                    <option value="Aguascalientes">Aguascalientes</option>
+                                    <option value="Baja California">Baja California</option>
+                                    <option value="Baja California Sur">Baja California Sur</option>
+                                    <option value="Campeche">Campeche</option>
+                                    <option value="Chiapas">Chiapas</option>
+                                    <option value="Chihuahua">Chihuahua</option>
+                                    <option value="Coahuila">Coahuila</option>
+                                    <option value="Colima">Colima</option>
+                                    <option value="Durango">Durango</option>
+                                    <option value="Estado de México">Estado de México</option>
+                                    <option value="Guanajuato">Guanajuato</option>
+                                    <option value="Guerrero">Guerrero</option>
+                                    <option value="Hidalgo">Hidalgo</option>
+                                    <option value="Jalisco">Jalisco</option>
+                                    <option value="Michoacán">Michoacán</option>
+                                    <option value="Morelos">Morelos</option>
+                                    <option value="Nayarit">Nayarit</option>
+                                    <option value="Nuevo León">Nuevo León</option>
+                                    <option value="Oaxaca">Oaxaca</option>
+                                    <option value="Puebla">Puebla</option>
+                                    <option value="Querétaro">Querétaro</option>
+                                    <option value="Quintana Roo">Quintana Roo</option>
+                                    <option value="San Luis Potosí">San Luis Potosí</option>
+                                    <option value="Sinaloa">Sinaloa</option>
+                                    <option value="Sonora">Sonora</option>
+                                    <option value="Tabasco">Tabasco</option>
+                                    <option value="Tamaulipas">Tamaulipas</option>
+                                    <option value="Tlaxcala">Tlaxcala</option>
+                                    <option value="Veracruz">Veracruz</option>
+                                    <option value="Yucatán">Yucatán</option>
+                                    <option value="Zacatecas">Zacatecas</option>
+                                </select>
                                 <p x-show="errors.state" x-text="errors.state" class="text-danger text-xs mt-1"></p>
                             </div>
 
