@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\CategoryAdminController;
 use App\Http\Controllers\Admin\DiscountCodeAdminController;
 use App\Http\Controllers\Admin\AdminHeroController;
 use App\Http\Controllers\Admin\AdminBlogPageController;
+use App\Http\Controllers\Admin\AdminBlueLightPageController;
 use App\Http\Controllers\Admin\AdminHomePageController;
 use App\Http\Controllers\Admin\AdminLentesPageController;
 use App\Http\Controllers\Admin\InfographicAdminController;
@@ -78,6 +79,10 @@ Route::put('pages/lentes', [AdminLentesPageController::class, 'update'])->name('
 // Blog page editor
 Route::get('pages/blog', [AdminBlogPageController::class, 'edit'])->name('pages.blog.edit');
 Route::put('pages/blog', [AdminBlogPageController::class, 'update'])->name('pages.blog.update');
+
+// Blue light page editor
+Route::get('pages/blue-light', [AdminBlueLightPageController::class, 'edit'])->name('pages.blue-light.edit');
+Route::put('pages/blue-light', [AdminBlueLightPageController::class, 'update'])->name('pages.blue-light.update');
 
 // Testimonials CRUD
 Route::resource('testimonials', TestimonialAdminController::class)->except(['show']);

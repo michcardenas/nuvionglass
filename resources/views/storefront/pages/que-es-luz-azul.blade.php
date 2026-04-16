@@ -31,14 +31,13 @@
             </nav>
 
             <h1 class="font-brand text-4xl sm:text-5xl md:text-6xl font-bold leading-tight anim-fade-up">
-                <span class="text-text">¿Qué es la </span>
-                <span class="bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent">luz azul</span>
-                <span class="text-text">?</span>
+                <span class="text-text">{{ $blueLightPage->hero_title_prefix ?? '¿Qué es la ' }}</span>
+                <span class="bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent">{{ $blueLightPage->hero_title_accent ?? 'luz azul' }}</span>
+                <span class="text-text">{{ $blueLightPage->hero_title_suffix ?? '?' }}</span>
             </h1>
 
             <p class="mt-6 text-lg md:text-xl text-text/60 max-w-2xl mx-auto leading-relaxed anim-fade-up delay-200">
-                Todo lo que necesitas saber sobre la luz que emiten tus pantallas,
-                cómo afecta tu salud visual y qué puedes hacer para protegerte.
+                {{ $blueLightPage->hero_subtitle ?? 'Todo lo que necesitas saber sobre la luz que emiten tus pantallas, cómo afecta tu salud visual y qué puedes hacer para protegerte.' }}
             </p>
 
             {{-- Scroll indicator --}}
@@ -58,19 +57,19 @@
             <div class="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
                 {{-- Text --}}
                 <div class="reveal">
-                    <span class="inline-block text-xs font-bold uppercase tracking-widest text-secondary mb-4">Ciencia visual</span>
+                    <span class="inline-block text-xs font-bold uppercase tracking-widest text-secondary mb-4">{{ $blueLightPage->science_label ?? 'Ciencia visual' }}</span>
                     <h2 class="font-brand text-3xl md:text-4xl font-bold text-text-dark leading-tight">
-                        La luz que no ves, pero tus ojos sí sienten
+                        {{ $blueLightPage->science_title ?? 'La luz que no ves, pero tus ojos sí sienten' }}
                     </h2>
                     <p class="mt-6 text-text-muted leading-relaxed">
-                        La luz azul es una porción del espectro visible con longitud de onda entre
+                        {!! $blueLightPage->science_paragraph1 ?? 'La luz azul es una porción del espectro visible con longitud de onda entre
                         <strong class="text-text-dark">380 y 500 nanómetros</strong>. Es emitida por el sol,
-                        pantallas de dispositivos electrónicos, focos LED y luces fluorescentes.
+                        pantallas de dispositivos electrónicos, focos LED y luces fluorescentes.' !!}
                     </p>
                     <p class="mt-4 text-text-muted leading-relaxed">
-                        Aunque cierta cantidad de luz azul es natural y necesaria, la
+                        {!! $blueLightPage->science_paragraph2 ?? 'Aunque cierta cantidad de luz azul es natural y necesaria, la
                         <strong class="text-text-dark">exposición prolongada a fuentes artificiales</strong>
-                        como pantallas y focos LED puede dañar tu salud visual.
+                        como pantallas y focos LED puede dañar tu salud visual.' !!}
                     </p>
                 </div>
 
@@ -124,59 +123,35 @@
     <section class="py-20 md:py-28">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center reveal">
-                <span class="inline-block text-xs font-bold uppercase tracking-widest text-danger mb-4">Efectos en tu salud</span>
+                <span class="inline-block text-xs font-bold uppercase tracking-widest text-danger mb-4">{{ $blueLightPage->symptoms_label ?? 'Efectos en tu salud' }}</span>
                 <h2 class="font-brand text-3xl md:text-4xl font-bold text-text-dark">
-                    ¿Por qué es dañina?
+                    {{ $blueLightPage->symptoms_title ?? '¿Por qué es dañina?' }}
                 </h2>
                 <p class="mt-4 text-text-muted max-w-2xl mx-auto leading-relaxed">
-                    La exposición prolongada a luz azul artificial puede provocar estos síntomas:
+                    {{ $blueLightPage->symptoms_subtitle ?? 'La exposición prolongada a luz azul artificial puede provocar estos síntomas:' }}
                 </p>
             </div>
 
             <div class="mt-14 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 @php
-                    $symptoms = [
-                        [
-                            'icon' => 'M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z M15 12a3 3 0 11-6 0 3 3 0 016 0z',
-                            'title' => 'Fatiga visual',
-                            'desc' => 'Ojos cansados, visión borrosa y dificultad para enfocar después de horas frente a la pantalla.',
-                            'color' => 'text-red-500',
-                            'bg' => 'bg-red-50',
-                        ],
-                        [
-                            'icon' => 'M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z',
-                            'title' => 'Dolores de cabeza',
-                            'desc' => 'Cefaleas frecuentes causadas por el esfuerzo visual y la sobreestimulación lumínica.',
-                            'color' => 'text-orange-500',
-                            'bg' => 'bg-orange-50',
-                        ],
-                        [
-                            'icon' => 'M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z',
-                            'title' => 'Insomnio',
-                            'desc' => 'La luz azul suprime la melatonina, afectando tu ciclo de sueño y la calidad de descanso.',
-                            'color' => 'text-indigo-500',
-                            'bg' => 'bg-indigo-50',
-                        ],
-                        [
-                            'icon' => 'M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z',
-                            'title' => 'Ojos secos',
-                            'desc' => 'Reducción del parpadeo frente a pantallas que provoca sequedad e irritación ocular.',
-                            'color' => 'text-blue-500',
-                            'bg' => 'bg-blue-50',
-                        ],
+                    $symptoms = $blueLightPage->symptoms_cards ?? [
+                        ['icon' => 'M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z M15 12a3 3 0 11-6 0 3 3 0 016 0z', 'title' => 'Fatiga visual', 'desc' => 'Ojos cansados, visión borrosa y dificultad para enfocar después de horas frente a la pantalla.', 'color' => 'text-red-500', 'bg' => 'bg-red-50'],
+                        ['icon' => 'M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z', 'title' => 'Dolores de cabeza', 'desc' => 'Cefaleas frecuentes causadas por el esfuerzo visual y la sobreestimulación lumínica.', 'color' => 'text-orange-500', 'bg' => 'bg-orange-50'],
+                        ['icon' => 'M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z', 'title' => 'Insomnio', 'desc' => 'La luz azul suprime la melatonina, afectando tu ciclo de sueño y la calidad de descanso.', 'color' => 'text-indigo-500', 'bg' => 'bg-indigo-50'],
+                        ['icon' => 'M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z', 'title' => 'Ojos secos', 'desc' => 'Reducción del parpadeo frente a pantallas que provoca sequedad e irritación ocular.', 'color' => 'text-blue-500', 'bg' => 'bg-blue-50'],
                     ];
                 @endphp
 
                 @foreach($symptoms as $i => $symptom)
                     <div class="reveal delay-{{ ($i + 1) * 150 }} group">
                         <div class="bg-white rounded-2xl p-6 border border-border-light shadow-sm h-full hover:shadow-md hover:-translate-y-1 transition-all duration-300">
-                            <div class="w-12 h-12 {{ $symptom['bg'] }} rounded-xl flex items-center justify-center mb-4">
-                                <svg class="w-6 h-6 {{ $symptom['color'] }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="{{ $symptom['icon'] }}"/>
+                            <div class="w-12 h-12 {{ $symptom['bg'] ?? 'bg-red-50' }} rounded-xl flex items-center justify-center mb-4">
+                                <svg class="w-6 h-6 {{ $symptom['color'] ?? 'text-red-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="{{ $symptom['icon'] ?? '' }}"/>
                                 </svg>
                             </div>
-                            <h3 class="font-brand text-lg font-bold text-text-dark">{{ $symptom['title'] }}</h3>
-                            <p class="mt-2 text-sm text-text-muted leading-relaxed">{{ $symptom['desc'] }}</p>
+                            <h3 class="font-brand text-lg font-bold text-text-dark">{{ $symptom['title'] ?? '' }}</h3>
+                            <p class="mt-2 text-sm text-text-muted leading-relaxed">{{ $symptom['desc'] ?? '' }}</p>
                         </div>
                     </div>
                 @endforeach
@@ -202,9 +177,9 @@
                             {{-- Inner circle --}}
                             <div class="absolute inset-12 rounded-full bg-gradient-to-br from-secondary/20 to-primary/20 flex items-center justify-center">
                                 <div class="text-center">
-                                    <span class="block text-5xl md:text-6xl font-brand font-bold text-secondary">30-50%</span>
-                                    <span class="block text-sm text-text/60 mt-1">de bloqueo</span>
-                                    <span class="block text-xs text-text/40 mt-0.5">de luz azul dañina</span>
+                                    <span class="block text-5xl md:text-6xl font-brand font-bold text-secondary">{{ $blueLightPage->shield_percentage ?? '30-50%' }}</span>
+                                    <span class="block text-sm text-text/60 mt-1">{{ $blueLightPage->shield_label ?? 'de bloqueo' }}</span>
+                                    <span class="block text-xs text-text/40 mt-0.5">{{ $blueLightPage->shield_sublabel ?? 'de luz azul dañina' }}</span>
                                 </div>
                             </div>
                             {{-- Floating dots --}}
@@ -217,19 +192,19 @@
 
                 {{-- Text --}}
                 <div class="reveal order-1 md:order-2">
-                    <span class="inline-block text-xs font-bold uppercase tracking-widest text-secondary mb-4">Tecnología nuvion</span>
+                    <span class="inline-block text-xs font-bold uppercase tracking-widest text-secondary mb-4">{{ $blueLightPage->protection_label ?? 'Tecnología nuvion' }}</span>
                     <h2 class="font-brand text-3xl md:text-4xl font-bold text-text leading-tight">
-                        Protección real para tus ojos
+                        {{ $blueLightPage->protection_title ?? 'Protección real para tus ojos' }}
                     </h2>
                     <p class="mt-6 text-text/60 leading-relaxed">
-                        Nuestros lentes están equipados con un <strong class="text-text/80">filtro especializado</strong>
+                        {!! $blueLightPage->protection_description ?? 'Nuestros lentes están equipados con un <strong class="text-text/80">filtro especializado</strong>
                         que bloquea entre el 30% y 50% de la luz azul de alta energía, reduciendo significativamente
-                        la fatiga visual.
+                        la fatiga visual.' !!}
                     </p>
 
                     <div class="mt-8 space-y-4">
                         @php
-                            $benefits = [
+                            $benefits = $blueLightPage->protection_benefits ?? [
                                 'Reduce la fatiga visual tras largas jornadas',
                                 'Mejora la calidad de tu sueño',
                                 'Disminuye dolores de cabeza',
@@ -256,48 +231,24 @@
     <section class="py-20 md:py-28 bg-bg-light">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center reveal">
-                <span class="inline-block text-xs font-bold uppercase tracking-widest text-secondary mb-4">Para ti</span>
+                <span class="inline-block text-xs font-bold uppercase tracking-widest text-secondary mb-4">{{ $blueLightPage->profiles_label ?? 'Para ti' }}</span>
                 <h2 class="font-brand text-3xl md:text-4xl font-bold text-text-dark">
-                    ¿Quién debería usarlos?
+                    {{ $blueLightPage->profiles_title ?? '¿Quién debería usarlos?' }}
                 </h2>
                 <p class="mt-4 text-text-muted max-w-2xl mx-auto">
-                    Si te identificas con alguno de estos perfiles, los lentes nuvion son para ti.
+                    {{ $blueLightPage->profiles_subtitle ?? 'Si te identificas con alguno de estos perfiles, los lentes nuvion son para ti.' }}
                 </p>
             </div>
 
             <div class="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 @php
-                    $profiles = [
-                        [
-                            'icon' => 'M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25',
-                            'title' => 'Oficina / Home office',
-                            'desc' => '6+ horas diarias frente a la computadora',
-                        ],
-                        [
-                            'icon' => 'M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 01-.657.643 48.491 48.491 0 01-4.163-.3c.186 1.613.466 3.2.838 4.752a.643.643 0 01-.057.523 3 3 0 000 3.162.644.644 0 01.057.523c-.372 1.553-.652 3.14-.838 4.753a48.627 48.627 0 014.163-.3.64.64 0 01.657.643v0c0 .355-.186.676-.401.959a1.647 1.647 0 00-.349 1.003c0 1.035 1.007 1.875 2.25 1.875s2.25-.84 2.25-1.875c0-.369-.128-.713-.349-1.003-.215-.283-.401-.604-.401-.959v0c0-.368.312-.664.657-.643a48.651 48.651 0 014.163.3c-.186-1.613-.466-3.2-.838-4.753a.644.644 0 01.057-.523 3 3 0 000-3.162.643.643 0 01-.057-.523c.372-1.553.652-3.14.838-4.753a48.558 48.558 0 01-4.163.3.64.64 0 01-.657-.643v0z',
-                            'title' => 'Gamers',
-                            'desc' => 'Sesiones intensas con monitores de alta luminosidad',
-                        ],
-                        [
-                            'icon' => 'M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5',
-                            'title' => 'Estudiantes',
-                            'desc' => 'Clases en línea y horas de estudio con dispositivos',
-                        ],
-                        [
-                            'icon' => 'M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3',
-                            'title' => 'Usuarios de celular',
-                            'desc' => 'Uso constante del smartphone en el día a día',
-                        ],
-                        [
-                            'icon' => 'M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42',
-                            'title' => 'Diseñadores / Creativos',
-                            'desc' => 'Trabajo creativo que requiere máxima precisión visual',
-                        ],
-                        [
-                            'icon' => 'M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z',
-                            'title' => 'Uso nocturno',
-                            'desc' => 'Si usas pantallas antes de dormir y te cuesta conciliar el sueño',
-                        ],
+                    $profiles = $blueLightPage->profiles_cards ?? [
+                        ['icon' => 'M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25', 'title' => 'Oficina / Home office', 'desc' => '6+ horas diarias frente a la computadora'],
+                        ['icon' => 'M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 01-.657.643 48.491 48.491 0 01-4.163-.3c.186 1.613.466 3.2.838 4.752a.643.643 0 01-.057.523 3 3 0 000 3.162.644.644 0 01.057.523c-.372 1.553-.652 3.14-.838 4.753a48.627 48.627 0 014.163-.3.64.64 0 01.657.643v0c0 .355-.186.676-.401.959a1.647 1.647 0 00-.349 1.003c0 1.035 1.007 1.875 2.25 1.875s2.25-.84 2.25-1.875c0-.369-.128-.713-.349-1.003-.215-.283-.401-.604-.401-.959v0c0-.368.312-.664.657-.643a48.651 48.651 0 014.163.3c-.186-1.613-.466-3.2-.838-4.753a.644.644 0 01.057-.523 3 3 0 000-3.162.643.643 0 01-.057-.523c.372-1.553.652-3.14.838-4.753a48.558 48.558 0 01-4.163.3.64.64 0 01-.657-.643v0z', 'title' => 'Gamers', 'desc' => 'Sesiones intensas con monitores de alta luminosidad'],
+                        ['icon' => 'M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5', 'title' => 'Estudiantes', 'desc' => 'Clases en línea y horas de estudio con dispositivos'],
+                        ['icon' => 'M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3', 'title' => 'Usuarios de celular', 'desc' => 'Uso constante del smartphone en el día a día'],
+                        ['icon' => 'M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42', 'title' => 'Diseñadores / Creativos', 'desc' => 'Trabajo creativo que requiere máxima precisión visual'],
+                        ['icon' => 'M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z', 'title' => 'Uso nocturno', 'desc' => 'Si usas pantallas antes de dormir y te cuesta conciliar el sueño'],
                     ];
                 @endphp
 
@@ -306,12 +257,12 @@
                         <div class="flex items-start gap-4 bg-white rounded-xl p-5 border border-border-light hover:border-secondary/30 hover:shadow-sm transition-all duration-300">
                             <div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center flex-shrink-0">
                                 <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="{{ $profile['icon'] }}"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="{{ $profile['icon'] ?? '' }}"/>
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="font-brand font-bold text-text-dark">{{ $profile['title'] }}</h3>
-                                <p class="mt-1 text-sm text-text-muted leading-relaxed">{{ $profile['desc'] }}</p>
+                                <h3 class="font-brand font-bold text-text-dark">{{ $profile['title'] ?? '' }}</h3>
+                                <p class="mt-1 text-sm text-text-muted leading-relaxed">{{ $profile['desc'] ?? '' }}</p>
                             </div>
                         </div>
                     </div>
@@ -326,35 +277,20 @@
     <section class="py-20 md:py-28">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center reveal">
-                <span class="inline-block text-xs font-bold uppercase tracking-widest text-secondary mb-4">Resolvemos tus dudas</span>
+                <span class="inline-block text-xs font-bold uppercase tracking-widest text-secondary mb-4">{{ $blueLightPage->faq_label ?? 'Resolvemos tus dudas' }}</span>
                 <h2 class="font-brand text-3xl md:text-4xl font-bold text-text-dark">
-                    Preguntas frecuentes
+                    {{ $blueLightPage->faq_title ?? 'Preguntas frecuentes' }}
                 </h2>
             </div>
 
             <div class="mt-12 space-y-3 reveal delay-150" x-data="{ open: null }">
                 @php
-                    $faqs = [
-                        [
-                            'q' => '¿Los lentes nuvion tienen graduación?',
-                            'a' => 'Sí, ofrecemos lentes con y sin graduación. Puedes elegir la opción que mejor se adapte a tus necesidades al momento de la compra.',
-                        ],
-                        [
-                            'q' => '¿Cuánta luz azul bloquean los lentes?',
-                            'a' => 'Nuestros lentes bloquean entre el 30% y 50% de la luz azul de alta energía (380-500 nm), que es el rango dañino emitido por pantallas y luces LED.',
-                        ],
-                        [
-                            'q' => '¿Puedo usarlos todo el día?',
-                            'a' => 'Por supuesto. Los lentes nuvion están diseñados para uso prolongado. Son ligeros, cómodos y no alteran significativamente la percepción del color.',
-                        ],
-                        [
-                            'q' => '¿Son útiles si ya uso lentes de contacto?',
-                            'a' => 'Sí. Si usas lentes de contacto sin filtro de luz azul, nuestros lentes sin graduación te brindan una capa adicional de protección.',
-                        ],
-                        [
-                            'q' => '¿Los niños pueden usar lentes con filtro de luz azul?',
-                            'a' => 'Sí, especialmente si pasan tiempo frente a pantallas para clases o entretenimiento. Consulta con un oftalmólogo para recomendaciones específicas según la edad.',
-                        ],
+                    $faqs = $blueLightPage->faqs ?? [
+                        ['q' => '¿Los lentes nuvion tienen graduación?', 'a' => 'Sí, ofrecemos lentes con y sin graduación. Puedes elegir la opción que mejor se adapte a tus necesidades al momento de la compra.'],
+                        ['q' => '¿Cuánta luz azul bloquean los lentes?', 'a' => 'Nuestros lentes bloquean entre el 30% y 50% de la luz azul de alta energía (380-500 nm), que es el rango dañino emitido por pantallas y luces LED.'],
+                        ['q' => '¿Puedo usarlos todo el día?', 'a' => 'Por supuesto. Los lentes nuvion están diseñados para uso prolongado. Son ligeros, cómodos y no alteran significativamente la percepción del color.'],
+                        ['q' => '¿Son útiles si ya uso lentes de contacto?', 'a' => 'Sí. Si usas lentes de contacto sin filtro de luz azul, nuestros lentes sin graduación te brindan una capa adicional de protección.'],
+                        ['q' => '¿Los niños pueden usar lentes con filtro de luz azul?', 'a' => 'Sí, especialmente si pasan tiempo frente a pantallas para clases o entretenimiento. Consulta con un oftalmólogo para recomendaciones específicas según la edad.'],
                     ];
                 @endphp
 
@@ -391,9 +327,9 @@
 
             {{-- Header --}}
             <div class="text-center reveal">
-                <span class="inline-block text-xs font-bold uppercase tracking-widest text-secondary mb-4">Compara la diferencia</span>
+                <span class="inline-block text-xs font-bold uppercase tracking-widest text-secondary mb-4">{{ $blueLightPage->compare_label ?? 'Compara la diferencia' }}</span>
                 <h2 class="font-brand text-3xl md:text-4xl font-bold text-text leading-tight">
-                    ¿Qué pasa con tus ojos sin protección?
+                    {{ $blueLightPage->compare_title ?? '¿Qué pasa con tus ojos sin protección?' }}
                 </h2>
             </div>
 
@@ -422,7 +358,7 @@
                          class="rounded-xl p-6 transition-all duration-250"
                          style="background:rgba(26,58,110,0.15);border:1px solid rgba(59,130,246,0.2);opacity:1;transform:translateY(0);">
                         <ul class="space-y-4">
-                            @foreach([
+                            @foreach($blueLightPage->compare_without_items ?? [
                                 'Fatiga visual constante',
                                 'Ojos secos e irritados',
                                 'Insomnio digital por supresión de melatonina',
@@ -445,7 +381,7 @@
                          class="absolute inset-0 rounded-xl p-6 transition-all duration-250"
                          style="background:rgba(23,52,4,0.15);border:1px solid rgba(52,211,153,0.2);opacity:0;transform:translateY(6px);pointer-events:none;">
                         <ul class="space-y-4">
-                            @foreach([
+                            @foreach($blueLightPage->compare_with_items ?? [
                                 'Descanso visual prolongado frente a pantallas',
                                 'Ojos hidratados y cómodos todo el día',
                                 'Mejor calidad y duración del sueño',
@@ -466,50 +402,44 @@
             </div>
 
             {{-- Metrics grid --}}
+            @php
+                $compareMetrics = $blueLightPage->compare_metrics ?? [
+                    ['number' => '66%', 'description' => 'menos parpadeos frente a pantalla', 'label' => 'sin protección', 'type' => 'red'],
+                    ['number' => '3h', 'description' => 'más de sueño profundo recuperado', 'label' => 'con nuvion glass', 'type' => 'green'],
+                    ['number' => '90%', 'description' => 'de usuarios con fatiga visual digital', 'label' => 'tras 2h de pantalla sin filtro', 'type' => 'red'],
+                    ['number' => '40%', 'description' => 'reducción de fatiga ocular reportada', 'label' => 'con filtro de luz azul activo', 'type' => 'green'],
+                ];
+            @endphp
             <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto reveal delay-300">
-                {{-- Card 1: problema --}}
+                @foreach($compareMetrics as $metric)
+                @if(($metric['type'] ?? 'red') === 'red')
                 <div class="metric-card metric-red rounded-xl p-5 transition-all duration-300"
                      style="border:1px solid rgba(239,68,68,0.5);background:rgba(239,68,68,0.06);box-shadow:0 0 15px rgba(239,68,68,0.25),inset 0 0 15px rgba(239,68,68,0.05);">
-                    <span class="block font-brand text-4xl font-bold text-red-400">66%</span>
-                    <p class="mt-1 text-sm text-white/70 leading-snug">menos parpadeos frente a pantalla</p>
-                    <span class="inline-block mt-2 text-[11px] font-semibold uppercase tracking-wider text-red-400">sin protección</span>
+                    <span class="block font-brand text-4xl font-bold text-red-400">{{ $metric['number'] ?? '' }}</span>
+                    <p class="mt-1 text-sm text-white/70 leading-snug">{{ $metric['description'] ?? '' }}</p>
+                    <span class="inline-block mt-2 text-[11px] font-semibold uppercase tracking-wider text-red-400">{{ $metric['label'] ?? '' }}</span>
                 </div>
-
-                {{-- Card 2: solución --}}
+                @else
                 <div class="metric-card metric-green rounded-xl p-5 transition-all duration-300"
                      style="border:1px solid rgba(52,211,153,0.1);background:transparent;box-shadow:none;">
-                    <span class="block font-brand text-4xl font-bold text-emerald-400/30">3h</span>
-                    <p class="mt-1 text-sm text-white/20 leading-snug">más de sueño profundo recuperado</p>
-                    <span class="inline-block mt-2 text-[11px] font-semibold uppercase tracking-wider text-emerald-400/20">con nuvion glass</span>
+                    <span class="block font-brand text-4xl font-bold text-emerald-400/30">{{ $metric['number'] ?? '' }}</span>
+                    <p class="mt-1 text-sm text-white/20 leading-snug">{{ $metric['description'] ?? '' }}</p>
+                    <span class="inline-block mt-2 text-[11px] font-semibold uppercase tracking-wider text-emerald-400/20">{{ $metric['label'] ?? '' }}</span>
                 </div>
-
-                {{-- Card 3: problema --}}
-                <div class="metric-card metric-red rounded-xl p-5 transition-all duration-300"
-                     style="border:1px solid rgba(239,68,68,0.5);background:rgba(239,68,68,0.06);box-shadow:0 0 15px rgba(239,68,68,0.25),inset 0 0 15px rgba(239,68,68,0.05);">
-                    <span class="block font-brand text-4xl font-bold text-red-400">90%</span>
-                    <p class="mt-1 text-sm text-white/70 leading-snug">de usuarios con fatiga visual digital</p>
-                    <span class="inline-block mt-2 text-[11px] font-semibold uppercase tracking-wider text-red-400">tras 2h de pantalla sin filtro</span>
-                </div>
-
-                {{-- Card 4: solución --}}
-                <div class="metric-card metric-green rounded-xl p-5 transition-all duration-300"
-                     style="border:1px solid rgba(52,211,153,0.1);background:transparent;box-shadow:none;">
-                    <span class="block font-brand text-4xl font-bold text-emerald-400/30">40%</span>
-                    <p class="mt-1 text-sm text-white/20 leading-snug">reducción de fatiga ocular reportada</p>
-                    <span class="inline-block mt-2 text-[11px] font-semibold uppercase tracking-wider text-emerald-400/20">con filtro de luz azul activo</span>
-                </div>
+                @endif
+                @endforeach
             </div>
 
             {{-- Sources --}}
             <p class="mt-5 text-center text-[11px] text-text/25 max-w-2xl mx-auto reveal delay-450">
-                Fuentes: Vision Council, Harvard Health Publishing, American Journal of Ophthalmology
+                {{ $blueLightPage->compare_sources ?? 'Fuentes: Vision Council, Harvard Health Publishing, American Journal of Ophthalmology' }}
             </p>
 
             {{-- CTA --}}
             <div class="mt-10 text-center reveal delay-450">
                 <a href="{{ route('products.index') }}"
                    class="inline-flex items-center justify-center bg-secondary hover:bg-secondary/90 text-white px-8 py-3.5 rounded-lg font-bold transition-colors shadow-lg">
-                    Ver lentes nuvion glass
+                    {{ $blueLightPage->compare_btn_text ?? 'Ver lentes nuvion glass' }}
                 </a>
             </div>
         </div>
@@ -632,16 +562,15 @@
 
         <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-24 text-center">
             <h2 class="font-brand text-3xl md:text-4xl font-bold text-white leading-tight reveal">
-                Protege tus ojos hoy
+                {{ $blueLightPage->cta_title ?? 'Protege tus ojos hoy' }}
             </h2>
             <p class="mt-4 text-lg text-white/70 max-w-xl mx-auto reveal delay-150">
-                Elige los lentes que cuidan tu vista sin sacrificar estilo.
-                Con o sin graduación.
+                {{ $blueLightPage->cta_subtitle ?? 'Elige los lentes que cuidan tu vista sin sacrificar estilo. Con o sin graduación.' }}
             </p>
             <div class="mt-8 reveal delay-300">
                 <a href="{{ route('products.index') }}"
                    class="inline-flex items-center justify-center bg-white text-primary hover:bg-white/90 px-8 py-3.5 rounded-lg font-bold text-lg transition-colors shadow-lg">
-                    Ver nuestros lentes
+                    {{ $blueLightPage->cta_btn_text ?? 'Ver nuestros lentes' }}
                 </a>
             </div>
         </div>

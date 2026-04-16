@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ColorHelper;
 use App\Models\BlogPost;
+use App\Models\BlueLightPageSetting;
 use App\Models\HeroSetting;
 use App\Models\HomePageSetting;
 use App\Models\InfographicImage;
@@ -91,26 +92,37 @@ class StorefrontController extends Controller
 
     public function blueLight(): View
     {
-        $faqSchema = $this->seo->faqSchema([
-            [
-                'question' => '¿Qué es la luz azul?',
-                'answer' => 'La luz azul es una porción del espectro de luz visible con longitud de onda entre 380 y 500 nanómetros. Es emitida por el sol, pantallas digitales, LEDs y luces fluorescentes.',
-            ],
-            [
-                'question' => '¿Por qué es dañina la luz azul?',
-                'answer' => 'La exposición prolongada puede causar fatiga visual digital, dolores de cabeza, ojos secos y alteraciones en el ciclo circadiano que afectan la calidad del sueño.',
-            ],
-            [
-                'question' => '¿Quién debería usar lentes con protección de luz azul?',
-                'answer' => 'Cualquier persona que pase más de 4 horas diarias frente a pantallas: trabajadores de oficina, gamers, estudiantes y usuarios frecuentes de dispositivos móviles.',
-            ],
-        ]);
+        $blueLightPage = BlueLightPageSetting::getCurrent();
+
+        $faqItems = collect($blueLightPage->faqs ?? [])->map(fn ($faq) => [
+            'question' => $faq['q'] ?? '',
+            'answer'   => $faq['a'] ?? '',
+        ])->all();
+
+        if (empty($faqItems)) {
+            $faqItems = [
+                [
+                    'question' => '¿Qué es la luz azul?',
+                    'answer' => 'La luz azul es una porción del espectro de luz visible con longitud de onda entre 380 y 500 nanómetros. Es emitida por el sol, pantallas digitales, LEDs y luces fluorescentes.',
+                ],
+                [
+                    'question' => '¿Por qué es dañina la luz azul?',
+                    'answer' => 'La exposición prolongada puede causar fatiga visual digital, dolores de cabeza, ojos secos y alteraciones en el ciclo circadiano que afectan la calidad del sueño.',
+                ],
+                [
+                    'question' => '¿Quién debería usar lentes con protección de luz azul?',
+                    'answer' => 'Cualquier persona que pase más de 4 horas diarias frente a pantallas: trabajadores de oficina, gamers, estudiantes y usuarios frecuentes de dispositivos móviles.',
+                ],
+            ];
+        }
+
+        $faqSchema = $this->seo->faqSchema($faqItems);
 
         $breadcrumbSchema = $this->seo->breadcrumbSchema([
             ['name' => 'Inicio', 'url' => url('/')],
             ['name' => '¿Qué es la luz azul?', 'url' => route('blue-light')],
         ]);
 
-        return view('storefront.pages.que-es-luz-azul', compact('faqSchema', 'breadcrumbSchema'));
+        return view('storefront.pages.que-es-luz-azul', compact('faqSchema', 'breadcrumbSchema', 'blueLightPage'));
     }
 }
