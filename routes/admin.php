@@ -10,6 +10,8 @@ use App\Http\Controllers\Admin\DiscountCodeAdminController;
 use App\Http\Controllers\Admin\AdminHeroController;
 use App\Http\Controllers\Admin\AdminBlogPageController;
 use App\Http\Controllers\Admin\AdminBlueLightPageController;
+use App\Http\Controllers\Admin\AdminContactPageController;
+use App\Http\Controllers\Admin\AdminShippingReturnsPageController;
 use App\Http\Controllers\Admin\BankTransferAdminController;
 use App\Http\Controllers\Admin\AdminHomePageController;
 use App\Http\Controllers\Admin\AdminLentesPageController;
@@ -90,6 +92,14 @@ Route::put('pages/blog', [AdminBlogPageController::class, 'update'])->name('page
 // Blue light page editor
 Route::get('pages/blue-light', [AdminBlueLightPageController::class, 'edit'])->name('pages.blue-light.edit');
 Route::put('pages/blue-light', [AdminBlueLightPageController::class, 'update'])->name('pages.blue-light.update');
+
+// Contact page editor
+Route::get('pages/contact', [AdminContactPageController::class, 'edit'])->name('pages.contact.edit');
+Route::put('pages/contact', [AdminContactPageController::class, 'update'])->name('pages.contact.update');
+
+// Shipping & returns page editor
+Route::get('pages/shipping-returns', [AdminShippingReturnsPageController::class, 'edit'])->name('pages.shipping-returns.edit');
+Route::put('pages/shipping-returns', [AdminShippingReturnsPageController::class, 'update'])->name('pages.shipping-returns.update');
 
 // Testimonials CRUD
 Route::resource('testimonials', TestimonialAdminController::class)->except(['show']);

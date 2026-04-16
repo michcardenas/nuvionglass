@@ -24,6 +24,10 @@ Route::get('/', [StorefrontController::class, 'home'])->name('home');
 // Educational page
 Route::get('/que-es-la-luz-azul', [StorefrontController::class, 'blueLight'])->name('blue-light');
 
+// Info pages
+Route::get('/contacto', [StorefrontController::class, 'contact'])->name('contact');
+Route::get('/envios-y-devoluciones', [StorefrontController::class, 'shippingReturns'])->name('shipping-returns');
+
 // Product catalog
 Route::get('/lentes', [ProductController::class, 'index'])->name('products.index');
 Route::get('/lentes/{slug}', [ProductController::class, 'show'])->name('products.show');

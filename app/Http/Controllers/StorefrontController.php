@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Helpers\ColorHelper;
 use App\Models\BlogPost;
 use App\Models\BlueLightPageSetting;
+use App\Models\ContactPageSetting;
 use App\Models\HeroSetting;
 use App\Models\HomePageSetting;
+use App\Models\ShippingReturnsPageSetting;
 use App\Models\InfographicImage;
 use App\Models\SeoSetting;
 use App\Models\Category;
@@ -124,5 +126,19 @@ class StorefrontController extends Controller
         ]);
 
         return view('storefront.pages.que-es-luz-azul', compact('faqSchema', 'breadcrumbSchema', 'blueLightPage'));
+    }
+
+    public function contact(): View
+    {
+        $contactPage = ContactPageSetting::getCurrent();
+
+        return view('storefront.pages.contacto', compact('contactPage'));
+    }
+
+    public function shippingReturns(): View
+    {
+        $page = ShippingReturnsPageSetting::getCurrent();
+
+        return view('storefront.pages.envios-y-devoluciones', compact('page'));
     }
 }

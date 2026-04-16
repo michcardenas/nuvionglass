@@ -29,8 +29,8 @@
                 <h4 class="font-brand text-sm font-semibold text-white uppercase tracking-wider mb-4">Información</h4>
                 <ul class="space-y-2">
                     <li><a href="{{ route('blog.index') }}" class="text-sm text-muted/70 hover:text-white transition-colors">Blog</a></li>
-                    <li><a href="#" class="text-sm text-muted/70 hover:text-white transition-colors">Envíos y devoluciones</a></li>
-                    <li><a href="#" class="text-sm text-muted/70 hover:text-white transition-colors">Contacto</a></li>
+                    <li><a href="{{ route('shipping-returns') }}" class="text-sm text-muted/70 hover:text-white transition-colors">Envíos y devoluciones</a></li>
+                    <li><a href="{{ route('contact') }}" class="text-sm text-muted/70 hover:text-white transition-colors">Contacto</a></li>
                 </ul>
             </div>
 
