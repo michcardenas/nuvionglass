@@ -26,10 +26,10 @@
                 <span style="color:#666;">Catálogo</span>
             </nav>
             <h1 style="font-family:'Bai Jamjuree',sans-serif;font-size:28px;font-weight:600;color:#1a1a2e;margin:0;">
-                Catálogo
+                {{ $lentesPage->catalog_title ?? 'Catálogo' }}
             </h1>
             <p style="font-size:14px;color:#888;margin-top:6px;">
-                Todos los lentes con filtro de luz azul · 2×1 combinables
+                {{ $lentesPage->catalog_subtitle ?? 'Todos los lentes con filtro de luz azul · 2×1 combinables' }}
             </p>
         </div>
     </section>

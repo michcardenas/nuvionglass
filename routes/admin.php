@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\CategoryAdminController;
 use App\Http\Controllers\Admin\DiscountCodeAdminController;
 use App\Http\Controllers\Admin\AdminHeroController;
 use App\Http\Controllers\Admin\AdminHomePageController;
+use App\Http\Controllers\Admin\AdminLentesPageController;
 use App\Http\Controllers\Admin\InfographicAdminController;
 use App\Http\Controllers\Admin\AdminSeoController;
 use App\Http\Controllers\Admin\ShippingAdminController;
@@ -68,6 +69,10 @@ Route::put('hero', [AdminHeroController::class, 'update'])->name('hero.update');
 // Home page sections editor
 Route::get('pages/home', [AdminHomePageController::class, 'edit'])->name('pages.home.edit');
 Route::put('pages/home', [AdminHomePageController::class, 'update'])->name('pages.home.update');
+
+// Lentes (catalog) page editor
+Route::get('pages/lentes', [AdminLentesPageController::class, 'edit'])->name('pages.lentes.edit');
+Route::put('pages/lentes', [AdminLentesPageController::class, 'update'])->name('pages.lentes.update');
 
 // Testimonials CRUD
 Route::resource('testimonials', TestimonialAdminController::class)->except(['show']);

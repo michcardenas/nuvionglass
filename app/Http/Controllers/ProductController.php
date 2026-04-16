@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ColorHelper;
 use App\Models\Category;
+use App\Models\LentesPageSetting;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Services\SeoService;
@@ -68,6 +69,8 @@ class ProductController extends Controller
             ['name' => 'Lentes', 'url' => route('products.index')],
         ]);
 
+        $lentesPage = LentesPageSetting::getCurrent();
+
         return view('storefront.products.index', [
             'products' => $products,
             'toallitas' => $toallitas,
@@ -78,6 +81,7 @@ class ProductController extends Controller
             'graduacionFiltro' => $graduacionFiltro,
             'breadcrumbs' => $breadcrumbs,
             'colorHelper' => ColorHelper::all(),
+            'lentesPage' => $lentesPage,
         ]);
     }
 
