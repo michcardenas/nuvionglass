@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Envíos y devoluciones | nuvion - glass')
+@section('title', 'Envíos y devoluciones | Nuvion Glass')
 @section('meta_description', 'Información sobre envíos, devoluciones y garantía de nuvion glass. Envío gratis en compras mayores a $999.')
 
 @section('content')

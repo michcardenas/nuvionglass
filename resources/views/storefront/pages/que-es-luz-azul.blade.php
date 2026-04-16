@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', '¿Qué es la luz azul? | nuvion - glass')
+@section('title', '¿Qué es la luz azul? | Nuvion Glass')
 @section('meta_description', '¿Qué es la luz azul y por qué es dañina? Aprende cómo proteger tus ojos de pantallas, focos LED y más. Guía completa de nuvion glass.')
 @section('canonical', route('blue-light'))
-@section('og_title', '¿Qué es la luz azul? | nuvion - glass')
+@section('og_title', '¿Qué es la luz azul? | Nuvion Glass')
 @section('og_description', 'Aprende cómo la luz azul afecta tus ojos y cómo protegerte con lentes especializados.')
-@section('twitter_title', '¿Qué es la luz azul? | nuvion - glass')
+@section('twitter_title', '¿Qué es la luz azul? | Nuvion Glass')
 @section('twitter_description', 'Aprende cómo la luz azul afecta tus ojos y cómo protegerte con lentes especializados.')
 
 @push('schema')

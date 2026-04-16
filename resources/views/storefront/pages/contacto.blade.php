@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Contacto | nuvion - glass')
+@section('title', 'Contacto | Nuvion Glass')
 @section('meta_description', 'Contáctanos para cualquier duda sobre nuestros lentes con filtro de luz azul. Email, WhatsApp y redes sociales.')
 
 @section('content')

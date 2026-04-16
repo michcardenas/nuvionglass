@@ -2,7 +2,7 @@
 
 @section('body_class', 'bg-bg text-text')
 
-@section('title', '¿Qué lentes necesitas? — Quiz | nuvion - glass')
+@section('title', '¿Qué lentes necesitas? — Quiz | Nuvion Glass')
 @section('meta_description', 'Responde 4 preguntas y descubre qué lentes con protección de luz azul son perfectos para ti. Quiz interactivo de nuvion glass.')
 
 @section('content')

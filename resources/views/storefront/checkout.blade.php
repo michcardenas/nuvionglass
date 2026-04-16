@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Checkout | nuvion - glass')
+@section('title', 'Checkout | Nuvion Glass')
 
 @push('head')
     <script src="https://js.stripe.com/v3/"></script>

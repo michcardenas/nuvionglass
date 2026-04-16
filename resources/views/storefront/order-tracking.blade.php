@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', "Pedido #{$order->id} | nuvion - glass")
+@section('title', "Pedido #{$order->id} | Nuvion Glass")
 
 @section('content')
 <section class="py-12 md:py-20">

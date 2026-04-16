@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Catálogo de lentes | nuvion · glass')
+@section('title', 'Catálogo de lentes | Nuvion Glass')
 @section('meta_description', 'Catálogo completo de lentes nuvion glass con protección de luz azul. Con y sin graduación. 2×1 combinables. Envío gratis +$999.')
 @section('canonical', route('products.index'))
-@section('og_title', 'Catálogo de lentes | nuvion · glass')
+@section('og_title', 'Catálogo de lentes | Nuvion Glass')
 @section('og_description', 'Catálogo completo de lentes nuvion glass con protección de luz azul. Con y sin graduación.')
-@section('twitter_title', 'Catálogo de lentes | nuvion · glass')
+@section('twitter_title', 'Catálogo de lentes | Nuvion Glass')
 @section('twitter_description', 'Catálogo completo de lentes nuvion glass con protección de luz azul. Con y sin graduación.')
 
 @push('schema')

@@ -2,16 +2,16 @@
 
 @section('body_class', 'bg-bg-light text-text-dark')
 
-@section('title', $seoSettings->meta_title ?? 'nuvion - glass | Protege tus ojos de la luz azul')
+@section('title', $seoSettings->meta_title ?? 'Nuvion Glass | Protege tus ojos de la luz azul')
 @section('meta_description', $seoSettings->meta_description ?? 'Lentes con protección de luz azul. Con o sin graduación. Diseño moderno que querrás usar todo el día. Envío gratis a todo México.')
 @section('robots', $seoSettings->robots ?? 'index, follow')
 @section('canonical', $seoSettings->canonical_url ?? url()->current())
 @section('og_type', $seoSettings->og_type ?? 'website')
-@section('og_title', $seoSettings->og_title ?? $seoSettings->meta_title ?? 'nuvion - glass | Lentes con protección de luz azul')
+@section('og_title', $seoSettings->og_title ?? $seoSettings->meta_title ?? 'Nuvion Glass | Lentes con protección de luz azul')
 @section('og_description', $seoSettings->og_description ?? $seoSettings->meta_description ?? 'Protege tus ojos de las pantallas. Lentes con filtro de luz azul, con o sin graduación. Envío gratis.')
 @section('og_image', $seoSettings->og_image_url ?? asset('images/og-default.jpg'))
 @section('twitter_card', $seoSettings->twitter_card ?? 'summary_large_image')
-@section('twitter_title', $seoSettings->twitter_title ?? $seoSettings->meta_title ?? 'nuvion - glass | Lentes con protección de luz azul')
+@section('twitter_title', $seoSettings->twitter_title ?? $seoSettings->meta_title ?? 'Nuvion Glass | Lentes con protección de luz azul')
 @section('twitter_description', $seoSettings->twitter_description ?? $seoSettings->meta_description ?? 'Protege tus ojos de las pantallas. Lentes con filtro de luz azul, con o sin graduación. Envío gratis.')
 @section('twitter_image', $seoSettings->twitter_image_url ?? $seoSettings->og_image_url ?? asset('images/og-default.jpg'))
 

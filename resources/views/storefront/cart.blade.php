@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Carrito de compras | nuvion - glass')
+@section('title', 'Carrito de compras | Nuvion Glass')
 
 @section('content')
 <section class="py-12" style="background:#F4F6F9;min-height:100vh;" x-data="cartPage()">
