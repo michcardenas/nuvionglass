@@ -77,6 +77,22 @@ class OrderAdminController extends Controller
             ->with('success', 'Pago verificado y orden confirmada.');
     }
 
+    public function rejectPayment(Request $request, Order $order): RedirectResponse
+    {
+        // Delete the uploaded receipt
+        if ($order->payment_receipt) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($order->payment_receipt);
+        }
+
+        $order->update([
+            'payment_status' => 'pending',
+            'payment_receipt' => null,
+        ]);
+
+        return redirect()->route('admin.orders.show', $order)
+            ->with('success', 'Comprobante rechazado. El cliente podrá subir uno nuevo.');
+    }
+
     public function updateTracking(Request $request, Order $order): RedirectResponse
     {
         $validated = $request->validate([

@@ -45,6 +45,7 @@ Route::resource('orders', OrderAdminController::class)->only(['index', 'show', '
 Route::patch('orders/{order}/status', [OrderAdminController::class, 'updateStatus'])->name('orders.status');
 Route::patch('orders/{order}/tracking', [OrderAdminController::class, 'updateTracking'])->name('orders.tracking');
 Route::patch('orders/{order}/verify-payment', [OrderAdminController::class, 'verifyPayment'])->name('orders.verify-payment');
+Route::patch('orders/{order}/reject-payment', [OrderAdminController::class, 'rejectPayment'])->name('orders.reject-payment');
 
 // Leads management
 Route::get('leads/export/csv', [LeadAdminController::class, 'exportCsv'])->name('leads.export');

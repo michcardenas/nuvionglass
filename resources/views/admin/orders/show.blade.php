@@ -291,17 +291,32 @@
                     @endif
 
                     @if($order->payment_status !== 'paid')
-                        <form method="POST" action="{{ route('admin.orders.verify-payment', $order) }}"
-                              onsubmit="return confirm('¿Marcar este pedido como pagado?')">
-                            @csrf @method('PATCH')
-                            <button type="submit"
-                                    class="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg text-sm font-medium transition-colors">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m4.5 12.75 6 6 9-13.5"/>
-                                </svg>
-                                Marcar como pagado
-                            </button>
-                        </form>
+                        <div class="flex gap-2">
+                            <form method="POST" action="{{ route('admin.orders.verify-payment', $order) }}" class="flex-1"
+                                  onsubmit="return confirm('¿Marcar este pedido como pagado?')">
+                                @csrf @method('PATCH')
+                                <button type="submit"
+                                        class="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg text-sm font-medium transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m4.5 12.75 6 6 9-13.5"/>
+                                    </svg>
+                                    Aprobar
+                                </button>
+                            </form>
+                            @if($order->payment_receipt)
+                            <form method="POST" action="{{ route('admin.orders.reject-payment', $order) }}" class="flex-1"
+                                  onsubmit="return confirm('¿Rechazar este comprobante? El cliente podrá subir uno nuevo.')">
+                                @csrf @method('PATCH')
+                                <button type="submit"
+                                        class="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-lg text-sm font-medium transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 18 6M6 6l12 12"/>
+                                    </svg>
+                                    Rechazar
+                                </button>
+                            </form>
+                            @endif
+                        </div>
                     @else
                         <div class="flex items-center gap-2 text-sm text-green-600 font-medium bg-green-50 rounded-lg px-4 py-2.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
