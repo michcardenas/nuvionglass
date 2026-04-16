@@ -130,9 +130,9 @@
         <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:500px;height:300px;background:radial-gradient(ellipse,rgba(56,130,220,0.18),transparent 70%);pointer-events:none;"></div>
 
         <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-16">
-            <p style="font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#378ADD;margin-bottom:20px;">NUVION GLASS · BLOG</p>
-            <h1 class="font-brand text-3xl md:text-5xl font-bold leading-tight" style="color:#fff;">Cuida tu visión.<br>Lee, aprende, <span style="color:#378ADD;">protégete.</span></h1>
-            <p class="mt-5 text-base md:text-lg max-w-2xl mx-auto" style="color:rgba(255,255,255,0.45);">Consejos, guías y datos respaldados por ciencia para cuidar tu visión en la era digital.</p>
+            <p style="font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#378ADD;margin-bottom:20px;">{{ $blogPage->hero_label ?? 'NUVION GLASS · BLOG' }}</p>
+            <h1 class="font-brand text-3xl md:text-5xl font-bold leading-tight" style="color:#fff;">{{ $blogPage->hero_title ?? 'Cuida tu visión.' }}<br>{{ $blogPage->hero_title_line2 ?? 'Lee, aprende,' }} <span style="color:#378ADD;">{{ $blogPage->hero_title_accent ?? 'protégete.' }}</span></h1>
+            <p class="mt-5 text-base md:text-lg max-w-2xl mx-auto" style="color:rgba(255,255,255,0.45);">{{ $blogPage->hero_subtitle ?? 'Consejos, guías y datos respaldados por ciencia para cuidar tu visión en la era digital.' }}</p>
             <div style="width:48px;height:3px;background:#378ADD;border-radius:2px;margin:24px auto 0;"></div>
         </div>
     </section>

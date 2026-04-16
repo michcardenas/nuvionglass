@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BlogPageSetting;
 use App\Models\BlogPost;
 use App\Services\SeoService;
 use Illuminate\View\View;
@@ -23,9 +24,12 @@ class BlogController extends Controller
             ['name' => 'Blog', 'url' => route('blog.index')],
         ]);
 
+        $blogPage = BlogPageSetting::getCurrent();
+
         return view('storefront.blog.index', [
             'posts' => $posts,
             'breadcrumbs' => $breadcrumbs,
+            'blogPage' => $blogPage,
         ]);
     }
 

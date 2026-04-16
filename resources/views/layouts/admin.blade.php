@@ -147,14 +147,33 @@
                         <span x-show="sidebarOpen">Lentes</span>
                     </a>
 
-                    {{-- Blog --}}
-                    <a href="{{ route('admin.blog.index') }}"
-                       class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors text-sm {{ request()->routeIs('admin.blog.*') ? 'bg-white/10' : '' }}">
-                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5"/>
-                        </svg>
-                        <span x-show="sidebarOpen">Blog</span>
-                    </a>
+                    {{-- Blog (colapsable) --}}
+                    <div x-data="{ openBlog: {{ request()->routeIs('admin.blog.*', 'admin.pages.blog.*') ? 'true' : 'false' }} }">
+                        <button type="button" @click="openBlog = !openBlog"
+                                class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/10 transition-colors text-sm {{ request()->routeIs('admin.blog.*', 'admin.pages.blog.*') ? 'bg-white/10' : '' }}">
+                            <div class="flex items-center space-x-3">
+                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5"/>
+                                </svg>
+                                <span x-show="sidebarOpen">Blog</span>
+                            </div>
+                            <svg x-show="sidebarOpen" :class="openBlog && 'rotate-180'" class="w-4 h-4 text-white/40 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
+                            </svg>
+                        </button>
+                        <div x-show="openBlog && sidebarOpen" x-collapse class="ml-8 space-y-0.5">
+                            <a href="{{ route('admin.blog.index') }}"
+                               class="flex items-center space-x-3 px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors text-xs {{ request()->routeIs('admin.blog.*') ? 'bg-white/10 text-white' : 'text-white/60' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.blog.*') ? 'bg-blue-400' : 'bg-white/30' }}"></span>
+                                <span>Artículos</span>
+                            </a>
+                            <a href="{{ route('admin.pages.blog.edit') }}"
+                               class="flex items-center space-x-3 px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors text-xs {{ request()->routeIs('admin.pages.blog.*') ? 'bg-white/10 text-white' : 'text-white/60' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.pages.blog.*') ? 'bg-blue-400' : 'bg-white/30' }}"></span>
+                                <span>Página</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </nav>
 
