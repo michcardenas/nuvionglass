@@ -156,21 +156,21 @@
                             </div>
 
                             {{-- Shipping progress bar --}}
-                            <template x-if="(subtotal - discount_2x1) < 999 && (subtotal - discount_2x1) > 0">
+                            <template x-if="freeThreshold > 0 && (subtotal - discount_2x1) < freeThreshold && (subtotal - discount_2x1) > 0">
                                 <div style="padding:10px 14px;background:#f9fafb;border-radius:8px;border:1px solid #f3f4f6;">
                                     <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
                                         <span style="color:#9ca3af;">Envío gratis</span>
-                                        <span style="color:#378ADD;font-weight:500;" x-text="'$' + fmt(999 - (subtotal - discount_2x1)) + ' más'"></span>
+                                        <span style="color:#378ADD;font-weight:500;" x-text="'$' + fmt(freeThreshold - (subtotal - discount_2x1)) + ' más'"></span>
                                     </div>
                                     <div style="background:#e5e7eb;border-radius:2px;height:4px;overflow:hidden;">
                                         <div style="background:#378ADD;height:100%;border-radius:2px;transition:width .3s ease;"
-                                             :style="'width:' + Math.min(((subtotal - discount_2x1) / 999) * 100, 100) + '%'"></div>
+                                             :style="'width:' + Math.min(((subtotal - discount_2x1) / freeThreshold) * 100, 100) + '%'"></div>
                                     </div>
                                 </div>
                             </template>
 
                             {{-- Free shipping achieved --}}
-                            <template x-if="(subtotal - discount_2x1) >= 999">
+                            <template x-if="freeThreshold > 0 && (subtotal - discount_2x1) >= freeThreshold">
                                 <div style="text-align:center;font-size:13px;color:#16a34a;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:8px 14px;">
                                     ✓ ¡Envío gratis aplicado!
                                 </div>
@@ -295,6 +295,7 @@ function cartPage() {
         coupon_description: @json($coupon_description ?? null),
         coupon_discount: {{ $coupon_discount ?? 0 }},
         shipping: {{ $shipping }},
+        freeThreshold: {{ $free_threshold ?? 999 }},
         total: {{ $total }},
         toallitasData: @json($toallitasJson),
         couponOpen: false,
@@ -325,6 +326,7 @@ function cartPage() {
             if (data.coupon_description !== undefined) this.coupon_description = data.coupon_description;
             if (data.coupon_discount !== undefined) this.coupon_discount = data.coupon_discount;
             if (data.shipping !== undefined) this.shipping = data.shipping;
+            if (data.free_threshold !== undefined) this.freeThreshold = data.free_threshold;
             if (data.total !== undefined) this.total = data.total;
             this.updateBadge(data.cart_count ?? this.items.reduce((s, i) => s + i.qty, 0));
         },

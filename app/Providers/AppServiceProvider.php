@@ -81,6 +81,7 @@ class AppServiceProvider extends ServiceProvider
             $view->with('cartCouponDescription', $couponDescription);
             $view->with('cartCouponDiscount', $couponDiscount);
             $view->with('cartShipping', $shipping);
+            $view->with('cartFreeThreshold', $threshold);
             $view->with('cartTotal', max(0, $subtotalConDescuento - $couponDiscount + $shipping));
             $view->with('toallitasCarrito', $toallitas);
         });

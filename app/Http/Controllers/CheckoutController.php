@@ -39,8 +39,10 @@ class CheckoutController extends Controller
         // Count eligible lens units to detect odd count (suggest picking another)
         $eligibleLensCount = $items->filter(fn ($item) =>
             $item['product']->badge_2x1
-            && in_array($item['product']->type, ['miopia', 'lectura', 'sin_graduacion'])
+            && $item['product']->hasAnyType(['miopia', 'lectura', 'sin_graduacion'])
         )->sum('qty');
+
+        $freeThreshold = (float) \App\Models\ShippingSetting::get('free_shipping_threshold', 999);
 
         return view('storefront.checkout', [
             'items' => $items,
@@ -49,6 +51,7 @@ class CheckoutController extends Controller
             'freeItems' => $freeItems,
             'eligibleLensCount' => $eligibleLensCount,
             'shipping' => $shipping,
+            'freeThreshold' => $freeThreshold,
             'discount' => $couponDiscount,
             'total' => max(0, $subtotalAfter2x1 - $couponDiscount['amount'] + $shipping),
             'appliedCoupon' => $couponDiscount['code'],

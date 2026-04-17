@@ -133,6 +133,7 @@ class CartController extends Controller
             'coupon_description' => $couponDescription,
             'coupon_discount' => $couponDiscount,
             'shipping' => $shipping,
+            'free_threshold' => $threshold,
             'total' => max(0, $total),
         ];
     }
