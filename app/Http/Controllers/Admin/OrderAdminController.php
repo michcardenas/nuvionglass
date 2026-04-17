@@ -143,6 +143,15 @@ class OrderAdminController extends Controller
             ->with('success', $notify ? 'Guía actualizada y cliente notificado.' : 'Guía actualizada.');
     }
 
+    public function destroy(Order $order): RedirectResponse
+    {
+        $order->items()->delete();
+        $order->delete();
+
+        return redirect()->route('admin.orders.index')
+            ->with('success', 'Orden #' . $order->id . ' eliminada correctamente.');
+    }
+
     public function exportCsv(): StreamedResponse
     {
         $orders = Order::with('customer')->latest()->get();
