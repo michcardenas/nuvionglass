@@ -934,9 +934,9 @@
                 filterProducts() {
                     const cards = document.querySelectorAll('[data-product-card]');
                     cards.forEach(card => {
-                        const type = card.dataset.type;
+                        const types = card.dataset.type ? card.dataset.type.split(',') : [];
                         const colors = card.dataset.colors ? card.dataset.colors.split(',') : [];
-                        const matchType = this.activeType === 'all' || type === this.activeType;
+                        const matchType = this.activeType === 'all' || types.includes(this.activeType);
                         const matchColor = !this.activeColor || colors.includes(this.activeColor);
                         card.style.display = (matchType && matchColor) ? '' : 'none';
                     });
@@ -1003,7 +1003,7 @@
             <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 @foreach($lentes as $index => $product)
                 <div data-product-card
-                     data-type="{{ $product->type }}"
+                     data-type="{{ implode(',', $product->type ?? []) }}"
                      data-colors="{{ $product->variants->where('is_active', true)->pluck('color')->unique()->filter()->implode(',') }}"
                      class="reveal group bg-white rounded-2xl overflow-hidden border transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl"
                      style="border-color: #e5e7eb; transition-delay: {{ ($index % 6) * 100 }}ms;"
@@ -1050,7 +1050,7 @@
                     {{-- Info --}}
                     <div class="p-5 md:p-6">
                         <p class="text-xs font-medium uppercase tracking-wide" style="color: #378ADD;">
-                            {{ str_replace('_', ' ', $product->type) }}
+                            {{ $product->type_labels }}
                         </p>
                         <h3 class="mt-1 font-brand text-lg font-semibold" style="color: #1a1a2e;">{{ $product->name }}</h3>
                         <p class="mt-1.5 text-sm leading-relaxed line-clamp-2" style="color: #6b7280;">{{ $product->description }}</p>

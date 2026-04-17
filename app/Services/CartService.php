@@ -139,7 +139,7 @@ class CartService
                 continue;
             }
 
-            if (! in_array($product->type, ['miopia', 'lectura', 'sin_graduacion'])) {
+            if (! $product->hasAnyType(['miopia', 'lectura', 'sin_graduacion'])) {
                 continue;
             }
 

@@ -26,7 +26,7 @@ class ProductController extends Controller
         $query = Product::active()->with('variants')->orderBy('sort_order');
 
         if ($tipoFiltro && $tipoFiltro !== 'todos') {
-            $query->where('type', $tipoFiltro);
+            $query->whereJsonContains('type', $tipoFiltro);
         }
 
         if ($colorFiltro) {
@@ -49,7 +49,7 @@ class ProductController extends Controller
             ->values();
 
         // Available graduations sorted numerically
-        $graduacionesDisponibles = ProductVariant::whereHas('product', fn ($q) => $q->active()->whereIn('type', ['miopia', 'lectura', 'sin_graduacion']))
+        $graduacionesDisponibles = ProductVariant::whereHas('product', fn ($q) => $q->active()->where(fn ($qq) => $qq->whereJsonContains('type', 'miopia')->orWhereJsonContains('type', 'lectura')->orWhereJsonContains('type', 'sin_graduacion')))
             ->where('is_active', true)
             ->whereNotNull('graduation')
             ->pluck('graduation')
@@ -60,7 +60,7 @@ class ProductController extends Controller
 
         // Toallitas always available separately
         $toallitas = Product::active()
-            ->where('type', 'toallitas')
+            ->whereJsonContains('type', 'toallitas')
             ->with('variants')
             ->get();
 
@@ -114,7 +114,7 @@ class ProductController extends Controller
 
         // Toallitas for suggestion
         $toallitas = Product::active()
-            ->where('type', 'toallitas')
+            ->whereJsonContains('type', 'toallitas')
             ->with('variants')
             ->get();
 

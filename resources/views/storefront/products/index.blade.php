@@ -274,13 +274,7 @@
                                 background:rgba(0,0,0,0.45);color:#fff;font-size:10px;
                                 padding:3px 8px;border-radius:20px;
                                 backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);">
-                                {{ match($product->type) {
-                                    'miopia' => 'Miopía',
-                                    'lectura' => 'Lectura',
-                                    'sin_graduacion' => 'Sin Graduación',
-                                    'toallitas' => 'Toallitas',
-                                    default => ucfirst($product->type ?? 'Lente')
-                                } }}
+                                {{ $product->type_labels ?: 'Lente' }}
                             </div>
                         </div>
 
@@ -308,13 +302,11 @@
                             {{-- Graduaciones --}}
                             @if($graduaciones->count() > 0)
                             <p style="font-size:12px;color:#888;margin:0 0 10px;">
-                                @if($product->type === 'miopia')
+                                @if($product->hasType('miopia'))
                                     {{ $graduaciones->filter(fn($g) => (float)$g < 0)->count() }} grad. miopía
                                     @if($graduaciones->filter(fn($g) => (float)$g > 0)->count())
                                         + {{ $graduaciones->filter(fn($g) => (float)$g > 0)->count() }} lectura
                                     @endif
-                                @elseif($product->type === 'lectura')
-                                    {{ $graduaciones->count() }} graduaciones
                                 @else
                                     {{ $graduaciones->count() }} graduaciones
                                 @endif

@@ -102,6 +102,21 @@
                     </label>
                 </div>
                 <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de producto *</label>
+                    <p class="text-xs text-gray-400 mb-2">Puedes seleccionar más de uno si el producto es híbrido.</p>
+                    <div class="flex flex-wrap gap-4">
+                        @php $currentTypes = old('type', $product->type ?? []); @endphp
+                        @foreach(['miopia' => 'Miopía', 'lectura' => 'Lectura', 'sin_graduacion' => 'Sin Graduación', 'toallitas' => 'Toallitas'] as $val => $label)
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="type[]" value="{{ $val }}"
+                                   {{ in_array($val, $currentTypes) ? 'checked' : '' }}
+                                   class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="text-sm text-gray-700">{{ $label }}</span>
+                        </label>
+                        @endforeach
+                    </div>
+                </div>
+                <div class="md:col-span-2">
                     <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Descripción *</label>
                     <textarea id="description" name="description" rows="4" required
                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">{{ old('description', $product->description) }}</textarea>

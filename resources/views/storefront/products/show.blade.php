@@ -139,15 +139,10 @@
                 </h1>
 
                 {{-- 3. Badge tipo --}}
-                @if($product->type && $product->type !== 'toallitas')
+                @if($product->type && !$product->hasType('toallitas'))
                 <div style="display:inline-block;background:#EBF4FF;color:#185FA5;font-size:12px;
                             padding:4px 12px;border-radius:20px;margin-bottom:16px;">
-                    {{ match($product->type) {
-                        'miopia' => 'Miopía',
-                        'lectura' => 'Lectura',
-                        'sin_graduacion' => 'Sin Graduación',
-                        default => ucfirst($product->type)
-                    } }}
+                    {{ $product->type_labels }}
                 </div>
                 @endif
 
@@ -262,7 +257,7 @@
                 </div>
                 @endif
 
-                @if($graduacionesSinGrad->count() > 0 || ($product->type === 'sin_graduacion' && $graduacionesMiopia->count() === 0 && $graduacionesLectura->count() === 0))
+                @if($graduacionesSinGrad->count() > 0 || ($product->hasType('sin_graduacion') && $graduacionesMiopia->count() === 0 && $graduacionesLectura->count() === 0))
                 <div style="margin-bottom:20px;">
                     <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;
                                 padding:10px 14px;font-size:13px;color:#166534;">
@@ -369,7 +364,7 @@
     {{-- ============================================================
          SUGERENCIA DE TOALLITAS
          ============================================================ --}}
-    @if($toallitas->count() > 0 && $product->type !== 'toallitas')
+    @if($toallitas->count() > 0 && !$product->hasType('toallitas'))
     <section style="background:#f8f9fa;padding:48px 24px;">
         <div style="max-width:1100px;margin:0 auto;">
 

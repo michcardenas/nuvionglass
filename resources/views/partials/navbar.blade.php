@@ -185,7 +185,7 @@
             </template>
 
             {{-- Toallitas suggestion --}}
-            <template x-if="items.length > 0 && !items.some(i => i.type === 'toallitas') && toallitasData.length > 0">
+            <template x-if="items.length > 0 && !items.some(i => i.type && i.type.includes('toallitas')) && toallitasData.length > 0">
                 <div style="border-top:1px solid #e5e7eb;padding-top:16px;margin-top:8px;">
                     <p style="font-size:12px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;">
                         Complementa tu compra

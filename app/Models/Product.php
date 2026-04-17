@@ -35,6 +35,7 @@ class Product extends Model
             'price' => 'decimal:2',
             'compare_price' => 'decimal:2',
             'images' => 'array',
+            'type' => 'array',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
             'badge_2x1' => 'boolean',
@@ -77,7 +78,38 @@ class Product extends Model
 
     public function scopeByType($query, string $type)
     {
-        return $query->where('type', $type);
+        return $query->whereJsonContains('type', $type);
+    }
+
+    /**
+     * Check if this product has a given type.
+     */
+    public function hasType(string $type): bool
+    {
+        return in_array($type, $this->type ?? []);
+    }
+
+    /**
+     * Check if this product has any of the given types.
+     */
+    public function hasAnyType(array $types): bool
+    {
+        return !empty(array_intersect($this->type ?? [], $types));
+    }
+
+    /**
+     * Get the primary type label for display.
+     */
+    public function getTypeLabelsAttribute(): string
+    {
+        $labels = [
+            'miopia' => 'Miopía',
+            'lectura' => 'Lectura',
+            'sin_graduacion' => 'Sin Graduación',
+            'toallitas' => 'Toallitas',
+        ];
+
+        return collect($this->type ?? [])->map(fn ($t) => $labels[$t] ?? ucfirst($t))->join(' · ');
     }
 
     // ── Accessors ──
@@ -88,7 +120,7 @@ class Product extends Model
             return null;
         }
 
-        if (! in_array($this->type, ['miopia', 'lectura', 'sin_graduacion'])) {
+        if (! $this->hasAnyType(['miopia', 'lectura', 'sin_graduacion'])) {
             return null;
         }
 
@@ -117,7 +149,7 @@ class Product extends Model
                 continue;
             }
 
-            if (! in_array($product->type, ['miopia', 'lectura', 'sin_graduacion'])) {
+            if (! $product->hasAnyType(['miopia', 'lectura', 'sin_graduacion'])) {
                 continue;
             }
 

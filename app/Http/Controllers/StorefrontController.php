@@ -33,7 +33,7 @@ class StorefrontController extends Controller
             ->get();
 
         $toallitas = Product::active()
-            ->where('type', 'toallitas')
+            ->whereJsonContains('type', 'toallitas')
             ->orderBy('sort_order')
             ->get();
 

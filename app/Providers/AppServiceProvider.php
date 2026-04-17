@@ -70,7 +70,7 @@ class AppServiceProvider extends ServiceProvider
             }
 
             // Toallitas for cart suggestion
-            $toallitas = Product::active()->where('type', 'toallitas')->get();
+            $toallitas = Product::active()->whereJsonContains('type', 'toallitas')->get();
 
             $view->with('cartCount', $cart->count());
             $view->with('cartItemsJson', $itemsJson);
