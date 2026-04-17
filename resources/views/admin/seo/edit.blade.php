@@ -284,7 +284,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">JSON-LD adicional</label>
                     <textarea name="custom_schema_markup" rows="10"
                               class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm font-mono"
-                              placeholder='{"@context": "https://schema.org", "@type": "...", ...}'>{{ $seo->custom_schema_markup }}</textarea>
+                              placeholder='{"{{'@'}}context": "https://schema.org", "{{'@'}}type": "...", ...}'>{{ $seo->custom_schema_markup }}</textarea>
                     <p class="mt-1 text-xs text-gray-400">
                         Se inyectará en el <code class="bg-gray-100 px-1 rounded">&lt;head&gt;</code> como
                         <code class="bg-gray-100 px-1 rounded">&lt;script type="application/ld+json"&gt;</code>.
