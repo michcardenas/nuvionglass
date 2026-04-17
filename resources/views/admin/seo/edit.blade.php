@@ -28,6 +28,10 @@
         }
      }">
 
+    <a href="{{ route('admin.seo.index') }}" class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-4">
+        &larr; Volver al listado SEO
+    </a>
+
     <form method="POST" action="{{ route('admin.seo.update', $pageKey) }}" enctype="multipart/form-data">
         @method('PUT')
         @csrf

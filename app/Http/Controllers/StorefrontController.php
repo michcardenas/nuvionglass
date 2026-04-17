@@ -125,20 +125,24 @@ class StorefrontController extends Controller
             ['name' => '¿Qué es la luz azul?', 'url' => route('blue-light')],
         ]);
 
-        return view('storefront.pages.que-es-luz-azul', compact('faqSchema', 'breadcrumbSchema', 'blueLightPage'));
+        $seoSettings = SeoSetting::getForPage('blue-light');
+
+        return view('storefront.pages.que-es-luz-azul', compact('faqSchema', 'breadcrumbSchema', 'blueLightPage', 'seoSettings'));
     }
 
     public function contact(): View
     {
         $contactPage = ContactPageSetting::getCurrent();
+        $seoSettings = SeoSetting::getForPage('contact');
 
-        return view('storefront.pages.contacto', compact('contactPage'));
+        return view('storefront.pages.contacto', compact('contactPage', 'seoSettings'));
     }
 
     public function shippingReturns(): View
     {
         $page = ShippingReturnsPageSetting::getCurrent();
+        $seoSettings = SeoSetting::getForPage('shipping-returns');
 
-        return view('storefront.pages.envios-y-devoluciones', compact('page'));
+        return view('storefront.pages.envios-y-devoluciones', compact('page', 'seoSettings'));
     }
 }

@@ -104,11 +104,11 @@
                 <div x-show="!sidebarOpen" class="my-3 mx-3 border-t border-white/10"></div>
 
                 <div class="space-y-0.5"
-                     x-data="{ openInicio: {{ request()->routeIs('admin.hero.*', 'admin.pages.home.*', 'admin.infographics.*', 'admin.seo.*') ? 'true' : 'false' }} }">
+                     x-data="{ openInicio: {{ request()->routeIs('admin.hero.*', 'admin.pages.home.*', 'admin.infographics.*') ? 'true' : 'false' }} }">
 
                     {{-- Inicio (colapsable) --}}
                     <button type="button" @click="openInicio = !openInicio"
-                            class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/10 transition-colors text-sm {{ request()->routeIs('admin.hero.*', 'admin.pages.home.*', 'admin.infographics.*', 'admin.seo.*') ? 'bg-white/10' : '' }}">
+                            class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/10 transition-colors text-sm {{ request()->routeIs('admin.hero.*', 'admin.pages.home.*', 'admin.infographics.*') ? 'bg-white/10' : '' }}">
                         <div class="flex items-center space-x-3">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m2.25 12 8.954-8.955a1.126 1.126 0 0 1 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/>
@@ -136,11 +136,6 @@
                            class="flex items-center space-x-3 px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors text-xs {{ request()->routeIs('admin.infographics.*') ? 'bg-white/10 text-white' : 'text-white/60' }}">
                             <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.infographics.*') ? 'bg-blue-400' : 'bg-white/30' }}"></span>
                             <span>Infografías</span>
-                        </a>
-                        <a href="{{ route('admin.seo.edit', 'home') }}"
-                           class="flex items-center space-x-3 px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors text-xs {{ request()->routeIs('admin.seo.*') ? 'bg-white/10 text-white' : 'text-white/60' }}">
-                            <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.seo.*') ? 'bg-blue-400' : 'bg-white/30' }}"></span>
-                            <span>SEO</span>
                         </a>
                     </div>
 
@@ -207,6 +202,15 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182"/>
                         </svg>
                         <span x-show="sidebarOpen">Envíos y devol.</span>
+                    </a>
+
+                    {{-- SEO --}}
+                    <a href="{{ route('admin.seo.index') }}"
+                       class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors text-sm {{ request()->routeIs('admin.seo.*') ? 'bg-white/10' : '' }}">
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
+                        </svg>
+                        <span x-show="sidebarOpen">SEO</span>
                     </a>
                 </div>
             </nav>

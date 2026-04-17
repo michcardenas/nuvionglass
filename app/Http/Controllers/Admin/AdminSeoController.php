@@ -11,9 +11,28 @@ class AdminSeoController extends Controller
 {
     private array $pageLabels = [
         'home' => 'Inicio',
+        'products-index' => 'Catálogo de lentes',
         'blue-light' => '¿Qué es la luz azul?',
-        'products-index' => 'Catálogo',
+        'blog' => 'Blog',
+        'contact' => 'Contacto',
+        'shipping-returns' => 'Envíos y devoluciones',
     ];
+
+    public function index()
+    {
+        $pages = [];
+        foreach ($this->pageLabels as $key => $label) {
+            $seo = SeoSetting::getForPage($key);
+            $pages[] = [
+                'key' => $key,
+                'label' => $label,
+                'configured' => $seo && $seo->meta_title,
+                'meta_title' => $seo->meta_title ?? null,
+            ];
+        }
+
+        return view('admin.seo.index', compact('pages'));
+    }
 
     public function edit(string $pageKey)
     {

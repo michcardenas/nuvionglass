@@ -104,6 +104,7 @@ Route::put('pages/shipping-returns', [AdminShippingReturnsPageController::class,
 // Testimonials CRUD
 Route::resource('testimonials', TestimonialAdminController::class)->except(['show']);
 
-// SEO settings per page
+// SEO settings
+Route::get('seo', [AdminSeoController::class, 'index'])->name('seo.index');
 Route::get('seo/{pageKey}', [AdminSeoController::class, 'edit'])->name('seo.edit');
 Route::put('seo/{pageKey}', [AdminSeoController::class, 'update'])->name('seo.update');
