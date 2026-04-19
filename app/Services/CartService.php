@@ -173,13 +173,17 @@ class CartService
 
     /**
      * Get shipping cost based on configured rates.
+     * Uses subtotal AFTER 2x1 discount to check free shipping threshold.
      */
     public function getShipping(?string $city = null): float
     {
         $subtotal = $this->getSubtotal();
+        $discount2x1 = $this->calculate2x1()['discount'] ?? 0;
+        $subtotalAfterDiscount = max(0, $subtotal - $discount2x1);
+
         $threshold = (float) ShippingSetting::get('free_shipping_threshold', 0);
 
-        if ($threshold > 0 && $subtotal >= $threshold) {
+        if ($threshold > 0 && $subtotalAfterDiscount >= $threshold) {
             return 0;
         }
 
