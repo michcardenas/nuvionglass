@@ -990,8 +990,7 @@
                         @if($coloresDisponibles->contains($colorName))
                         <button @click="activeColor = activeColor === '{{ $colorName }}' ? null : '{{ $colorName }}'; filterProducts()"
                                 class="w-7 h-7 rounded-full border-2 transition-all duration-200 hover:scale-110"
-                                :style="activeColor === '{{ $colorName }}' ? 'border-color: #378ADD; box-shadow: 0 0 0 2px rgba(55,138,221,0.3);' : 'border-color: #e5e7eb;'"
-                                style="background: {{ $hex }};"
+                                :style="activeColor === '{{ $colorName }}' ? 'background: {{ $hex }}; border-color: #378ADD; box-shadow: 0 0 0 2px rgba(55,138,221,0.3);' : 'background: {{ $hex }}; border-color: #e5e7eb;'"
                                 title="{{ $colorName }}">
                         </button>
                         @endif
