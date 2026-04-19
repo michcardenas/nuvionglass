@@ -52,14 +52,14 @@
                 @php $firstImage = $displayImages[0] ?? null; @endphp
 
                 @if($firstImage)
-                    <div style="position:relative;border-radius:16px;overflow:hidden;cursor:zoom-in;min-height:300px;"
+                    <div style="position:relative;border-radius:16px;overflow:hidden;cursor:zoom-in;min-height:300px;height:480px;background:#f8f9fa;"
                          @click="openLightbox()">
                         @foreach($displayImages as $i => $image)
                         <img src="{{ asset('storage/' . $image) }}"
                              alt="{{ $product->name }} - imagen {{ $i + 1 }}"
                              class="product-main-image"
                              data-image-index="{{ $i }}"
-                             style="width:100%;max-height:480px;object-fit:cover;border-radius:16px;
+                             style="width:100%;height:100%;object-fit:contain;border-radius:16px;
                                     {{ $i > 0 ? 'position:absolute;top:0;left:0;display:none;' : '' }}"
                              x-show="activeImage === {{ $i }}"
                              x-transition:enter="transition ease-out duration-300"
@@ -71,7 +71,7 @@
                         <img id="variant-color-image"
                              src=""
                              alt="{{ $product->name }}"
-                             style="width:100%;max-height:480px;object-fit:cover;border-radius:16px;
+                             style="width:100%;height:100%;object-fit:contain;border-radius:16px;
                                     position:absolute;top:0;left:0;display:none;z-index:1;">
 
                         {{-- Badge 2x1 --}}
