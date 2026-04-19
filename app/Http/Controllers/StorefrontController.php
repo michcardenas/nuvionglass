@@ -27,7 +27,9 @@ class StorefrontController extends Controller
     public function home(): View
     {
         $lentes = Product::active()
-            ->whereIn('type', ['sin_graduacion', 'lectura', 'miopia'])
+            ->where(fn ($q) => $q->whereJsonContains('type', 'miopia')
+                ->orWhereJsonContains('type', 'lectura')
+                ->orWhereJsonContains('type', 'sin_graduacion'))
             ->with('variants')
             ->orderBy('sort_order')
             ->get();
