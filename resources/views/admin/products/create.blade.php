@@ -133,10 +133,10 @@
         </div>
 
         {{-- Variants --}}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6" x-data="{ variants: [{ name: 'Color', value: '', color: '', color_hex: '', price_modifier: 0, stock: 0 }] }">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6" x-data="{ variants: [{ name: 'Color', value: '', color: '', color_hex: '', graduation: '', graduation_type: '', price_modifier: 0, stock: 0 }] }">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold text-gray-800">Variantes</h2>
-                <button type="button" @click="variants.push({ name: 'Color', value: '', color: '', color_hex: '', price_modifier: 0, stock: 0 })"
+                <button type="button" @click="variants.push({ name: 'Color', value: '', color: '', color_hex: '', graduation: '', graduation_type: '', price_modifier: 0, stock: 0 })"
                         class="text-sm text-blue-600 hover:text-blue-800">+ Agregar variante</button>
             </div>
             <p class="text-xs text-gray-500 mb-3">Agrega una imagen por variante para que se muestre al seleccionar el color en la tienda.</p>
@@ -182,10 +182,27 @@
                                     class="text-red-500 hover:text-red-700 text-sm py-2">Eliminar</button>
                         </div>
                     </div>
-                    <div class="mt-3">
-                        <label class="block text-xs text-gray-500 mb-1">Imagen de esta variante</label>
-                        <input type="file" :name="'variants['+index+'][image]'" accept="image/*"
-                               class="block w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    <div class="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Graduación</label>
+                            <input type="text" :name="'variants['+index+'][graduation]'" x-model="variant.graduation" placeholder="-2.00, +1.50, etc."
+                                   class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Tipo de graduación</label>
+                            <select :name="'variants['+index+'][graduation_type]'" x-model="variant.graduation_type"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">—</option>
+                                <option value="miopia">Miopía</option>
+                                <option value="lectura">Lectura</option>
+                                <option value="sin_graduacion">Sin graduación</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Imagen de esta variante</label>
+                            <input type="file" :name="'variants['+index+'][image]'" accept="image/*"
+                                   class="block w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        </div>
                     </div>
                 </div>
             </template>
