@@ -52,14 +52,18 @@
                 @php $firstImage = $displayImages[0] ?? null; @endphp
 
                 @if($firstImage)
-                    <div style="position:relative;border-radius:16px;overflow:hidden;cursor:zoom-in;min-height:300px;height:480px;background:#f8f9fa;"
-                         @click="openLightbox()">
+                    <div class="product-zoom-container"
+                         style="position:relative;border-radius:16px;overflow:hidden;cursor:zoom-in;min-height:300px;height:480px;background:#f8f9fa;"
+                         @click="openLightbox()"
+                         onmousemove="productZoomMove(event, this)"
+                         onmouseleave="productZoomLeave(this)">
                         @foreach($displayImages as $i => $image)
                         <img src="{{ asset('storage/' . $image) }}"
                              alt="{{ $product->name }} - imagen {{ $i + 1 }}"
                              class="product-main-image"
                              data-image-index="{{ $i }}"
                              style="width:100%;height:100%;object-fit:contain;border-radius:16px;
+                                    transition:transform .2s ease;transform-origin:center center;
                                     {{ $i > 0 ? 'position:absolute;top:0;left:0;display:none;' : '' }}"
                              x-show="activeImage === {{ $i }}"
                              x-transition:enter="transition ease-out duration-300"
@@ -72,6 +76,7 @@
                              src=""
                              alt="{{ $product->name }}"
                              style="width:100%;height:100%;object-fit:contain;border-radius:16px;
+                                    transition:transform .2s ease;transform-origin:center center;
                                     position:absolute;top:0;left:0;display:none;z-index:1;">
 
                         {{-- Badge 2x1 --}}
@@ -493,6 +498,28 @@
 <script>
 /* ── Variant images map (color → image URL) ── */
 window.variantImagesByColor = @json($variantImagesByColor);
+
+/* ── Image zoom on hover ── */
+function productZoomMove(e, container) {
+    var imgs = container.querySelectorAll('img');
+    var rect = container.getBoundingClientRect();
+    var x = ((e.clientX - rect.left) / rect.width) * 100;
+    var y = ((e.clientY - rect.top) / rect.height) * 100;
+    imgs.forEach(function(img) {
+        if (img.offsetParent !== null || img.style.display !== 'none') {
+            img.style.transformOrigin = x + '% ' + y + '%';
+            img.style.transform = 'scale(2)';
+        }
+    });
+}
+
+function productZoomLeave(container) {
+    var imgs = container.querySelectorAll('img');
+    imgs.forEach(function(img) {
+        img.style.transform = 'scale(1)';
+        img.style.transformOrigin = 'center center';
+    });
+}
 
 function hideVariantImage() {
     var overlay = document.getElementById('variant-color-image');
