@@ -38,8 +38,9 @@ class LandingController extends Controller
     public function quiz(): View
     {
         $quizPage = QuizPageSetting::getCurrent();
+        $questions = $quizPage->getQuestionsOrDefault();
 
-        return view('storefront.landing.quiz', compact('quizPage'));
+        return view('storefront.landing.quiz', compact('quizPage', 'questions'));
     }
 
     /**

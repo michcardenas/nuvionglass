@@ -5,10 +5,8 @@
 
 @section('content')
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6"
-     x-data="{
-        openSection: 'textos',
-        toggle(s) { this.openSection = this.openSection === s ? null : s; }
-     }">
+     x-data="quizAdmin()"
+     x-init="init()">
 
     <p class="text-sm text-gray-500 mb-6">Edita los textos del quiz y las reglas de recomendación. Las 4 preguntas del quiz se mantienen fijas, pero puedes decidir qué producto se recomienda según las respuestas.</p>
 
@@ -97,11 +95,106 @@
             </div>
         </div>
 
-        {{-- ═══════════ 4. REGLAS DE RECOMENDACIÓN ═══════════ --}}
+        {{-- ═══════════ 4. PREGUNTAS DEL QUIZ ═══════════ --}}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-4">
+            <button type="button" @click="toggle('questions')"
+                    class="w-full flex items-center justify-between px-6 py-4 text-left">
+                <h3 class="text-base font-semibold text-gray-900">4. Preguntas del quiz</h3>
+                <svg :class="openSection === 'questions' && 'rotate-180'" class="w-5 h-5 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
+                </svg>
+            </button>
+            <div x-show="openSection === 'questions'" x-collapse class="px-6 pb-6">
+                <p class="text-xs text-gray-500 mb-3">Define las preguntas que verán los usuarios. Cada pregunta necesita una <strong>clave única</strong> (ej: "usage", "hours") que luego se usa en las reglas de recomendación. Si no configuras ninguna pregunta, se usarán las 4 preguntas por defecto.</p>
+
+                <div x-data="questionsRepeater()" x-init="init()">
+                    <template x-for="(question, qIdx) in items" :key="qIdx">
+                        <div class="bg-gray-50 rounded-lg p-4 mb-4 border border-gray-200">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-sm font-semibold text-gray-700" x-text="'Pregunta ' + (qIdx + 1)"></span>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" @click="if (qIdx > 0) { [items[qIdx], items[qIdx-1]] = [items[qIdx-1], items[qIdx]]; }"
+                                            class="text-xs text-gray-500 hover:text-gray-700" title="Mover arriba">↑</button>
+                                    <button type="button" @click="if (qIdx < items.length - 1) { [items[qIdx], items[qIdx+1]] = [items[qIdx+1], items[qIdx]]; }"
+                                            class="text-xs text-gray-500 hover:text-gray-700" title="Mover abajo">↓</button>
+                                    <button type="button" @click="items.splice(qIdx, 1)"
+                                            class="text-xs text-red-500 hover:text-red-700">Eliminar pregunta</button>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Clave (único, sin espacios)</label>
+                                    <input type="text" :name="'questions[' + qIdx + '][key]'" x-model="question.key"
+                                           placeholder="usage, hours, style..."
+                                           class="w-full rounded-lg border-gray-300 shadow-sm text-sm font-mono focus:border-blue-500 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Pregunta (visible al usuario)</label>
+                                    <input type="text" :name="'questions[' + qIdx + '][label]'" x-model="question.label"
+                                           placeholder="¿Para qué usarás tus lentes?"
+                                           class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Subtítulo / aclaración</label>
+                                <input type="text" :name="'questions[' + qIdx + '][subtitle]'" x-model="question.subtitle"
+                                       placeholder="Selecciona tu uso principal."
+                                       class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+
+                            <div class="border-t border-gray-200 pt-3">
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="block text-xs font-medium text-gray-600">Opciones de respuesta</label>
+                                    <button type="button" @click="question.options.push({value:'', label:'', desc:''})"
+                                            class="text-xs text-blue-600 hover:text-blue-800 font-medium">+ Agregar opción</button>
+                                </div>
+
+                                <template x-for="(option, oIdx) in question.options" :key="oIdx">
+                                    <div class="bg-white rounded-lg p-3 mb-2 border border-gray-200">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span class="text-xs text-gray-500" x-text="'Opción ' + (oIdx + 1)"></span>
+                                            <button type="button" @click="question.options.splice(oIdx, 1)"
+                                                    class="text-xs text-red-400 hover:text-red-600">Eliminar</button>
+                                        </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                                            <input type="text" :name="'questions[' + qIdx + '][options][' + oIdx + '][value]'" x-model="option.value"
+                                                   placeholder="Valor (ej: gaming)"
+                                                   class="w-full rounded-lg border-gray-300 shadow-sm text-xs font-mono focus:border-blue-500 focus:ring-blue-500">
+                                            <input type="text" :name="'questions[' + qIdx + '][options][' + oIdx + '][label]'" x-model="option.label"
+                                                   placeholder="Texto visible"
+                                                   class="w-full rounded-lg border-gray-300 shadow-sm text-xs focus:border-blue-500 focus:ring-blue-500">
+                                            <input type="text" :name="'questions[' + qIdx + '][options][' + oIdx + '][desc]'" x-model="option.desc"
+                                                   placeholder="Descripción corta"
+                                                   class="w-full rounded-lg border-gray-300 shadow-sm text-xs focus:border-blue-500 focus:ring-blue-500">
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <div class="flex items-center gap-3">
+                        <button type="button" @click="items.push({key:'', label:'', subtitle:'', options:[{value:'',label:'',desc:''}]})"
+                                class="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15"/>
+                            </svg>
+                            Agregar pregunta
+                        </button>
+                        <button type="button" @click="if (confirm('¿Restablecer las preguntas por defecto? Perderás las que tengas configuradas.')) { items = defaultQuestions; }"
+                                class="text-sm text-gray-500 hover:text-gray-700">Restablecer por defecto</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- ═══════════ 5. REGLAS DE RECOMENDACIÓN ═══════════ --}}
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-4">
             <button type="button" @click="toggle('rules')"
                     class="w-full flex items-center justify-between px-6 py-4 text-left">
-                <h3 class="text-base font-semibold text-gray-900">4. Reglas de recomendación</h3>
+                <h3 class="text-base font-semibold text-gray-900">5. Reglas de recomendación</h3>
                 <svg :class="openSection === 'rules' && 'rotate-180'" class="w-5 h-5 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
                 </svg>
@@ -122,45 +215,19 @@
                                     <label class="block text-xs font-medium text-gray-600 mb-1">Si la respuesta de...</label>
                                     <select :name="'recommendation_rules[' + idx + '][condition_field]'" x-model="rule.condition_field"
                                             class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
-                                        <option value="usage">Uso principal</option>
-                                        <option value="prescription">Graduación</option>
-                                        <option value="hours">Horas de uso</option>
-                                        <option value="style">Estilo preferido</option>
+                                        <option value="">— Selecciona pregunta —</option>
+                                        <template x-for="q in $root.questionsList()" :key="q.key">
+                                            <option :value="q.key" x-text="q.label + ' (' + q.key + ')'"></option>
+                                        </template>
                                     </select>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-medium text-gray-600 mb-1">... es igual a</label>
                                     <select :name="'recommendation_rules[' + idx + '][condition_value]'" x-model="rule.condition_value"
                                             class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
-                                        <template x-if="rule.condition_field === 'usage'">
-                                            <optgroup label="Uso">
-                                                <option value="screen">Trabajo / Oficina</option>
-                                                <option value="gaming">Gaming</option>
-                                                <option value="study">Estudio</option>
-                                                <option value="general">Uso general</option>
-                                            </optgroup>
-                                        </template>
-                                        <template x-if="rule.condition_field === 'prescription'">
-                                            <optgroup label="Graduación">
-                                                <option value="yes">Sí necesita</option>
-                                                <option value="no">No necesita</option>
-                                            </optgroup>
-                                        </template>
-                                        <template x-if="rule.condition_field === 'hours'">
-                                            <optgroup label="Horas">
-                                                <option value="1-3">Menos de 4 horas</option>
-                                                <option value="4-6">4 a 6 horas</option>
-                                                <option value="6-8">6 a 8 horas</option>
-                                                <option value="8+">Más de 8 horas</option>
-                                            </optgroup>
-                                        </template>
-                                        <template x-if="rule.condition_field === 'style'">
-                                            <optgroup label="Estilo">
-                                                <option value="classic">Clásico</option>
-                                                <option value="modern">Moderno</option>
-                                                <option value="sport">Deportivo</option>
-                                                <option value="round">Redondo</option>
-                                            </optgroup>
+                                        <option value="">— Selecciona respuesta —</option>
+                                        <template x-for="opt in $root.optionsFor(rule.condition_field)" :key="opt.value">
+                                            <option :value="opt.value" x-text="opt.label + ' (' + opt.value + ')'"></option>
                                         </template>
                                     </select>
                                 </div>
@@ -196,11 +263,11 @@
             </div>
         </div>
 
-        {{-- ═══════════ 5. SEO ═══════════ --}}
+        {{-- ═══════════ 6. SEO ═══════════ --}}
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-4">
             <button type="button" @click="toggle('seo')"
                     class="w-full flex items-center justify-between px-6 py-4 text-left">
-                <h3 class="text-base font-semibold text-gray-900">5. SEO</h3>
+                <h3 class="text-base font-semibold text-gray-900">6. SEO</h3>
                 <svg :class="openSection === 'seo' && 'rotate-180'" class="w-5 h-5 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
                 </svg>
@@ -234,6 +301,44 @@
 
 @push('scripts')
 <script>
+function quizAdmin() {
+    return {
+        openSection: 'textos',
+        toggle(s) { this.openSection = this.openSection === s ? null : s; },
+
+        // Shared data
+        questionsData: @json($page->questions ?? \App\Models\QuizPageSetting::defaultQuestions()),
+
+        init() {},
+
+        // Used by rules section to list available questions/options
+        questionsList() {
+            return this.questionsData;
+        },
+        optionsFor(key) {
+            const q = this.questionsData.find(q => q.key === key);
+            return q ? (q.options || []) : [];
+        },
+    };
+}
+
+function questionsRepeater() {
+    return {
+        items: [],
+        defaultQuestions: @json(\App\Models\QuizPageSetting::defaultQuestions()),
+        init() {
+            const saved = @json($page->questions ?? []);
+            this.items = (saved && saved.length > 0) ? saved : this.defaultQuestions;
+            // Sync with parent questionsData whenever items change
+            this.$watch('items', (val) => {
+                if (this.$root.questionsData !== undefined) {
+                    this.$root.questionsData = val;
+                }
+            }, { deep: true });
+        }
+    };
+}
+
 function rulesRepeater() {
     return {
         items: [],

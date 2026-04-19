@@ -39,6 +39,36 @@ class AdminQuizPageController extends Controller
             $data['recommendation_rules'] = $rules;
         }
 
+        // Questions — filter out questions without key or label, normalize options
+        if ($request->has('questions')) {
+            $questions = [];
+            foreach ($request->input('questions', []) as $q) {
+                if (empty($q['key']) || empty($q['label'])) {
+                    continue;
+                }
+                $options = [];
+                foreach ($q['options'] ?? [] as $opt) {
+                    if (!empty($opt['value']) && !empty($opt['label'])) {
+                        $options[] = [
+                            'value' => $opt['value'],
+                            'label' => $opt['label'],
+                            'desc' => $opt['desc'] ?? '',
+                        ];
+                    }
+                }
+                if (empty($options)) {
+                    continue;
+                }
+                $questions[] = [
+                    'key' => preg_replace('/[^a-z0-9_]/i', '_', strtolower($q['key'])),
+                    'label' => $q['label'],
+                    'subtitle' => $q['subtitle'] ?? '',
+                    'options' => $options,
+                ];
+            }
+            $data['questions'] = $questions;
+        }
+
         // Default product
         $data['default_product_id'] = !empty($data['default_product_id']) ? (int) $data['default_product_id'] : null;
 

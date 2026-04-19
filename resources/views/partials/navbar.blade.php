@@ -20,7 +20,7 @@
                 <a href="{{ route('products.index') }}" class="text-sm transition-colors" style="color:{{ request()->routeIs('products.*') && !request()->has('type') ? '#378ADD' : '#1a1a2e' }};" onmouseover="this.style.color='#378ADD'" onmouseout="this.style.color='{{ request()->routeIs('products.*') && !request()->has('type') ? '#378ADD' : '#1a1a2e' }}'">Lentes</a>
                 <a href="{{ route('products.index', ['type' => 'toallitas']) }}" class="text-sm transition-colors" style="color:{{ request()->input('type') === 'toallitas' ? '#378ADD' : '#1a1a2e' }};" onmouseover="this.style.color='#378ADD'" onmouseout="this.style.color='{{ request()->input('type') === 'toallitas' ? '#378ADD' : '#1a1a2e' }}'">Toallitas</a>
                 <a href="{{ route('blue-light') }}" class="text-sm transition-colors" style="color:{{ request()->routeIs('blue-light') ? '#378ADD' : '#1a1a2e' }};" onmouseover="this.style.color='#378ADD'" onmouseout="this.style.color='{{ request()->routeIs('blue-light') ? '#378ADD' : '#1a1a2e' }}'">¿Qué es la luz azul?</a>
-                <a href="{{ route('landing.quiz') }}" class="text-sm transition-colors" style="color:{{ request()->routeIs('landing.quiz*') ? '#378ADD' : '#1a1a2e' }};" onmouseover="this.style.color='#378ADD'" onmouseout="this.style.color='{{ request()->routeIs('landing.quiz*') ? '#378ADD' : '#1a1a2e' }}'">¿Qué lentes necesito?</a>
+                <a href="{{ route('landing.quiz') }}" class="text-sm transition-colors" style="color:{{ request()->routeIs('landing.quiz*') ? '#378ADD' : '#1a1a2e' }};" onmouseover="this.style.color='#378ADD'" onmouseout="this.style.color='{{ request()->routeIs('landing.quiz*') ? '#378ADD' : '#1a1a2e' }}'">Quiz</a>
                 <a href="{{ route('blog.index') }}" class="text-sm transition-colors" style="color:{{ request()->routeIs('blog.*') ? '#378ADD' : '#1a1a2e' }};" onmouseover="this.style.color='#378ADD'" onmouseout="this.style.color='{{ request()->routeIs('blog.*') ? '#378ADD' : '#1a1a2e' }}'">Blog</a>
             </div>
 
@@ -64,7 +64,7 @@
                 <a href="{{ route('products.index') }}" class="block text-sm transition-colors" style="color:#1a1a2e;">Lentes</a>
                 <a href="{{ route('products.index', ['type' => 'toallitas']) }}" class="block text-sm transition-colors" style="color:#1a1a2e;">Toallitas</a>
                 <a href="{{ route('blue-light') }}" class="block text-sm transition-colors" style="color:#1a1a2e;">¿Qué es la luz azul?</a>
-                <a href="{{ route('landing.quiz') }}" class="block text-sm transition-colors" style="color:#1a1a2e;">¿Qué lentes necesito?</a>
+                <a href="{{ route('landing.quiz') }}" class="block text-sm transition-colors" style="color:#1a1a2e;">Quiz</a>
                 <a href="{{ route('blog.index') }}" class="block text-sm transition-colors" style="color:#1a1a2e;">Blog</a>
                 <button @click="$dispatch('toggle-cart-drawer'); mobileMenuOpen = false" class="block text-sm transition-colors" style="color:#1a1a2e;">Carrito</button>
             </div>

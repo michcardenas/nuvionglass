@@ -61,9 +61,9 @@ Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::post('/leads', [LeadController::class, 'store'])->name('leads.store');
 
 // Landing pages & Quiz
-Route::get('/landing', [LandingController::class, 'index'])->name('landing.index');
-Route::get('/quiz', [LandingController::class, 'quiz'])->name('landing.quiz');
-Route::post('/quiz/resultado', [LandingController::class, 'quizResult'])->name('landing.quiz.result');
+Route::get('/landing', [LandingController::class, 'quiz'])->name('landing.quiz');
+Route::get('/quiz', fn () => redirect()->route('landing.quiz'));
+Route::post('/landing/resultado', [LandingController::class, 'quizResult'])->name('landing.quiz.result');
 
 // SEO
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
