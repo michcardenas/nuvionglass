@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\AdminHeroController;
 use App\Http\Controllers\Admin\AdminBlogPageController;
 use App\Http\Controllers\Admin\AdminBlueLightPageController;
 use App\Http\Controllers\Admin\AdminContactPageController;
+use App\Http\Controllers\Admin\AdminQuizPageController;
 use App\Http\Controllers\Admin\AdminShippingReturnsPageController;
 use App\Http\Controllers\Admin\BankTransferAdminController;
 use App\Http\Controllers\Admin\AdminHomePageController;
@@ -100,6 +101,10 @@ Route::put('pages/contact', [AdminContactPageController::class, 'update'])->name
 // Shipping & returns page editor
 Route::get('pages/shipping-returns', [AdminShippingReturnsPageController::class, 'edit'])->name('pages.shipping-returns.edit');
 Route::put('pages/shipping-returns', [AdminShippingReturnsPageController::class, 'update'])->name('pages.shipping-returns.update');
+
+// Quiz page editor
+Route::get('pages/quiz', [AdminQuizPageController::class, 'edit'])->name('pages.quiz.edit');
+Route::put('pages/quiz', [AdminQuizPageController::class, 'update'])->name('pages.quiz.update');
 
 // Testimonials CRUD
 Route::resource('testimonials', TestimonialAdminController::class)->except(['show']);

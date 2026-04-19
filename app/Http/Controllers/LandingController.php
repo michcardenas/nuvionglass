@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\LeadWelcome;
 use App\Models\Lead;
 use App\Models\Product;
+use App\Models\QuizPageSetting;
 use App\Services\SeoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -36,7 +37,9 @@ class LandingController extends Controller
      */
     public function quiz(): View
     {
-        return view('storefront.landing.quiz');
+        $quizPage = QuizPageSetting::getCurrent();
+
+        return view('storefront.landing.quiz', compact('quizPage'));
     }
 
     /**
@@ -73,37 +76,38 @@ class LandingController extends Controller
 
     /**
      * Determine product recommendation from quiz answers.
+     * Uses admin-configured rules, with fallback to default product.
      */
     private function getRecommendation(array $answers): array
     {
-        $usage = $answers['usage'] ?? 'screen';
-        $hours = $answers['hours'] ?? '4-6';
-        $prescription = $answers['prescription'] ?? 'no';
-        $style = $answers['style'] ?? 'classic';
+        $quizPage = QuizPageSetting::getCurrent();
+        $product = null;
+        $reason = null;
 
-        // Logic: prescription → Con Graduación, gaming → Gaming, else → Sin Graduación
-        if ($prescription === 'yes') {
-            $product = Product::active()
-                ->whereHas('category', fn ($q) => $q->where('slug', 'con-graduacion'))
-                ->first();
-            $reason = 'Necesitas lentes con graduación y protección de luz azul.';
-        } elseif ($usage === 'gaming') {
-            $product = Product::active()
-                ->whereHas('category', fn ($q) => $q->where('slug', 'gaming-sport'))
-                ->first();
-            $reason = 'Para sesiones de gaming intensas, necesitas filtro de alto rendimiento.';
-        } else {
-            $product = Product::active()
-                ->whereHas('category', fn ($q) => $q->where('slug', 'sin-graduacion'))
-                ->where('is_featured', true)
-                ->first();
-            $reason = 'Protección diaria sin graduación con diseño que amarás.';
+        // 1. Try admin-configured rules (first match wins)
+        foreach ($quizPage->recommendation_rules ?? [] as $rule) {
+            $field = $rule['condition_field'] ?? null;
+            $value = $rule['condition_value'] ?? null;
+
+            if ($field && $value && ($answers[$field] ?? null) === $value) {
+                $product = Product::active()->find($rule['product_id'] ?? null);
+                if ($product) {
+                    $reason = $rule['reason'] ?? '';
+                    break;
+                }
+            }
         }
 
-        // Fallback
+        // 2. Fallback to default product configured in admin
+        if (! $product && $quizPage->default_product_id) {
+            $product = Product::active()->find($quizPage->default_product_id);
+            $reason = $quizPage->default_reason ?: 'Este es nuestro modelo más popular y versátil.';
+        }
+
+        // 3. Final fallback: first featured product
         if (! $product) {
-            $product = Product::active()->featured()->first();
-            $reason = 'Este es nuestro modelo más popular y versátil.';
+            $product = Product::active()->featured()->first() ?? Product::active()->first();
+            $reason = $quizPage->default_reason ?: 'Este es nuestro modelo más popular y versátil.';
         }
 
         return [

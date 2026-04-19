@@ -2,8 +2,8 @@
 
 @section('body_class', 'bg-bg text-text')
 
-@section('title', '¿Qué lentes necesitas? — Quiz | Nuvion Glass')
-@section('meta_description', 'Responde 4 preguntas y descubre qué lentes con protección de luz azul son perfectos para ti. Quiz interactivo de nuvion glass.')
+@section('title', $quizPage->meta_title ?? '¿Qué lentes necesitas? — Quiz | Nuvion Glass')
+@section('meta_description', $quizPage->meta_description ?? 'Responde 4 preguntas y descubre qué lentes con protección de luz azul son perfectos para ti. Quiz interactivo de Nuvion Glass.')
 
 @section('content')
 
@@ -11,6 +11,12 @@
         <div class="w-full max-w-2xl mx-auto px-4 sm:px-6"
              x-data="quizApp()"
              x-cloak>
+
+            {{-- Hero (only on first step) --}}
+            <div class="text-center mb-8" x-show="step === 1">
+                <h1 class="font-brand text-3xl md:text-4xl font-bold mb-3">{{ $quizPage->hero_title ?? '¿Qué lentes son para ti?' }}</h1>
+                <p class="text-muted/60">{{ $quizPage->hero_subtitle ?? 'Responde 4 preguntas rápidas y te recomendamos los mejores lentes para ti.' }}</p>
+            </div>
 
             {{-- Progress bar --}}
             <div class="mb-8" x-show="step <= totalSteps">
@@ -192,7 +198,7 @@
             <div x-show="step === 6" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
                 <div class="text-center mb-8">
                     <span class="inline-block text-secondary text-sm font-medium tracking-wider uppercase mb-2">Tu resultado</span>
-                    <h2 class="font-brand text-2xl md:text-3xl font-bold">Te recomendamos</h2>
+                    <h2 class="font-brand text-2xl md:text-3xl font-bold">{{ $quizPage->result_title ?? 'Te recomendamos' }}</h2>
                 </div>
 
                 <div class="bg-surface rounded-2xl border border-border overflow-hidden max-w-md mx-auto">
@@ -212,7 +218,7 @@
                         </div>
                         <a :href="result.product_url"
                            class="mt-6 block w-full bg-secondary hover:bg-secondary/90 text-white text-center py-3.5 rounded-xl font-semibold transition-colors">
-                            Ver este producto
+                            {{ $quizPage->result_cta_text ?? 'Ver este producto' }}
                         </a>
                     </div>
                 </div>

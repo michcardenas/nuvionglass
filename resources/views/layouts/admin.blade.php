@@ -186,6 +186,15 @@
                         <span x-show="sidebarOpen">Luz azul</span>
                     </a>
 
+                    {{-- Quiz --}}
+                    <a href="{{ route('admin.pages.quiz.edit') }}"
+                       class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors text-sm {{ request()->routeIs('admin.pages.quiz.*') ? 'bg-white/10' : '' }}">
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                        </svg>
+                        <span x-show="sidebarOpen">Quiz</span>
+                    </a>
+
                     {{-- Contacto --}}
                     <a href="{{ route('admin.pages.contact.edit') }}"
                        class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors text-sm {{ request()->routeIs('admin.pages.contact.*') ? 'bg-white/10' : '' }}">
