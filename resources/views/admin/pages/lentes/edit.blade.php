@@ -34,11 +34,11 @@
             </div>
         </div>
 
-        {{-- ═══════════ BENEFICIOS EN FICHA DE PRODUCTO ═══════════ --}}
+        {{-- ═══════════ BENEFICIOS RÁPIDOS ═══════════ --}}
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-4">
             <div class="px-6 py-4 border-b border-gray-100">
-                <h3 class="text-base font-semibold text-gray-900">Beneficios rápidos (ficha de producto)</h3>
-                <p class="text-xs text-gray-500 mt-1">Los 4 beneficios que aparecen debajo del botón "Agregar al carrito" en cada producto. Uno por línea.</p>
+                <h3 class="text-base font-semibold text-gray-900">Beneficios rápidos</h3>
+                <p class="text-xs text-gray-500 mt-1">Se muestran debajo del botón "Agregar al carrito" en la ficha de producto y en el checkout. Uno por línea.</p>
             </div>
             <div class="px-6 pb-6 pt-4">
                 <textarea name="product_benefits_text" rows="4"

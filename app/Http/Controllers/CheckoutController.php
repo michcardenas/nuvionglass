@@ -43,6 +43,7 @@ class CheckoutController extends Controller
         )->sum('qty');
 
         $freeThreshold = (float) \App\Models\ShippingSetting::get('free_shipping_threshold', 999);
+        $lentesPage = \App\Models\LentesPageSetting::getCurrent();
 
         return view('storefront.checkout', [
             'items' => $items,
@@ -55,6 +56,7 @@ class CheckoutController extends Controller
             'discount' => $couponDiscount,
             'total' => max(0, $subtotalAfter2x1 - $couponDiscount['amount'] + $shipping),
             'appliedCoupon' => $couponDiscount['code'],
+            'productBenefits' => $lentesPage->product_benefits ?? [],
         ]);
     }
 
