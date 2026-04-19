@@ -532,11 +532,20 @@ function selectColor(color) {
 
 /* ── Graduation selector ── */
 function selectGrad(el, tipo) {
-    document.querySelectorAll('.grad-' + tipo).forEach(function(b) {
+    // Reset ALL graduation buttons (both miopia and lectura) — only one can be selected at a time
+    document.querySelectorAll('.grad-btn').forEach(function(b) {
         b.style.background = '#fff';
         b.style.borderColor = '#ddd';
         b.style.color = '#444';
     });
+
+    // Reset both labels
+    var labelMiopia = document.getElementById('selected-grad-miopia');
+    var labelLectura = document.getElementById('selected-grad-lectura');
+    if (labelMiopia) labelMiopia.textContent = '— Selecciona';
+    if (labelLectura) labelLectura.textContent = '— Selecciona';
+
+    // Activate the clicked one
     el.style.background = '#1a1a2e';
     el.style.borderColor = '#1a1a2e';
     el.style.color = '#fff';
