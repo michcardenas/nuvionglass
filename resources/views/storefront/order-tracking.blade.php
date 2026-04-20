@@ -247,7 +247,19 @@
                         <span>Subtotal</span>
                         <span>${{ number_format($order->subtotal, 2) }}</span>
                     </div>
-                    @if($order->discount_amount > 0)
+                    @if($order->discount_2x1 > 0)
+                    <div class="flex justify-between text-sm text-success">
+                        <span>Descuento 2×1</span>
+                        <span>-${{ number_format($order->discount_2x1, 2) }}</span>
+                    </div>
+                    @endif
+                    @if($order->discount_coupon > 0)
+                    <div class="flex justify-between text-sm text-success">
+                        <span>Cupón{{ $order->discount_code ? " ({$order->discount_code})" : '' }}</span>
+                        <span>-${{ number_format($order->discount_coupon, 2) }}</span>
+                    </div>
+                    @elseif($order->discount_amount > 0 && $order->discount_2x1 == 0)
+                    {{-- Backward compat: legacy orders without split --}}
                     <div class="flex justify-between text-sm text-success">
                         <span>Descuento {{ $order->discount_code ? "({$order->discount_code})" : '' }}</span>
                         <span>-${{ number_format($order->discount_amount, 2) }}</span>

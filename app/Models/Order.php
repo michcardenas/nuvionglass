@@ -21,6 +21,8 @@ class Order extends Model
         'stripe_payment_intent_id',
         'discount_code',
         'discount_amount',
+        'discount_2x1',
+        'discount_coupon',
         'shipping_address',
         'shipping_carrier',
         'tracking_number',
@@ -44,6 +46,8 @@ class Order extends Model
             'subtotal' => 'decimal:2',
             'shipping' => 'decimal:2',
             'discount_amount' => 'decimal:2',
+            'discount_2x1' => 'decimal:2',
+            'discount_coupon' => 'decimal:2',
             'total' => 'decimal:2',
         ];
     }

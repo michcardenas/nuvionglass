@@ -55,11 +55,20 @@
                                 <td colspan="4" class="pt-3 text-right text-gray-500">Subtotal</td>
                                 <td class="pt-3 text-right font-medium">${{ number_format($order->subtotal, 2) }}</td>
                             </tr>
-                            @if($order->discount_amount > 0)
+                            @if($order->discount_2x1 > 0)
                             <tr>
-                                <td colspan="4" class="py-1 text-right text-green-600">
-                                    Descuento {{ $order->discount_code ? "({$order->discount_code})" : '' }}
-                                </td>
+                                <td colspan="4" class="py-1 text-right text-green-600">Descuento 2×1</td>
+                                <td class="py-1 text-right text-green-600">-${{ number_format($order->discount_2x1, 2) }}</td>
+                            </tr>
+                            @endif
+                            @if($order->discount_coupon > 0)
+                            <tr>
+                                <td colspan="4" class="py-1 text-right text-green-600">Cupón{{ $order->discount_code ? " ({$order->discount_code})" : '' }}</td>
+                                <td class="py-1 text-right text-green-600">-${{ number_format($order->discount_coupon, 2) }}</td>
+                            </tr>
+                            @elseif($order->discount_amount > 0 && $order->discount_2x1 == 0)
+                            <tr>
+                                <td colspan="4" class="py-1 text-right text-green-600">Descuento {{ $order->discount_code ? "({$order->discount_code})" : '' }}</td>
                                 <td class="py-1 text-right text-green-600">-${{ number_format($order->discount_amount, 2) }}</td>
                             </tr>
                             @endif

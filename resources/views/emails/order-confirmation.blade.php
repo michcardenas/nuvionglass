@@ -76,14 +76,21 @@
                         <td style="padding:4px 0;font-size:14px;color:#6B7280;">Subtotal</td>
                         <td align="right" style="padding:4px 0;font-size:14px;color:#6B7280;">${{ number_format($order->subtotal, 2) }}</td>
                     </tr>
-                    @if($order->discount_amount > 0)
+                    @if($order->discount_2x1 > 0)
                     <tr>
-                        <td style="padding:4px 0;font-size:14px;color:#059669;">
-                            Descuento {{ $order->discount_code ? "({$order->discount_code})" : '' }}
-                        </td>
-                        <td align="right" style="padding:4px 0;font-size:14px;color:#059669;">
-                            -${{ number_format($order->discount_amount, 2) }}
-                        </td>
+                        <td style="padding:4px 0;font-size:14px;color:#059669;">Descuento 2×1</td>
+                        <td align="right" style="padding:4px 0;font-size:14px;color:#059669;">-${{ number_format($order->discount_2x1, 2) }}</td>
+                    </tr>
+                    @endif
+                    @if($order->discount_coupon > 0)
+                    <tr>
+                        <td style="padding:4px 0;font-size:14px;color:#059669;">Cupón{{ $order->discount_code ? " ({$order->discount_code})" : '' }}</td>
+                        <td align="right" style="padding:4px 0;font-size:14px;color:#059669;">-${{ number_format($order->discount_coupon, 2) }}</td>
+                    </tr>
+                    @elseif($order->discount_amount > 0 && $order->discount_2x1 == 0)
+                    <tr>
+                        <td style="padding:4px 0;font-size:14px;color:#059669;">Descuento {{ $order->discount_code ? "({$order->discount_code})" : '' }}</td>
+                        <td align="right" style="padding:4px 0;font-size:14px;color:#059669;">-${{ number_format($order->discount_amount, 2) }}</td>
                     </tr>
                     @endif
                     <tr>

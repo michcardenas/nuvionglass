@@ -82,6 +82,7 @@ class CheckoutService
         $shipping = $this->cart->getShipping($data['state'] ?? null);
         $discountAmount = (float) ($data['discount_amount'] ?? 0);
         $discount2x1 = (float) ($data['discount_2x1'] ?? 0);
+        $discountCoupon = max(0, $discountAmount - $discount2x1);
         $total = max(0, $subtotal - $discountAmount + $shipping);
 
         return Order::create([
@@ -91,6 +92,8 @@ class CheckoutService
             'shipping' => $shipping,
             'discount_code' => $data['discount_code'] ?? null,
             'discount_amount' => $discountAmount,
+            'discount_2x1' => $discount2x1,
+            'discount_coupon' => $discountCoupon,
             'total' => $total,
             'payment_method' => $data['payment_method'],
             'payment_status' => $data['payment_status'] ?? (($data['payment_method'] === 'card') ? 'processing' : 'pending'),
