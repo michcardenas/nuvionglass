@@ -6,6 +6,12 @@
 @section('content')
     <div class="max-w-4xl space-y-8">
 
+        @if(session('error'))
+            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {{ session('error') }}
+            </div>
+        @endif
+
         {{-- General settings --}}
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
@@ -26,7 +32,7 @@
                                value="{{ old('default_price', $defaultPrice) }}"
                                step="0.01" min="0"
                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <p class="mt-1 text-xs text-gray-400">Se aplica cuando la ciudad del cliente no tiene tarifa específica.</p>
+                        <p class="mt-1 text-xs text-gray-400">Se aplica cuando el estado del cliente no tiene tarifa específica.</p>
                     </div>
                     <div>
                         <label for="free_shipping_threshold" class="block text-sm font-medium text-gray-700 mb-1">Envío gratis a partir de ($)</label>
@@ -52,7 +58,7 @@
             </form>
         </div>
 
-        {{-- City rates --}}
+        {{-- State rates --}}
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div class="p-6 border-b border-gray-200">
                 <h2 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
@@ -60,26 +66,26 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/>
                     </svg>
-                    Tarifas por ciudad
+                    Tarifas por estado
                 </h2>
-                <p class="text-sm text-gray-500 mt-1">Las ciudades configuradas aquí tienen prioridad sobre la tarifa default.</p>
+                <p class="text-sm text-gray-500 mt-1">Los estados configurados aquí tienen prioridad sobre la tarifa default.</p>
             </div>
 
             {{-- Add new rate --}}
             <div class="p-4 bg-gray-50 border-b border-gray-200">
                 <form method="POST" action="{{ route('admin.shipping.store') }}" class="flex flex-wrap items-end gap-3">
                     @csrf
-                    <div class="flex-1 min-w-[140px]">
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Ciudad *</label>
-                        <input type="text" name="city" required placeholder="Ej: CDMX"
-                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <div class="flex-1 min-w-[200px]">
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Estado *</label>
+                        <select name="state" required
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">— Selecciona un estado —</option>
+                            @foreach($states as $st)
+                                <option value="{{ $st }}">{{ $st }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="w-32">
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Estado</label>
-                        <input type="text" name="state" placeholder="Opcional"
-                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div class="w-28">
                         <label class="block text-xs font-medium text-gray-600 mb-1">Precio ($) *</label>
                         <input type="number" name="price" required step="0.01" min="0" placeholder="0.00"
                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -93,32 +99,26 @@
             {{-- Rates table --}}
             @if($rates->isEmpty())
                 <div class="p-8 text-center text-gray-500">
-                    <p class="text-sm">No hay tarifas por ciudad configuradas.</p>
-                    <p class="text-xs mt-1">Se usará la tarifa default para todas las ciudades.</p>
+                    <p class="text-sm">No hay tarifas por estado configuradas.</p>
+                    <p class="text-xs mt-1">Se usará la tarifa default para todos los estados.</p>
                 </div>
             @else
                 <table class="w-full">
                     <thead class="bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         <tr>
-                            <th class="px-6 py-3">Ciudad</th>
                             <th class="px-6 py-3">Estado</th>
                             <th class="px-6 py-3">Precio</th>
-                            <th class="px-6 py-3">Estado</th>
+                            <th class="px-6 py-3">Activa</th>
                             <th class="px-6 py-3 text-right">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200" x-data>
+                    <tbody class="divide-y divide-gray-200">
                         @foreach($rates as $rate)
                         <tr class="hover:bg-gray-50 group" x-data="{ editing: false }">
                             {{-- View mode --}}
                             <template x-if="!editing">
                                 <td class="px-6 py-4">
-                                    <span class="text-sm font-medium text-gray-900">{{ $rate->city }}</span>
-                                </td>
-                            </template>
-                            <template x-if="!editing">
-                                <td class="px-6 py-4">
-                                    <span class="text-sm text-gray-500">{{ $rate->state ?? '—' }}</span>
+                                    <span class="text-sm font-medium text-gray-900">{{ $rate->state ?? '—' }}</span>
                                 </td>
                             </template>
                             <template x-if="!editing">
@@ -146,7 +146,7 @@
                                             </svg>
                                         </button>
                                         <form method="POST" action="{{ route('admin.shipping.destroy', $rate) }}"
-                                              onsubmit="return confirm('¿Eliminar tarifa de {{ $rate->city }}?')">
+                                              onsubmit="return confirm('¿Eliminar tarifa de {{ $rate->state }}?')">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="text-gray-400 hover:text-red-600 transition-colors" title="Eliminar">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -160,20 +160,19 @@
 
                             {{-- Edit mode --}}
                             <template x-if="editing">
-                                <td colspan="5" class="px-6 py-3">
+                                <td colspan="4" class="px-6 py-3">
                                     <form method="POST" action="{{ route('admin.shipping.update', $rate) }}" class="flex flex-wrap items-end gap-3">
                                         @csrf @method('PUT')
-                                        <div class="flex-1 min-w-[120px]">
-                                            <label class="block text-xs text-gray-500 mb-1">Ciudad</label>
-                                            <input type="text" name="city" value="{{ $rate->city }}" required
-                                                   class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <div class="flex-1 min-w-[180px]">
+                                            <label class="block text-xs text-gray-500 mb-1">Estado</label>
+                                            <select name="state" required
+                                                    class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                @foreach($states as $st)
+                                                    <option value="{{ $st }}" {{ $rate->state === $st ? 'selected' : '' }}>{{ $st }}</option>
+                                                @endforeach
+                                            </select>
                                         </div>
                                         <div class="w-28">
-                                            <label class="block text-xs text-gray-500 mb-1">Estado</label>
-                                            <input type="text" name="state" value="{{ $rate->state }}"
-                                                   class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                        </div>
-                                        <div class="w-24">
                                             <label class="block text-xs text-gray-500 mb-1">Precio</label>
                                             <input type="number" name="price" value="{{ $rate->price }}" required step="0.01" min="0"
                                                    class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">

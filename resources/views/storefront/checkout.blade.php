@@ -290,7 +290,8 @@
                             @endif
                             <div class="flex justify-between">
                                 <span class="text-text-muted">Envío</span>
-                                <span class="text-text-dark">{{ $shipping > 0 ? '$' . number_format($shipping, 2) : 'Gratis' }}</span>
+                                <span class="text-text-dark"
+                                      x-text="currentShipping > 0 ? '$' + Number(currentShipping).toFixed(2) : 'Gratis'"></span>
                             </div>
                             <template x-if="coupon.discount_amount > 0">
                                 <div class="flex justify-between text-green-600">
@@ -382,6 +383,7 @@ function checkoutForm() {
             description: {!! json_encode($discount['amount'] > 0 ? ($discount['code'] ? 'Descuento aplicado' : '') : '') !!},
             discount_amount: {{ $discount['amount'] ?? 0 }},
         },
+        currentShipping: {{ $shipping }},
         currentTotal: {{ $total }},
 
         init() {
@@ -406,11 +408,37 @@ function checkoutForm() {
                 }
             });
 
+            // Recalculate shipping when state changes
+            this.$watch('form.state', (val) => {
+                if (val) this.recalculateShipping();
+            });
+
             this.$nextTick(() => {
                 if (this.form.payment_method === 'card') {
                     this.mountCard();
                 }
             });
+        },
+
+        async recalculateShipping() {
+            try {
+                const res = await fetch('{{ route("checkout.calculateShipping") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ state: this.form.state }),
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    this.currentShipping = data.shipping;
+                    this.currentTotal = data.total;
+                }
+            } catch (e) {
+                console.error('Error recalculating shipping:', e);
+            }
         },
 
         mountCard() {
@@ -527,7 +555,7 @@ function checkoutForm() {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                         'Accept': 'application/json',
                     },
-                    body: JSON.stringify({}),
+                    body: JSON.stringify({ state: this.form.state }),
                 });
 
                 if (!res.ok) {

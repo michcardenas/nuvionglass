@@ -16,7 +16,8 @@ class ShippingAdminController extends Controller
         return view('admin.shipping.index', [
             'defaultPrice' => ShippingSetting::get('default_price', '99.00'),
             'freeThreshold' => ShippingSetting::get('free_shipping_threshold', '0'),
-            'rates' => ShippingRate::orderBy('city')->get(),
+            'rates' => ShippingRate::orderBy('state')->get(),
+            'states' => ShippingRate::mexicanStates(),
         ]);
     }
 
@@ -37,28 +38,42 @@ class ShippingAdminController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'city' => 'required|string|max:100|unique:shipping_rates,city',
-            'state' => 'nullable|string|max:100',
+            'state' => 'required|string|max:100|in:' . implode(',', ShippingRate::mexicanStates()),
             'price' => 'required|numeric|min:0',
             'is_active' => 'boolean',
         ]);
 
+        // Prevent duplicate state
+        if (ShippingRate::whereRaw('LOWER(state) = ?', [mb_strtolower($validated['state'])])->exists()) {
+            return redirect()->route('admin.shipping.index')
+                ->with('error', 'Ya existe una tarifa para el estado ' . $validated['state'] . '.');
+        }
+
         $validated['is_active'] = $request->boolean('is_active', true);
+        $validated['city'] = null;
 
         ShippingRate::create($validated);
 
         return redirect()->route('admin.shipping.index')
-            ->with('success', 'Tarifa de envío creada para ' . $validated['city'] . '.');
+            ->with('success', 'Tarifa de envío creada para ' . $validated['state'] . '.');
     }
 
     public function update(Request $request, ShippingRate $shippingRate): RedirectResponse
     {
         $validated = $request->validate([
-            'city' => 'required|string|max:100|unique:shipping_rates,city,' . $shippingRate->id,
-            'state' => 'nullable|string|max:100',
+            'state' => 'required|string|max:100|in:' . implode(',', ShippingRate::mexicanStates()),
             'price' => 'required|numeric|min:0',
             'is_active' => 'boolean',
         ]);
+
+        // Prevent duplicate state (excluding current rate)
+        $duplicate = ShippingRate::whereRaw('LOWER(state) = ?', [mb_strtolower($validated['state'])])
+            ->where('id', '!=', $shippingRate->id)
+            ->exists();
+        if ($duplicate) {
+            return redirect()->route('admin.shipping.index')
+                ->with('error', 'Ya existe otra tarifa para el estado ' . $validated['state'] . '.');
+        }
 
         $validated['is_active'] = $request->boolean('is_active');
 

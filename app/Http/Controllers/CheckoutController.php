@@ -60,6 +60,26 @@ class CheckoutController extends Controller
         ]);
     }
 
+    public function calculateShipping(Request $request): JsonResponse
+    {
+        $request->validate([
+            'state' => 'nullable|string|max:100',
+        ]);
+
+        $state = $request->input('state');
+        $subtotal = $this->cart->getSubtotal();
+        $discount2x1 = $this->cart->calculate2x1()['discount'];
+        $subtotalAfter2x1 = $subtotal - $discount2x1;
+        $shipping = $this->cart->getShipping($state);
+        $couponDiscount = $this->getSessionDiscount($subtotalAfter2x1);
+        $total = max(0, $subtotalAfter2x1 - $couponDiscount['amount'] + $shipping);
+
+        return response()->json([
+            'shipping' => $shipping,
+            'total' => $total,
+        ]);
+    }
+
     public function applyCoupon(Request $request): JsonResponse
     {
         $request->validate([
@@ -124,7 +144,7 @@ class CheckoutController extends Controller
         ]);
     }
 
-    public function createPaymentIntent(): JsonResponse
+    public function createPaymentIntent(Request $request): JsonResponse
     {
         if ($this->cart->isEmpty()) {
             return response()->json(['message' => 'El carrito está vacío.'], 422);
@@ -133,7 +153,7 @@ class CheckoutController extends Controller
         $subtotal = $this->cart->getSubtotal();
         $discount2x1 = $this->cart->calculate2x1()['discount'];
         $subtotalAfter2x1 = $subtotal - $discount2x1;
-        $shipping = $this->cart->getShipping();
+        $shipping = $this->cart->getShipping($request->input('state'));
         $discount = $this->getSessionDiscount($subtotalAfter2x1);
         $total = max(0, $subtotalAfter2x1 - $discount['amount'] + $shipping);
 

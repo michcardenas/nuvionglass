@@ -174,8 +174,10 @@ class CartService
     /**
      * Get shipping cost based on configured rates.
      * Uses subtotal AFTER 2x1 discount to check free shipping threshold.
+     *
+     * @param string|null $state  The Mexican state for state-based rates
      */
-    public function getShipping(?string $city = null): float
+    public function getShipping(?string $state = null): float
     {
         $subtotal = $this->getSubtotal();
         $discount2x1 = $this->calculate2x1()['discount'] ?? 0;
@@ -187,8 +189,8 @@ class CartService
             return 0;
         }
 
-        if ($city) {
-            $rate = ShippingRate::findForCity($city);
+        if ($state) {
+            $rate = ShippingRate::findForState($state);
             if ($rate) {
                 return (float) $rate->price;
             }
