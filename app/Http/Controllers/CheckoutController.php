@@ -183,7 +183,7 @@ class CheckoutController extends Controller
             'email' => 'required|email|max:255',
             'phone' => 'nullable|string|max:20',
             'address' => 'required|string|max:500',
-            'city' => 'required|string|max:100',
+            'city' => 'nullable|string|max:100',
             'state' => 'required|string|max:100',
             'zip_code' => 'required|string|max:10',
             'payment_method' => 'required|in:transfer,cash_on_delivery,card',

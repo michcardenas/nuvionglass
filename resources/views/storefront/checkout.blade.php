@@ -75,15 +75,6 @@
                                 <p x-show="errors.address" x-text="errors.address" class="text-danger text-xs mt-1"></p>
                             </div>
 
-                            {{-- City --}}
-                            <div>
-                                <label for="city" class="block text-sm font-medium text-text-muted mb-1.5">Ciudad *</label>
-                                <input type="text" id="city" x-model="form.city"
-                                       class="w-full border border-border-light rounded-xl px-4 py-3 text-sm text-text-dark placeholder-text-muted/40 focus:outline-none focus:border-secondary/50 focus:ring-2 focus:ring-secondary/10 transition-colors"
-                                       placeholder="Ciudad">
-                                <p x-show="errors.city" x-text="errors.city" class="text-danger text-xs mt-1"></p>
-                            </div>
-
                             {{-- State --}}
                             <div>
                                 <label for="state" class="block text-sm font-medium text-text-muted mb-1.5">Estado *</label>
@@ -361,7 +352,6 @@ function checkoutForm() {
             email: '',
             phone: '',
             address: '',
-            city: '',
             state: '',
             zip_code: '',
             payment_method: 'card',
@@ -530,7 +520,7 @@ function checkoutForm() {
         },
 
         validate() {
-            const required = { name: 'Nombre', email: 'Email', address: 'Dirección', city: 'Ciudad', state: 'Estado', zip_code: 'Código postal' };
+            const required = { name: 'Nombre', email: 'Email', address: 'Dirección', state: 'Estado', zip_code: 'Código postal' };
             for (const [field, label] of Object.entries(required)) {
                 if (!this.form[field]?.trim()) {
                     this.errors[field] = `${label} es requerido.`;
