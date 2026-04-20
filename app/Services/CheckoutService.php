@@ -59,7 +59,7 @@ class CheckoutService
                 'name' => $data['name'],
                 'phone' => $data['phone'] ?? null,
                 'address' => $data['address'],
-                'city' => $data['city'],
+                'city' => $data['city'] ?? null,
                 'state' => $data['state'],
                 'zip_code' => $data['zip_code'],
             ],
@@ -73,7 +73,7 @@ class CheckoutService
     {
         $shippingAddress = implode(', ', array_filter([
             $data['address'],
-            $data['city'],
+            $data['city'] ?? null,
             $data['state'],
             $data['zip_code'],
         ]));
