@@ -26,7 +26,7 @@
 @section('content')
 
     @php
-        // Normalize trust bar items (supports legacy string arrays and fills defaults).
+        // Normalize trust bar items (supports legacy string arrays / double-encoded JSON / fills defaults).
         $trustDefaults = [
             ['icon' => '✓', 'text' => 'Filtro certificado'],
             ['icon' => '📦', 'text' => 'Envío gratis +$999'],
@@ -34,17 +34,35 @@
             ['icon' => '★', 'text' => 'Garantía 6 meses'],
         ];
         $rawTrust = $hero->trust_items ?? [];
+
+        // Guard against double-encoded JSON strings still sitting in the column.
+        if (is_string($rawTrust)) {
+            $decoded = json_decode($rawTrust, true);
+            $rawTrust = is_array($decoded) ? $decoded : [];
+        }
+
         $trustItems = [];
         foreach ((array) $rawTrust as $t) {
-            if (is_string($t) && trim($t) !== '') {
-                $trustItems[] = ['icon' => '✓', 'text' => $t];
-            } elseif (is_array($t) && !empty($t['text'])) {
-                $trustItems[] = [
-                    'icon' => $t['icon'] ?? '✓',
-                    'text' => $t['text'],
-                ];
+            // Legacy: a bare string in the list
+            if (is_string($t)) {
+                $text = trim($t);
+                if ($text !== '') {
+                    $trustItems[] = ['icon' => '✓', 'text' => $text];
+                }
+                continue;
+            }
+            // New: associative array with icon + text
+            if (is_array($t)) {
+                $text = isset($t['text']) ? trim((string) $t['text']) : '';
+                if ($text !== '') {
+                    $icon = isset($t['icon']) && trim((string) $t['icon']) !== ''
+                        ? (string) $t['icon']
+                        : '✓';
+                    $trustItems[] = ['icon' => $icon, 'text' => $text];
+                }
             }
         }
+
         if (empty($trustItems)) {
             $trustItems = $trustDefaults;
         }
