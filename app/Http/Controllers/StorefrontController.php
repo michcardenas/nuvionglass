@@ -30,16 +30,30 @@ class StorefrontController extends Controller
             ->where(fn ($q) => $q->whereJsonContains('type', 'miopia')
                 ->orWhereJsonContains('type', 'lectura')
                 ->orWhereJsonContains('type', 'sin_graduacion'))
+            ->where(function ($q) {
+                $q->where('stock', '>', 0)
+                  ->orWhereHas('variants', fn ($v) => $v->where('is_active', true)->where('stock', '>', 0));
+            })
             ->with('variants')
             ->orderBy('sort_order')
-            ->get();
+            ->get()
+            ->filter(fn ($p) => $p->hasStock())
+            ->values();
 
         $toallitas = Product::active()
             ->whereJsonContains('type', 'toallitas')
+            ->where(function ($q) {
+                $q->where('stock', '>', 0)
+                  ->orWhereHas('variants', fn ($v) => $v->where('is_active', true)->where('stock', '>', 0));
+            })
+            ->with('variants')
             ->orderBy('sort_order')
-            ->get();
+            ->get()
+            ->filter(fn ($p) => $p->hasStock())
+            ->values();
 
         $coloresDisponibles = ProductVariant::where('is_active', true)
+            ->where('stock', '>', 0)
             ->whereNotNull('color')
             ->distinct()
             ->pluck('color')

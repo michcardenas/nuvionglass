@@ -139,7 +139,9 @@ class ProductController extends Controller
         $toallitas = Product::active()
             ->whereJsonContains('type', 'toallitas')
             ->with('variants')
-            ->get();
+            ->get()
+            ->filter(fn ($p) => $p->hasStock())
+            ->values();
 
         $seo = $this->seo->forProduct($product);
         $schema = $this->seo->productSchema($product);

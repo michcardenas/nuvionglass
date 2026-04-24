@@ -25,9 +25,15 @@ class LandingController extends Controller
     {
         $featuredProducts = Product::active()
             ->featured()
-            ->with('category')
+            ->where(function ($q) {
+                $q->where('stock', '>', 0)
+                  ->orWhereHas('variants', fn ($v) => $v->where('is_active', true)->where('stock', '>', 0));
+            })
+            ->with('category', 'variants')
             ->limit(3)
-            ->get();
+            ->get()
+            ->filter(fn ($p) => $p->hasStock())
+            ->values();
 
         return view('storefront.landing.index', compact('featuredProducts'));
     }
