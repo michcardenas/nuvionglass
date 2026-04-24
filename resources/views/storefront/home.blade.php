@@ -25,6 +25,31 @@
 
 @section('content')
 
+    @php
+        // Normalize trust bar items (supports legacy string arrays and fills defaults).
+        $trustDefaults = [
+            ['icon' => '✓', 'text' => 'Filtro certificado'],
+            ['icon' => '📦', 'text' => 'Envío gratis +$999'],
+            ['icon' => '↩', 'text' => '30 días devolución'],
+            ['icon' => '★', 'text' => 'Garantía 6 meses'],
+        ];
+        $rawTrust = $hero->trust_items ?? [];
+        $trustItems = [];
+        foreach ((array) $rawTrust as $t) {
+            if (is_string($t) && trim($t) !== '') {
+                $trustItems[] = ['icon' => '✓', 'text' => $t];
+            } elseif (is_array($t) && !empty($t['text'])) {
+                $trustItems[] = [
+                    'icon' => $t['icon'] ?? '✓',
+                    'text' => $t['text'],
+                ];
+            }
+        }
+        if (empty($trustItems)) {
+            $trustItems = $trustDefaults;
+        }
+    @endphp
+
     {{-- ============================================================
          1. HERO — split claro (default) o video full width
          ============================================================ --}}
@@ -496,26 +521,18 @@
         @endif
 
         {{-- Trust bar fija al fondo del hero --}}
+        @if(count($trustItems))
         <div style="position:absolute;bottom:0;left:0;right:0;z-index:6;">
             <div class="h-trust-bar" style="background:rgba(255,255,255,0.06);backdrop-filter:blur(12px);border-top:0.5px solid rgba(255,255,255,0.1);padding:12px 6%;">
+                @foreach($trustItems as $t)
                 <div class="h-trust-item" style="color:rgba(255,255,255,0.55);">
-                    <div class="h-trust-icon">✓</div>
-                    Filtro certificado
+                    <div class="h-trust-icon">{{ $t['icon'] }}</div>
+                    {{ $t['text'] }}
                 </div>
-                <div class="h-trust-item" style="color:rgba(255,255,255,0.55);">
-                    <div class="h-trust-icon">📦</div>
-                    Envío gratis +$999
-                </div>
-                <div class="h-trust-item" style="color:rgba(255,255,255,0.55);">
-                    <div class="h-trust-icon">↩</div>
-                    30 días devolución
-                </div>
-                <div class="h-trust-item" style="color:rgba(255,255,255,0.55);">
-                    <div class="h-trust-icon">★</div>
-                    Garantía 6 meses
-                </div>
+                @endforeach
             </div>
         </div>
+        @endif
 
     </section>
 
@@ -619,19 +636,16 @@
             </div>
         </div>
 
+        @if(count($trustItems))
         <div class="h-trust-bar">
+            @foreach($trustItems as $t)
             <div class="h-trust-item">
-                <div class="h-trust-icon">
-                    <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-                        <path d="M2 5.5l2.5 2.5L9 3" stroke="#378ADD" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-                Filtro luz azul certificado
+                <div class="h-trust-icon">{{ $t['icon'] }}</div>
+                {{ $t['text'] }}
             </div>
-            <div class="h-trust-item"><div class="h-trust-icon">📦</div>Envío gratis +$999</div>
-            <div class="h-trust-item"><div class="h-trust-icon">↩</div>30 días devolución</div>
-            <div class="h-trust-item"><div class="h-trust-icon">★</div>Garantía 6 meses</div>
+            @endforeach
         </div>
+        @endif
     </section>
 
     @else
@@ -724,26 +738,18 @@
         </div>
 
         {{-- Trust bar sobre el borde inferior --}}
+        @if(count($trustItems))
         <div style="position:absolute;bottom:0;left:0;right:0;z-index:3;">
             <div class="h-trust-bar" style="background:rgba(255,255,255,0.92);backdrop-filter:blur(8px);border-top:1px solid rgba(0,0,0,0.06);">
+                @foreach($trustItems as $t)
                 <div class="h-trust-item">
-                    <div class="h-trust-icon">✓</div>
-                    Filtro certificado
+                    <div class="h-trust-icon">{{ $t['icon'] }}</div>
+                    {{ $t['text'] }}
                 </div>
-                <div class="h-trust-item">
-                    <div class="h-trust-icon">📦</div>
-                    Envío gratis +$999
-                </div>
-                <div class="h-trust-item">
-                    <div class="h-trust-icon">↩</div>
-                    30 días devolución
-                </div>
-                <div class="h-trust-item">
-                    <div class="h-trust-icon">★</div>
-                    Garantía 6 meses
-                </div>
+                @endforeach
             </div>
         </div>
+        @endif
     </section>
     @endif
 

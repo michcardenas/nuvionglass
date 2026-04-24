@@ -278,17 +278,70 @@
                 </div>
 
                 {{-- Card: Badges de confianza --}}
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="text-base font-semibold text-gray-900 mb-4">Badges de confianza</h3>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
+                     x-data="trustBarRepeater()" x-init="init()">
+                    <h3 class="text-base font-semibold text-gray-900 mb-1">Badges de confianza (trust bar del hero)</h3>
+                    <p class="text-xs text-gray-400 mb-4">Aparecen como franja inferior del hero en la home. Máximo 6. Deja vacío para ocultar la franja.</p>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Items (uno por linea)</label>
-                        <textarea name="trust_items" rows="4"
-                                  placeholder="Un item por linea:&#10;Envio gratis +$999&#10;Garantia 6 meses&#10;30 dias devolucion"
-                                  class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">{{ implode("\n", $hero->trust_items ?? []) }}</textarea>
-                        <p class="text-xs text-gray-400 mt-1">Un item por linea. Dejar vacio para ocultar.</p>
+                    {{-- JSON payload (bulletproof) --}}
+                    <input type="hidden" name="trust_items_json" :value="JSON.stringify(items)">
+
+                    <template x-for="(item, idx) in items" :key="idx">
+                        <div class="grid grid-cols-[80px_1fr_auto] gap-2 items-center mb-2">
+                            <input type="text" x-model="item.icon"
+                                   placeholder="✓ 📦 ↩ ★"
+                                   maxlength="4"
+                                   class="rounded-lg border-gray-300 shadow-sm text-sm text-center focus:border-blue-500 focus:ring-blue-500">
+                            <input type="text" x-model="item.text"
+                                   placeholder="Ej: Envío gratis +$999"
+                                   class="rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+                            <button type="button" @click="items.splice(idx, 1)"
+                                    class="text-red-500 hover:text-red-700 text-xs px-2">Eliminar</button>
+                        </div>
+                    </template>
+
+                    <div class="flex items-center gap-3 mt-3">
+                        <button type="button" @click="if (items.length < 6) items.push({icon:'✓', text:''})"
+                                class="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium"
+                                :class="items.length >= 6 ? 'opacity-40 cursor-not-allowed' : ''">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15"/>
+                            </svg>
+                            Agregar item
+                        </button>
+                        <button type="button" @click="if (confirm('¿Restablecer los 4 items por defecto?')) items = JSON.parse(JSON.stringify(defaults))"
+                                class="text-xs text-gray-500 hover:text-gray-700">Restablecer por defecto</button>
                     </div>
                 </div>
+
+                <script>
+                    function trustBarRepeater() {
+                        return {
+                            items: [],
+                            defaults: [
+                                { icon: '✓', text: 'Filtro certificado' },
+                                { icon: '📦', text: 'Envío gratis +$999' },
+                                { icon: '↩', text: '30 días devolución' },
+                                { icon: '★', text: 'Garantía 6 meses' },
+                            ],
+                            init() {
+                                const saved = @json($hero->trust_items ?? []);
+                                if (Array.isArray(saved) && saved.length > 0) {
+                                    // Migrate legacy string array → {icon, text}
+                                    this.items = saved.map(v => {
+                                        if (typeof v === 'string') return { icon: '✓', text: v };
+                                        return {
+                                            icon: (v && v.icon) ? v.icon : '✓',
+                                            text: (v && v.text) ? v.text : '',
+                                        };
+                                    });
+                                } else {
+                                    this.items = JSON.parse(JSON.stringify(this.defaults));
+                                }
+                            }
+                        };
+                    }
+                </script>
 
                 {{-- Boton guardar --}}
                 <button type="submit"

@@ -20,7 +20,7 @@ class AdminHeroController extends Controller
     {
         $hero = HeroSetting::getCurrent();
 
-        $data = $request->except(['_token', '_method', 'media_file', 'use_gradient', 'media_mode', 'hero_images_files', 'hero_images_existing']);
+        $data = $request->except(['_token', '_method', 'media_file', 'use_gradient', 'media_mode', 'hero_images_files', 'hero_images_existing', 'trust_items', 'trust_items_json']);
 
         $mode = $request->input('media_mode');
 
@@ -77,10 +77,32 @@ class AdminHeroController extends Controller
         // Merge existing + new, max 10
         $data['hero_images'] = array_slice(array_merge($existing, $newPaths), 0, 10);
 
-        // Trust items: convert textarea (one per line) to JSON array
-        if ($request->has('trust_items')) {
-            $items = array_filter(array_map('trim', explode("\n", $request->trust_items)));
-            $data['trust_items'] = array_values($items);
+        // Trust items: prefer JSON payload {icon, text}; fallback to legacy textarea (one per line)
+        $trustItems = null;
+        if ($request->filled('trust_items_json')) {
+            $decoded = json_decode($request->input('trust_items_json'), true);
+            if (is_array($decoded)) {
+                $trustItems = [];
+                foreach ($decoded as $item) {
+                    $icon = isset($item['icon']) ? trim($item['icon']) : '';
+                    $text = isset($item['text']) ? trim($item['text']) : '';
+                    if ($text === '') {
+                        continue;
+                    }
+                    $trustItems[] = [
+                        'icon' => $icon !== '' ? $icon : '✓',
+                        'text' => $text,
+                    ];
+                }
+                $trustItems = array_slice($trustItems, 0, 6);
+            }
+        } elseif ($request->has('trust_items')) {
+            $lines = array_filter(array_map('trim', explode("\n", $request->trust_items)));
+            $trustItems = array_map(fn ($t) => ['icon' => '✓', 'text' => $t], array_values($lines));
+        }
+
+        if ($trustItems !== null) {
+            $data['trust_items'] = $trustItems;
         }
 
         $hero->update($data);
