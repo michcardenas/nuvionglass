@@ -108,6 +108,9 @@
                 <p class="text-xs text-gray-500 mb-3">Define las preguntas que verán los usuarios. Cada pregunta necesita una <strong>clave única</strong> (ej: "usage", "hours") que luego se usa en las reglas de recomendación. Si no configuras ninguna pregunta, se usarán las 4 preguntas por defecto.</p>
 
                 <div x-data="questionsRepeater()" x-init="init()">
+                    {{-- Single JSON payload — bulletproof across repeaters --}}
+                    <input type="hidden" name="questions_json" :value="JSON.stringify(items)">
+
                     <template x-for="(question, qIdx) in items" :key="qIdx">
                         <div class="bg-gray-50 rounded-lg p-4 mb-4 border border-gray-200">
                             <div class="flex items-center justify-between mb-3">
@@ -125,13 +128,13 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                                 <div>
                                     <label class="block text-xs font-medium text-gray-600 mb-1">Clave (único, sin espacios)</label>
-                                    <input type="text" :name="'questions[' + qIdx + '][key]'" x-model="question.key"
+                                    <input type="text" x-model="question.key"
                                            placeholder="usage, hours, style..."
                                            class="w-full rounded-lg border-gray-300 shadow-sm text-sm font-mono focus:border-blue-500 focus:ring-blue-500">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-medium text-gray-600 mb-1">Pregunta (visible al usuario)</label>
-                                    <input type="text" :name="'questions[' + qIdx + '][label]'" x-model="question.label"
+                                    <input type="text" x-model="question.label"
                                            placeholder="¿Para qué usarás tus lentes?"
                                            class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                                 </div>
@@ -139,7 +142,7 @@
 
                             <div class="mb-3">
                                 <label class="block text-xs font-medium text-gray-600 mb-1">Subtítulo / aclaración</label>
-                                <input type="text" :name="'questions[' + qIdx + '][subtitle]'" x-model="question.subtitle"
+                                <input type="text" x-model="question.subtitle"
                                        placeholder="Selecciona tu uso principal."
                                        class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                             </div>
@@ -159,13 +162,13 @@
                                                     class="text-xs text-red-400 hover:text-red-600">Eliminar</button>
                                         </div>
                                         <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                                            <input type="text" :name="'questions[' + qIdx + '][options][' + oIdx + '][value]'" x-model="option.value"
+                                            <input type="text" x-model="option.value"
                                                    placeholder="Valor (ej: gaming)"
                                                    class="w-full rounded-lg border-gray-300 shadow-sm text-xs font-mono focus:border-blue-500 focus:ring-blue-500">
-                                            <input type="text" :name="'questions[' + qIdx + '][options][' + oIdx + '][label]'" x-model="option.label"
+                                            <input type="text" x-model="option.label"
                                                    placeholder="Texto visible"
                                                    class="w-full rounded-lg border-gray-300 shadow-sm text-xs focus:border-blue-500 focus:ring-blue-500">
-                                            <input type="text" :name="'questions[' + qIdx + '][options][' + oIdx + '][desc]'" x-model="option.desc"
+                                            <input type="text" x-model="option.desc"
                                                    placeholder="Descripción corta"
                                                    class="w-full rounded-lg border-gray-300 shadow-sm text-xs focus:border-blue-500 focus:ring-blue-500">
                                         </div>
@@ -183,7 +186,7 @@
                             </svg>
                             Agregar pregunta
                         </button>
-                        <button type="button" @click="if (confirm('¿Restablecer las preguntas por defecto? Perderás las que tengas configuradas.')) { items = defaultQuestions; }"
+                        <button type="button" @click="if (confirm('¿Restablecer las preguntas por defecto? Perderás las que tengas configuradas.')) { items = JSON.parse(JSON.stringify(defaultQuestions)); }"
                                 class="text-sm text-gray-500 hover:text-gray-700">Restablecer por defecto</button>
                     </div>
                 </div>
@@ -203,6 +206,9 @@
                 <p class="text-xs text-gray-500 mb-3">Define qué producto recomendar según las respuestas del quiz. La primera regla que coincida será la usada. Si ninguna coincide, se usa el producto por defecto.</p>
 
                 <div x-data="rulesRepeater()" x-init="init()">
+                    {{-- Single JSON payload --}}
+                    <input type="hidden" name="recommendation_rules_json" :value="JSON.stringify(items)">
+
                     <template x-for="(rule, idx) in items" :key="idx">
                         <div class="bg-gray-50 rounded-lg p-4 mb-3">
                             <div class="flex items-center justify-between mb-3">
@@ -213,7 +219,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
                                 <div>
                                     <label class="block text-xs font-medium text-gray-600 mb-1">Si la respuesta de...</label>
-                                    <select :name="'recommendation_rules[' + idx + '][condition_field]'" x-model="rule.condition_field"
+                                    <select x-model="rule.condition_field"
                                             class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                                         <option value="">— Selecciona pregunta —</option>
                                         <template x-for="q in $root.questionsList()" :key="q.key">
@@ -223,7 +229,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-xs font-medium text-gray-600 mb-1">... es igual a</label>
-                                    <select :name="'recommendation_rules[' + idx + '][condition_value]'" x-model="rule.condition_value"
+                                    <select x-model="rule.condition_value"
                                             class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                                         <option value="">— Selecciona respuesta —</option>
                                         <template x-for="opt in $root.optionsFor(rule.condition_field)" :key="opt.value">
@@ -233,7 +239,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-xs font-medium text-gray-600 mb-1">Recomendar producto</label>
-                                    <select :name="'recommendation_rules[' + idx + '][product_id]'" x-model="rule.product_id"
+                                    <select x-model="rule.product_id"
                                             class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                                         <option value="">— Selecciona —</option>
                                         @foreach($products as $prod)
@@ -245,7 +251,7 @@
 
                             <div>
                                 <label class="block text-xs font-medium text-gray-600 mb-1">Razón que ve el usuario</label>
-                                <input type="text" :name="'recommendation_rules[' + idx + '][reason]'" x-model="rule.reason"
+                                <input type="text" x-model="rule.reason"
                                        placeholder="Ej: Para gaming intenso necesitas filtro de alto rendimiento."
                                        class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                             </div>
@@ -328,8 +334,17 @@ function questionsRepeater() {
         defaultQuestions: @json(\App\Models\QuizPageSetting::defaultQuestions()),
         init() {
             const saved = @json($page->questions ?? []);
-            this.items = (saved && saved.length > 0) ? saved : this.defaultQuestions;
-            // Sync with parent questionsData whenever items change
+            const hasSaved = Array.isArray(saved) && saved.length > 0;
+            // Deep clone so edits don't mutate the shared defaults reference.
+            this.items = hasSaved
+                ? JSON.parse(JSON.stringify(saved))
+                : JSON.parse(JSON.stringify(this.defaultQuestions));
+            // Keep options array valid on legacy entries
+            this.items.forEach(q => {
+                if (!Array.isArray(q.options)) q.options = [];
+                if (q.options.length === 0) q.options.push({value:'', label:'', desc:''});
+            });
+            // Sync with parent questionsData whenever items change (used by rule selects)
             this.$watch('items', (val) => {
                 if (this.$root.questionsData !== undefined) {
                     this.$root.questionsData = val;
@@ -343,7 +358,8 @@ function rulesRepeater() {
     return {
         items: [],
         init() {
-            this.items = @json($page->recommendation_rules ?? []);
+            const saved = @json($page->recommendation_rules ?? []);
+            this.items = Array.isArray(saved) ? JSON.parse(JSON.stringify(saved)) : [];
         }
     };
 }

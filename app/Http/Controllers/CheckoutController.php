@@ -33,8 +33,8 @@ class CheckoutController extends Controller
         $discount2x1 = $promo['discount'];
         $freeItems = $promo['free_items'];
         $subtotalAfter2x1 = $subtotal - $discount2x1;
-        $shipping = $this->cart->getShipping();
         $couponDiscount = $this->getSessionDiscount($subtotalAfter2x1);
+        $shipping = $this->cart->getShipping(null, $couponDiscount['amount']);
 
         // Count eligible lens units to detect odd count (suggest picking another)
         $eligibleLensCount = $items->filter(fn ($item) =>
@@ -70,8 +70,8 @@ class CheckoutController extends Controller
         $subtotal = $this->cart->getSubtotal();
         $discount2x1 = $this->cart->calculate2x1()['discount'];
         $subtotalAfter2x1 = $subtotal - $discount2x1;
-        $shipping = $this->cart->getShipping($state);
         $couponDiscount = $this->getSessionDiscount($subtotalAfter2x1);
+        $shipping = $this->cart->getShipping($state, $couponDiscount['amount']);
         $total = max(0, $subtotalAfter2x1 - $couponDiscount['amount'] + $shipping);
 
         return response()->json([
@@ -114,7 +114,7 @@ class CheckoutController extends Controller
         }
 
         $discountAmount = $discountCode->calculateDiscount($subtotalAfter2x1);
-        $shipping = $this->cart->getShipping();
+        $shipping = $this->cart->getShipping(null, $discountAmount);
         $newTotal = max(0, $subtotalAfter2x1 - $discountAmount + $shipping);
 
         session(['discount_code_id' => $discountCode->id]);
@@ -126,6 +126,7 @@ class CheckoutController extends Controller
                 ? $discountCode->value . '% de descuento'
                 : '$' . number_format($discountCode->value, 2) . ' de descuento',
             'discount_amount' => $discountAmount,
+            'shipping' => $shipping,
             'new_total' => $newTotal,
         ]);
     }
@@ -140,6 +141,7 @@ class CheckoutController extends Controller
 
         return response()->json([
             'success' => true,
+            'shipping' => $shipping,
             'new_total' => max(0, $subtotal - $discount2x1 + $shipping),
         ]);
     }
@@ -153,8 +155,8 @@ class CheckoutController extends Controller
         $subtotal = $this->cart->getSubtotal();
         $discount2x1 = $this->cart->calculate2x1()['discount'];
         $subtotalAfter2x1 = $subtotal - $discount2x1;
-        $shipping = $this->cart->getShipping($request->input('state'));
         $discount = $this->getSessionDiscount($subtotalAfter2x1);
+        $shipping = $this->cart->getShipping($request->input('state'), $discount['amount']);
         $total = max(0, $subtotalAfter2x1 - $discount['amount'] + $shipping);
 
         Stripe::setApiKey(config('services.stripe.secret'));

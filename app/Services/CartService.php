@@ -173,19 +173,22 @@ class CartService
 
     /**
      * Get shipping cost based on configured rates.
-     * Uses subtotal AFTER 2x1 discount to check free shipping threshold.
+     * The free-shipping threshold is checked against the subtotal AFTER both
+     * the 2x1 discount and the coupon discount, so a coupon that drops the
+     * effective subtotal below the threshold removes the free shipping.
      *
-     * @param string|null $state  The Mexican state for state-based rates
+     * @param string|null $state           The Mexican state for state-based rates
+     * @param float       $couponDiscount  Coupon discount amount to subtract from the subtotal
      */
-    public function getShipping(?string $state = null): float
+    public function getShipping(?string $state = null, float $couponDiscount = 0): float
     {
         $subtotal = $this->getSubtotal();
         $discount2x1 = $this->calculate2x1()['discount'] ?? 0;
-        $subtotalAfterDiscount = max(0, $subtotal - $discount2x1);
+        $effectiveSubtotal = max(0, $subtotal - $discount2x1 - $couponDiscount);
 
         $threshold = (float) ShippingSetting::get('free_shipping_threshold', 0);
 
-        if ($threshold > 0 && $subtotalAfterDiscount >= $threshold) {
+        if ($threshold > 0 && $effectiveSubtotal >= $threshold) {
             return 0;
         }
 

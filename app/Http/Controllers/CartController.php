@@ -86,11 +86,7 @@ class CartController extends Controller
         $discount = $promo['discount'];
         $subtotalConDescuento = $subtotal - $discount;
 
-        $threshold = (float) ShippingSetting::get('free_shipping_threshold', 999);
-        $defaultShipping = (float) ShippingSetting::get('default_price', 99.00);
-        $shipping = ($threshold > 0 && $subtotalConDescuento >= $threshold) ? 0 : $defaultShipping;
-
-        // Coupon discount from session
+        // Coupon discount from session (calculated against subtotal-after-2x1)
         $couponCode = null;
         $couponDescription = null;
         $couponDiscount = 0;
@@ -108,6 +104,10 @@ class CartController extends Controller
                 session()->forget('discount_code_id');
             }
         }
+
+        // Free-shipping threshold evaluated AFTER 2x1 AND coupon discount.
+        $threshold = (float) ShippingSetting::get('free_shipping_threshold', 999);
+        $shipping = $this->cart->getShipping(null, $couponDiscount);
 
         $total = $subtotalConDescuento - $couponDiscount + $shipping;
 

@@ -16,7 +16,7 @@
 
     {{-- Heading --}}
     <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#1A1A2E;text-align:center;">
-        ¡Pago confirmado!
+        ¡Te compartimos los datos para realizar la transferencia !
     </h1>
     <p style="margin:0 0 8px;font-size:15px;color:#4B5563;line-height:1.6;text-align:center;">
         Hola <strong>{{ $order->customer->name }}</strong>, tu pedido <strong style="color:#002F6D;">#{{ $order->id }}</strong> ha sido recibido.

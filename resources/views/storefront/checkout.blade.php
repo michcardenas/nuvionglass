@@ -221,7 +221,18 @@
                                 <div class="flex-1 min-w-0">
                                     <p class="text-sm font-medium text-text-dark truncate">{{ $item['product']->name }}</p>
                                     @if($item['variant'])
-                                    <p class="text-xs text-text-muted/60">{{ $item['variant']->value }}</p>
+                                        @if($item['variant']->value)
+                                        <p class="text-xs text-text-muted/60">{{ $item['variant']->value }}</p>
+                                        @endif
+                                        @if($item['variant']->graduation)
+                                        @php
+                                            $gradTypeLabels = ['miopia' => 'Miopía', 'lectura' => 'Lectura', 'sin_graduacion' => 'Sin graduación'];
+                                            $gradTypeLabel = $gradTypeLabels[$item['variant']->graduation_type] ?? null;
+                                        @endphp
+                                        <p class="text-xs text-text-muted/60">
+                                            Graduación: <span class="font-medium text-text-dark">{{ $item['variant']->graduation }}</span>@if($gradTypeLabel) <span class="text-text-muted/50">({{ $gradTypeLabel }})</span>@endif
+                                        </p>
+                                        @endif
                                     @endif
                                     <p class="text-xs text-text-muted/60">Cant: {{ $item['qty'] }}</p>
                                 </div>
@@ -471,6 +482,9 @@ function checkoutForm() {
                     description: data.description,
                     discount_amount: data.discount_amount,
                 };
+                if (typeof data.shipping !== 'undefined') {
+                    this.currentShipping = data.shipping;
+                }
                 this.currentTotal = data.new_total;
                 this.couponInput = '';
             } catch (e) {
@@ -494,6 +508,9 @@ function checkoutForm() {
                 const data = await res.json();
                 if (res.ok) {
                     this.coupon = { code: null, description: '', discount_amount: 0 };
+                    if (typeof data.shipping !== 'undefined') {
+                        this.currentShipping = data.shipping;
+                    }
                     this.currentTotal = data.new_total;
                 }
             } catch (e) {
