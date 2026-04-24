@@ -408,12 +408,11 @@
                         </div>
 
                         {{-- Trust items --}}
-                        @php $trustItems = $hero->trust_items ?? ['Envío gratis +$999', 'Garantía 6 meses', '30 días devolución']; @endphp
                         <div class="h-anim-6" style="display:flex;gap:16px;flex-wrap:wrap;">
                             @foreach($trustItems as $item)
                             <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:rgba(255,255,255,0.4);">
                                 <span style="color:#22c55e;font-size:11px;">✓</span>
-                                {{ $item }}
+                                {{ $item['text'] }}
                             </div>
                             @endforeach
                         </div>
@@ -523,12 +522,11 @@
                         </a>
                     </div>
 
-                    @php $trustItems = $hero->trust_items ?? ['Envío gratis +$999', 'Garantía 6 meses', '30 días devolución']; @endphp
                     <div class="h-anim-6" style="display:flex;gap:16px;flex-wrap:wrap;">
                         @foreach($trustItems as $item)
                         <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:rgba(255,255,255,0.4);">
                             <span style="color:#22c55e;font-size:11px;">✓</span>
-                            {{ $item }}
+                            {{ $item['text'] }}
                         </div>
                         @endforeach
                     </div>
@@ -609,12 +607,11 @@
                     </a>
                 </div>
 
-                @php $trustItems = $hero->trust_items ?? ['Envío gratis +$999', 'Garantía 6 meses', '30 días devolución']; @endphp
                 <div class="h-anim-6" style="display:flex;gap:16px;flex-wrap:wrap;">
                     @foreach($trustItems as $item)
                     <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:#9ca3af;">
                         <span style="color:#22c55e;font-size:11px;">✓</span>
-                        {{ $item }}
+                        {{ $item['text'] }}
                     </div>
                     @endforeach
                 </div>
@@ -740,14 +737,11 @@
                 </div>
 
                 {{-- Trust items --}}
-                @php
-                    $trustItems = $hero->trust_items ?? ['Envío gratis +$999', 'Garantía 6 meses', '30 días devolución'];
-                @endphp
                 <div class="h-anim-6" style="display:flex;gap:16px;flex-wrap:wrap;">
                     @foreach($trustItems as $item)
                     <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:#6b7280;">
                         <span style="color:#22c55e;font-size:11px;">✓</span>
-                        {{ $item }}
+                        {{ $item['text'] }}
                     </div>
                     @endforeach
                 </div>
