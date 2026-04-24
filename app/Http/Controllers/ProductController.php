@@ -23,34 +23,46 @@ class ProductController extends Controller
         $colorFiltro = $request->input('color');
         $graduacionFiltro = $request->input('graduation');
 
-        $query = Product::active()->with('variants')->orderBy('sort_order');
+        $query = Product::active()->with('variants')->orderBy('sort_order')
+            ->where(function ($q) {
+                $q->where('stock', '>', 0)
+                  ->orWhereHas('variants', fn ($v) => $v->where('is_active', true)->where('stock', '>', 0));
+            });
 
         if ($tipoFiltro && $tipoFiltro !== 'todos') {
             $query->whereJsonContains('type', $tipoFiltro);
         }
 
         if ($colorFiltro) {
-            $query->whereHas('variants', fn ($q) => $q->where('color', $colorFiltro)->where('is_active', true));
+            $query->whereHas('variants', fn ($q) => $q->where('color', $colorFiltro)->where('is_active', true)->where('stock', '>', 0));
         }
 
         if ($graduacionFiltro) {
-            $query->whereHas('variants', fn ($q) => $q->where('graduation', $graduacionFiltro)->where('is_active', true));
+            $query->whereHas('variants', fn ($q) => $q->where('graduation', $graduacionFiltro)->where('is_active', true)->where('stock', '>', 0));
         }
 
-        $products = $query->get();
+        $products = $query->get()->filter(fn ($p) => $p->hasStock())->values();
 
-        // Available colors
-        $coloresDisponibles = ProductVariant::whereHas('product', fn ($q) => $q->active())
+        // Available colors (only from variants with stock)
+        $variantsWithStock = ProductVariant::whereHas('product', fn ($q) => $q->active())
             ->where('is_active', true)
+            ->where('stock', '>', 0)
             ->whereNotNull('color')
-            ->distinct()
-            ->pluck('color')
-            ->sort()
-            ->values();
+            ->get();
 
-        // Available graduations sorted numerically
+        $coloresDisponibles = $variantsWithStock->pluck('color')->unique()->filter()->sort()->values();
+
+        // Map of color_name => color_hex (first non-empty hex wins)
+        $colorHexMap = $variantsWithStock
+            ->filter(fn ($v) => $v->color_hex)
+            ->groupBy('color')
+            ->map(fn ($g) => $g->first()->color_hex)
+            ->toArray();
+
+        // Available graduations sorted numerically (only variants with stock)
         $graduacionesDisponibles = ProductVariant::whereHas('product', fn ($q) => $q->active()->where(fn ($qq) => $qq->whereJsonContains('type', 'miopia')->orWhereJsonContains('type', 'lectura')->orWhereJsonContains('type', 'sin_graduacion')))
             ->where('is_active', true)
+            ->where('stock', '>', 0)
             ->whereNotNull('graduation')
             ->pluck('graduation')
             ->unique()
@@ -62,7 +74,9 @@ class ProductController extends Controller
         $toallitas = Product::active()
             ->whereJsonContains('type', 'toallitas')
             ->with('variants')
-            ->get();
+            ->get()
+            ->filter(fn ($p) => $p->hasStock())
+            ->values();
 
         $breadcrumbs = $this->seo->breadcrumbSchema([
             ['name' => 'Inicio', 'url' => url('/')],
@@ -75,6 +89,7 @@ class ProductController extends Controller
             'products' => $products,
             'toallitas' => $toallitas,
             'coloresDisponibles' => $coloresDisponibles,
+            'colorHexMap' => $colorHexMap,
             'graduacionesDisponibles' => $graduacionesDisponibles,
             'tipoFiltro' => $tipoFiltro,
             'colorFiltro' => $colorFiltro,

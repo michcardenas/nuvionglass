@@ -39,6 +39,25 @@
 
         // Build the images list used for display: product images first, else fall back to variant image
         $displayImages = ! empty($product->images) ? $product->images : ($firstVariantImage ? [$firstVariantImage] : []);
+
+        // Stock maps for enabling/disabling buttons
+        $stockByColor = $product->variants->where('is_active', true)
+            ->groupBy('color')
+            ->map(fn ($group) => (int) $group->sum('stock'))
+            ->toArray();
+
+        $stockByGradMiopia = $product->variants->where('is_active', true)->where('graduation_type', 'miopia')
+            ->groupBy('graduation')
+            ->map(fn ($group) => (int) $group->sum('stock'))
+            ->toArray();
+
+        $stockByGradLectura = $product->variants->where('is_active', true)->where('graduation_type', 'lectura')
+            ->groupBy('graduation')
+            ->map(fn ($group) => (int) $group->sum('stock'))
+            ->toArray();
+
+        $productHasStock = $product->hasStock();
+        $availableStock = $product->availableStock();
     @endphp
 
     {{-- ============================================================
@@ -202,16 +221,23 @@
                     </p>
                     <div style="display:flex;flex-wrap:wrap;gap:8px;">
                         @foreach($colores as $color)
-                        @php $hex = $variantHexByColor[$color] ?? \App\Helpers\ColorHelper::hex($color); @endphp
-                        <div class="color-btn"
-                             data-color="{{ $color }}"
-                             style="width:28px;height:28px;border-radius:50%;
-                                    background:{{ $hex }};
-                                    border:2px solid transparent;cursor:pointer;
-                                    transition:all .15s;display:inline-block;"
-                             title="{{ $color }}"
-                             onclick="selectColor('{{ $color }}')">
-                        </div>
+                            @php
+                                $hex = $variantHexByColor[$color] ?? \App\Helpers\ColorHelper::hex($color);
+                                $colorOutOfStock = ($stockByColor[$color] ?? 0) <= 0;
+                            @endphp
+                            <div class="color-btn"
+                                 data-color="{{ $color }}"
+                                 data-out-of-stock="{{ $colorOutOfStock ? '1' : '0' }}"
+                                 style="position:relative;width:28px;height:28px;border-radius:50%;
+                                        background-color:{{ $hex }};
+                                        border:2px solid rgba(0,0,0,0.1);transition:all .15s;display:inline-block;
+                                        {{ $colorOutOfStock ? 'opacity:0.4;cursor:not-allowed;' : 'cursor:pointer;' }}"
+                                 title="{{ $color }}{{ $colorOutOfStock ? ' (Agotado)' : '' }}"
+                                 @if(!$colorOutOfStock) onclick="selectColor('{{ $color }}')" @endif>
+                                @if($colorOutOfStock)
+                                    <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#dc2626;font-weight:700;font-size:18px;line-height:1;">×</span>
+                                @endif
+                            </div>
                         @endforeach
                     </div>
                 </div>
@@ -226,15 +252,19 @@
                     </p>
                     <div style="display:flex;flex-wrap:wrap;gap:8px;">
                         @foreach($graduacionesMiopia as $grad)
-                        <div class="grad-btn grad-miopia"
-                             data-grad="{{ $grad }}"
-                             data-tipo="miopia"
-                             onclick="selectGrad(this,'miopia')"
-                             style="padding:6px 14px;border-radius:8px;border:1px solid #ddd;
-                                    background:#fff;font-size:13px;color:#444;cursor:pointer;
-                                    transition:all .15s;">
-                            {{ $grad }}
-                        </div>
+                            @php $gradOutOfStock = ($stockByGradMiopia[$grad] ?? 0) <= 0; @endphp
+                            <div class="grad-btn grad-miopia"
+                                 data-grad="{{ $grad }}"
+                                 data-tipo="miopia"
+                                 data-out-of-stock="{{ $gradOutOfStock ? '1' : '0' }}"
+                                 @if(!$gradOutOfStock) onclick="selectGrad(this,'miopia')" @endif
+                                 title="{{ $gradOutOfStock ? 'Agotado' : '' }}"
+                                 style="padding:6px 14px;border-radius:8px;border:1px solid #ddd;
+                                        background:#fff;font-size:13px;color:#444;
+                                        transition:all .15s;
+                                        {{ $gradOutOfStock ? 'opacity:0.45;cursor:not-allowed;text-decoration:line-through;' : 'cursor:pointer;' }}">
+                                {{ $grad }}
+                            </div>
                         @endforeach
                     </div>
                 </div>
@@ -248,15 +278,19 @@
                     </p>
                     <div style="display:flex;flex-wrap:wrap;gap:8px;">
                         @foreach($graduacionesLectura as $grad)
-                        <div class="grad-btn grad-lectura"
-                             data-grad="{{ $grad }}"
-                             data-tipo="lectura"
-                             onclick="selectGrad(this,'lectura')"
-                             style="padding:6px 14px;border-radius:8px;border:1px solid #ddd;
-                                    background:#fff;font-size:13px;color:#444;cursor:pointer;
-                                    transition:all .15s;">
-                            {{ $grad }}
-                        </div>
+                            @php $gradOutOfStock = ($stockByGradLectura[$grad] ?? 0) <= 0; @endphp
+                            <div class="grad-btn grad-lectura"
+                                 data-grad="{{ $grad }}"
+                                 data-tipo="lectura"
+                                 data-out-of-stock="{{ $gradOutOfStock ? '1' : '0' }}"
+                                 @if(!$gradOutOfStock) onclick="selectGrad(this,'lectura')" @endif
+                                 title="{{ $gradOutOfStock ? 'Agotado' : '' }}"
+                                 style="padding:6px 14px;border-radius:8px;border:1px solid #ddd;
+                                        background:#fff;font-size:13px;color:#444;
+                                        transition:all .15s;
+                                        {{ $gradOutOfStock ? 'opacity:0.45;cursor:not-allowed;text-decoration:line-through;' : 'cursor:pointer;' }}">
+                                {{ $grad }}
+                            </div>
                         @endforeach
                     </div>
                 </div>
@@ -300,7 +334,7 @@
                         </div>
 
                         {{-- Stock --}}
-                        @if($product->stock > 0)
+                        @if($productHasStock)
                         <span style="font-size:13px;color:#16a34a;display:flex;align-items:center;gap:5px;">
                             <span style="width:7px;height:7px;border-radius:50%;background:#16a34a;display:inline-block;"></span>
                             En stock
@@ -314,23 +348,23 @@
                     </div>
 
                     <button @click="addToCart()"
-                            :disabled="adding || {{ $product->stock <= 0 ? 'true' : 'false' }}"
+                            :disabled="adding || {{ $productHasStock ? 'false' : 'true' }}"
                             @mouseenter="hoverBtn = true" @mouseleave="hoverBtn = false"
                             :style="{
                                 width: '100%',
-                                background: adding ? '#1a1a2e' : (hoverBtn && !{{ $product->stock <= 0 ? 'true' : 'false' }} ? '#378ADD' : '#1a1a2e'),
+                                background: adding ? '#1a1a2e' : (hoverBtn && {{ $productHasStock ? 'true' : 'false' }} ? '#378ADD' : '#1a1a2e'),
                                 color: '#fff',
                                 border: 'none',
                                 borderRadius: '10px',
                                 padding: '14px',
                                 fontSize: '16px',
                                 fontWeight: '500',
-                                cursor: adding ? 'wait' : ({{ $product->stock <= 0 ? 'true' : 'false' }} ? 'not-allowed' : 'pointer'),
+                                cursor: adding ? 'wait' : ({{ $productHasStock ? 'true' : 'false' }} ? 'pointer' : 'not-allowed'),
                                 transition: 'background .2s',
                                 fontFamily: 'inherit',
-                                opacity: (adding || {{ $product->stock <= 0 ? 'true' : 'false' }}) ? '0.6' : '1',
+                                opacity: (adding || {{ $productHasStock ? 'false' : 'true' }}) ? '0.6' : '1',
                             }">
-                        <span x-show="!adding && !added">Agregar al carrito</span>
+                        <span x-show="!adding && !added">{{ $productHasStock ? 'Agregar al carrito' : 'Agotado' }}</span>
                         <span x-show="adding" x-cloak>Agregando...</span>
                         <span x-show="added" x-cloak>✓ Agregado</span>
                     </button>
@@ -580,10 +614,15 @@ function selectGrad(el, tipo) {
     if (label) label.textContent = el.dataset.grad;
 }
 
-/* ── Auto-select first color ── */
+/* ── Auto-select first in-stock color ── */
 document.addEventListener('DOMContentLoaded', function() {
-    var first = document.querySelector('.color-btn');
-    if (first) selectColor(first.dataset.color);
+    var buttons = document.querySelectorAll('.color-btn');
+    for (var i = 0; i < buttons.length; i++) {
+        if (buttons[i].dataset.outOfStock !== '1') {
+            selectColor(buttons[i].dataset.color);
+            break;
+        }
+    }
 });
 
 /* ── Alpine component ── */

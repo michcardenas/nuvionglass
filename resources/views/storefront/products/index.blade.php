@@ -90,7 +90,7 @@
                         @if($colorFiltro)
                         <span style="background:#EBF4FF;color:#185FA5;font-size:11px;padding:4px 10px;
                                      border-radius:20px;white-space:nowrap;display:flex;align-items:center;gap:4px;">
-                            <span style="width:10px;height:10px;border-radius:50%;background:{{ \App\Helpers\ColorHelper::hex($colorFiltro) }};
+                            <span style="width:10px;height:10px;border-radius:50%;background:{{ $colorHexMap[$colorFiltro] ?? \App\Helpers\ColorHelper::hex($colorFiltro) }};
                                          display:inline-block;border:1px solid rgba(0,0,0,0.1);"></span>
                             {{ $colorFiltro }}
                             <span onclick="setFilter('color','')" style="cursor:pointer;font-size:13px;line-height:1;">&times;</span>
@@ -178,13 +178,13 @@
                     @foreach($coloresDisponibles as $color)
                         @php
                             $isActiveColor = $colorFiltro === $color;
-                            $hex = \App\Helpers\ColorHelper::hex($color);
+                            $hex = $colorHexMap[$color] ?? \App\Helpers\ColorHelper::hex($color);
                         @endphp
                         <button onclick="setFilter('color','{{ $color }}')"
                                 title="{{ $color }}"
                                 style="width:24px;height:24px;border-radius:50%;
-                                       background:{{ $hex }};cursor:pointer;
-                                       border:2px solid {{ $isActiveColor ? '#378ADD' : 'transparent' }};
+                                       background-color:{{ $hex }};cursor:pointer;
+                                       border:2px solid {{ $isActiveColor ? '#378ADD' : 'rgba(0,0,0,0.1)' }};
                                        transition:all .2s;
                                        {{ $isActiveColor ? 'box-shadow:0 0 0 2px rgba(55,138,221,0.3);' : '' }}">
                         </button>
@@ -226,8 +226,11 @@
             <div class="catalog-grid" style="display:grid;gap:20px;">
                 @foreach($products as $product)
                     @php
-                        $colores = $product->variants->pluck('color')->unique()->filter()->values();
-                        $graduaciones = $product->variants->pluck('graduation')->unique()->filter()
+                        $variantsInStock = $product->variants->where('is_active', true)->where('stock', '>', 0);
+                        $coloresVariantes = $variantsInStock->filter(fn($v) => $v->color)
+                            ->unique('color')
+                            ->values();
+                        $graduaciones = $variantsInStock->pluck('graduation')->unique()->filter()
                             ->sortBy(fn($g) => (float)$g)->values();
                         $firstImage = $product->images[0] ?? null;
                     @endphp
@@ -285,16 +288,17 @@
                             </h3>
 
                             {{-- Colores --}}
-                            @if($colores->count() > 0)
+                            @if($coloresVariantes->count() > 0)
                             <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;align-items:center;">
-                                @foreach($colores->take(7) as $color)
-                                <div style="width:16px;height:16px;border-radius:50%;
-                                    background:{{ \App\Helpers\ColorHelper::hex($color) }};
-                                    border:1.5px solid rgba(0,0,0,0.1);"
-                                    title="{{ $color }}"></div>
+                                @foreach($coloresVariantes->take(7) as $variant)
+                                    @php $hex = $variant->color_hex ?: \App\Helpers\ColorHelper::hex($variant->color); @endphp
+                                    <div style="width:16px;height:16px;border-radius:50%;
+                                        background-color:{{ $hex }};
+                                        border:1.5px solid rgba(0,0,0,0.15);"
+                                        title="{{ $variant->color }}"></div>
                                 @endforeach
-                                @if($colores->count() > 7)
-                                <span style="font-size:11px;color:#aaa;">+{{ $colores->count() - 7 }}</span>
+                                @if($coloresVariantes->count() > 7)
+                                <span style="font-size:11px;color:#aaa;">+{{ $coloresVariantes->count() - 7 }}</span>
                                 @endif
                             </div>
                             @endif

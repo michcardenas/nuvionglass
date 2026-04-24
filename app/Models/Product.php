@@ -98,6 +98,32 @@ class Product extends Model
     }
 
     /**
+     * True if there is any stock available (in product or in any active variant).
+     */
+    public function hasStock(): bool
+    {
+        $variantStock = $this->variants->where('is_active', true)->sum('stock');
+
+        if ($this->variants->where('is_active', true)->count() > 0) {
+            return $variantStock > 0;
+        }
+
+        return (int) $this->stock > 0;
+    }
+
+    /**
+     * Total available stock (sum of active variants, or product stock if no variants).
+     */
+    public function availableStock(): int
+    {
+        if ($this->variants->where('is_active', true)->count() > 0) {
+            return (int) $this->variants->where('is_active', true)->sum('stock');
+        }
+
+        return (int) $this->stock;
+    }
+
+    /**
      * Get the primary type label for display.
      */
     public function getTypeLabelsAttribute(): string
