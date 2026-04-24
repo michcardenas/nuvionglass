@@ -25,7 +25,13 @@
         $firstVariantImage = null;
         foreach ($product->variants as $v) {
             if ($v->color && $v->color_hex && ! isset($variantHexByColor[$v->color])) {
-                $variantHexByColor[$v->color] = $v->color_hex;
+                // Skip the default #000000 that the <input type="color"> submits when untouched,
+                // unless the color is actually called "Negro".
+                $hexLower = strtolower($v->color_hex);
+                $isBlackDefault = $hexLower === '#000000' && stripos($v->color, 'negro') === false;
+                if (! $isBlackDefault) {
+                    $variantHexByColor[$v->color] = $v->color_hex;
+                }
             }
             if ($v->image_path) {
                 if ($v->color && ! isset($variantImagesByColor[$v->color])) {

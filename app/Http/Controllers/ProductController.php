@@ -52,9 +52,17 @@ class ProductController extends Controller
 
         $coloresDisponibles = $variantsWithStock->pluck('color')->unique()->filter()->sort()->values();
 
-        // Map of color_name => color_hex (first non-empty hex wins)
+        // Map of color_name => color_hex (first non-empty, non-default-black hex wins)
         $colorHexMap = $variantsWithStock
-            ->filter(fn ($v) => $v->color_hex)
+            ->filter(function ($v) {
+                if (! $v->color_hex) {
+                    return false;
+                }
+                // Treat the HTML color-picker default (#000000) as "not set" unless the color is "Negro".
+                $isBlackDefault = strtolower($v->color_hex) === '#000000'
+                    && stripos($v->color, 'negro') === false;
+                return ! $isBlackDefault;
+            })
             ->groupBy('color')
             ->map(fn ($g) => $g->first()->color_hex)
             ->toArray();

@@ -161,11 +161,15 @@
                         <div>
                             <label class="block text-xs text-gray-500 mb-1">Hex del círculo</label>
                             <div class="flex items-center gap-1">
-                                <input type="color" :name="'variants['+index+'][color_hex]'" x-model="variant.color_hex"
-                                       class="w-10 h-9 p-1 border border-gray-300 rounded-lg cursor-pointer">
-                                <input type="text" x-model="variant.color_hex" placeholder="#000000" maxlength="7"
+                                <input type="color" :value="variant.color_hex || '#000000'"
+                                       @input="variant.color_hex = $event.target.value"
+                                       class="w-10 h-9 p-1 border border-gray-300 rounded-lg cursor-pointer"
+                                       title="Elegir color">
+                                <input type="text" :name="'variants['+index+'][color_hex]'" x-model="variant.color_hex"
+                                       placeholder="(auto)" maxlength="7"
                                        class="flex-1 border border-gray-300 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
+                            <p class="text-[10px] text-gray-400 mt-1">Déjalo vacío para usar el color por nombre.</p>
                         </div>
                         <div>
                             <label class="block text-xs text-gray-500 mb-1">Mod. precio</label>

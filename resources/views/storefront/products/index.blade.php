@@ -291,7 +291,13 @@
                             @if($coloresVariantes->count() > 0)
                             <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;align-items:center;">
                                 @foreach($coloresVariantes->take(7) as $variant)
-                                    @php $hex = $variant->color_hex ?: \App\Helpers\ColorHelper::hex($variant->color); @endphp
+                                    @php
+                                        $hex = $variant->color_hex;
+                                        $isBlackDefault = $hex && strtolower($hex) === '#000000' && stripos($variant->color, 'negro') === false;
+                                        if (! $hex || $isBlackDefault) {
+                                            $hex = \App\Helpers\ColorHelper::hex($variant->color);
+                                        }
+                                    @endphp
                                     <div style="width:16px;height:16px;border-radius:50%;
                                         background-color:{{ $hex }};
                                         border:1.5px solid rgba(0,0,0,0.15);"
