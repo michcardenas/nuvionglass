@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BlogPageSetting;
 use App\Models\BlogPost;
+use App\Models\Product;
 use App\Services\SeoService;
 use Illuminate\View\View;
 
@@ -92,11 +93,42 @@ class BlogController extends Controller
             ->limit(3)
             ->get();
 
-        $products = collect([
-            ['name' => 'nuvion Classic', 'price' => '$899', 'original_price' => '$1,299', 'slug' => 'nuvion-classic', 'type' => 'Sin Graduación'],
-            ['name' => 'nuvion Aura', 'price' => '$999', 'original_price' => '$1,399', 'slug' => 'nuvion-aura', 'type' => 'Sin Graduación'],
-            ['name' => 'nuvion Vision Pro', 'price' => '$1,599', 'original_price' => '$2,299', 'slug' => 'nuvion-vision-pro', 'type' => 'Con Graduación'],
-        ]);
+        // Productos reales de lentes (se excluyen toallitas), aleatorios y solo con stock.
+        $typeLabels = [
+            'miopia' => 'Miopía',
+            'lectura' => 'Lectura',
+            'sin_graduacion' => 'Sin Graduación',
+            'toallitas' => 'Toallitas',
+        ];
+
+        $products = Product::active()
+            ->with('variants')
+            ->where(function ($q) {
+                $q->whereJsonContains('type', 'miopia')
+                  ->orWhereJsonContains('type', 'lectura')
+                  ->orWhereJsonContains('type', 'sin_graduacion');
+            })
+            ->where(function ($q) {
+                $q->where('stock', '>', 0)
+                  ->orWhereHas('variants', fn ($v) => $v->where('is_active', true)->where('stock', '>', 0));
+            })
+            ->inRandomOrder()
+            ->limit(3)
+            ->get()
+            ->filter(fn ($p) => $p->hasStock())
+            ->map(function (Product $p) use ($typeLabels) {
+                $primaryType = ($p->type[0] ?? null);
+                $hasCompare = $p->compare_price && (float) $p->compare_price > (float) $p->price;
+                return [
+                    'name' => $p->name,
+                    'slug' => $p->slug,
+                    'price' => '$' . number_format((float) $p->price, 2),
+                    'original_price' => $hasCompare ? '$' . number_format((float) $p->compare_price, 2) : null,
+                    'type' => $typeLabels[$primaryType] ?? 'Lentes',
+                    'image' => $p->images[0] ?? null,
+                ];
+            })
+            ->values();
 
         return view('storefront.blog.show', compact(
             'post', 'seo', 'schema', 'breadcrumbs', 'recent', 'products',

@@ -236,15 +236,21 @@
         {{-- Widget 2: Products --}}
         <div class="sidebar-card">
             <p class="sidebar-title">Lentes nuvion</p>
-            @foreach($products as $prod)
+            @forelse($products as $prod)
                 <a href="{{ url('/lentes/' . $prod['slug']) }}" class="sidebar-product" style="text-decoration:none; color:inherit;">
-                    <div class="sidebar-product-img"></div>
+                    @if(!empty($prod['image']))
+                        <div class="sidebar-product-img" style="background:#f1f5f9 url('{{ asset('storage/' . $prod['image']) }}') center/cover no-repeat;"></div>
+                    @else
+                        <div class="sidebar-product-img"></div>
+                    @endif
                     <div>
                         <p style="font-size:13px; font-weight:500; margin:0; color:var(--color-text-primary);">{{ $prod['name'] }}</p>
                         <p style="font-size:12px; margin:2px 0 0; color:var(--color-text-secondary);">{{ $prod['type'] }} · {{ $prod['price'] }}</p>
                     </div>
                 </a>
-            @endforeach
+            @empty
+                <p style="font-size:12px;color:var(--color-text-secondary);margin:0;">Pronto añadiremos productos.</p>
+            @endforelse
             <a href="{{ route('products.index') }}" style="display:inline-block; margin-top:12px; font-size:13px; color:#378ADD; text-decoration:none;">Ver todos los lentes &rarr;</a>
         </div>
 
@@ -328,7 +334,7 @@
     </div>
 
     <div class="products-grid" style="max-width:1100px; margin:0 auto;">
-        @foreach($products as $i => $prod)
+        @forelse($products as $i => $prod)
             @php
                 $pGrads = [
                     'linear-gradient(135deg, #0f1b3d, #1a3a6e)',
@@ -337,20 +343,33 @@
                 ];
             @endphp
             <div class="p-card">
-                <div style="height:180px; background:{{ $pGrads[$i % 3] }}; display:flex; align-items:center; justify-content:center; position:relative;">
-                    <span class="font-brand" style="font-size:64px; font-weight:700; color:rgba(255,255,255,0.06); user-select:none;">{{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }}</span>
-                    <span style="position:absolute; top:12px; left:12px; background:rgba(255,255,255,0.15); color:#fff; font-size:10px; padding:4px 10px; border-radius:20px; font-weight:500;">{{ $prod['type'] }}</span>
+                <div style="height:180px; position:relative; overflow:hidden;">
+                    @if(!empty($prod['image']))
+                        <img src="{{ asset('storage/' . $prod['image']) }}"
+                             alt="{{ $prod['name'] }}"
+                             style="width:100%;height:100%;object-fit:cover;display:block;"
+                             loading="lazy">
+                    @else
+                        <div style="width:100%;height:100%;background:{{ $pGrads[$i % 3] }}; display:flex; align-items:center; justify-content:center;">
+                            <span class="font-brand" style="font-size:64px; font-weight:700; color:rgba(255,255,255,0.06); user-select:none;">{{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }}</span>
+                        </div>
+                    @endif
+                    <span style="position:absolute; top:12px; left:12px; background:rgba(13,17,23,0.78); color:#fff; font-size:10px; padding:4px 10px; border-radius:20px; font-weight:500;">{{ $prod['type'] }}</span>
                 </div>
                 <div style="padding:16px 18px 18px;">
                     <h3 class="font-brand" style="font-size:16px; font-weight:600; color:var(--color-text-primary); margin:0 0 4px;">{{ $prod['name'] }}</h3>
                     <div style="font-size:14px; margin-bottom:14px;">
-                        <span style="color:var(--color-text-secondary); text-decoration:line-through; margin-right:6px;">{{ $prod['original_price'] }}</span>
+                        @if(!empty($prod['original_price']))
+                            <span style="color:var(--color-text-secondary); text-decoration:line-through; margin-right:6px;">{{ $prod['original_price'] }}</span>
+                        @endif
                         <span style="color:#378ADD; font-weight:600;">{{ $prod['price'] }}</span>
                     </div>
                     <a href="{{ url('/lentes/' . $prod['slug']) }}" style="display:block; text-align:center; background:#378ADD; color:#fff; border-radius:8px; padding:10px; font-size:14px; text-decoration:none; transition:background .15s;" onmouseover="this.style.background='#185FA5'" onmouseout="this.style.background='#378ADD'">Ver detalle</a>
                 </div>
             </div>
-        @endforeach
+        @empty
+            <p style="grid-column:1/-1;text-align:center;color:var(--color-text-secondary);">Aún no hay productos disponibles.</p>
+        @endforelse
     </div>
 
     <div style="text-align:center; margin-top:28px;">
