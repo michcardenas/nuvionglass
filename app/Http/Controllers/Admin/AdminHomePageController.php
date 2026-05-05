@@ -93,6 +93,18 @@ class AdminHomePageController extends Controller
             $data['benefits_cards'] = $cards;
         }
 
+        // Comparison items — textareas, one per line
+        if ($request->has('comparison_without_items_text')) {
+            $items = array_filter(array_map('trim', explode("\n", $request->input('comparison_without_items_text', ''))));
+            $data['comparison_without_items'] = array_values($items);
+            unset($data['comparison_without_items_text']);
+        }
+        if ($request->has('comparison_with_items_text')) {
+            $items = array_filter(array_map('trim', explode("\n", $request->input('comparison_with_items_text', ''))));
+            $data['comparison_with_items'] = array_values($items);
+            unset($data['comparison_with_items_text']);
+        }
+
         // Promo background — imagen o video
         if ($request->hasFile('promo_background_file')) {
             if ($page->promo_background) {

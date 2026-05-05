@@ -771,11 +771,26 @@
     <section class="py-16 md:py-20" style="background:#ffffff;">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
+            @php
+                $cmpWithoutItems = $homePage->comparison_without_items ?? [
+                    'Ojos cansados y secos después de 2 horas',
+                    'Dolores de cabeza frecuentes al final del día',
+                    'Dificultad para conciliar el sueño',
+                    'Visión borrosa y tensión constante',
+                ];
+                $cmpWithItems = $homePage->comparison_with_items ?? [
+                    'Vista cómoda todo el día sin fatiga',
+                    'Menos dolores de cabeza y migrañas',
+                    'Mejor calidad de sueño y descanso',
+                    'Mayor rendimiento y concentración',
+                ];
+            @endphp
+
             {{-- Header --}}
             <div class="text-center max-w-2xl mx-auto mb-12 reveal">
-                <span style="display:inline-block;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#378ADD;margin-bottom:12px;">Comparativo</span>
-                <h2 style="font-size:clamp(26px,4vw,40px);font-weight:700;color:#0d1117;line-height:1.15;margin-bottom:12px;font-family:'Bai Jamjuree',sans-serif;">Con vs. sin protección</h2>
-                <p style="font-size:15px;color:#6b7280;line-height:1.6;">Mira la diferencia real de usar lentes con protección de luz azul.</p>
+                <span style="display:inline-block;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#378ADD;margin-bottom:12px;">{{ $homePage->comparison_label ?? 'Comparativo' }}</span>
+                <h2 style="font-size:clamp(26px,4vw,40px);font-weight:700;color:#0d1117;line-height:1.15;margin-bottom:12px;font-family:'Bai Jamjuree',sans-serif;">{{ $homePage->comparison_title ?? 'Con vs. sin protección' }}</h2>
+                <p style="font-size:15px;color:#6b7280;line-height:1.6;">{{ $homePage->comparison_subtitle ?? 'Mira la diferencia real de usar lentes con protección de luz azul.' }}</p>
             </div>
 
             {{-- Dos columnas --}}
@@ -788,15 +803,10 @@
                         <div style="width:22px;height:22px;border-radius:50%;background:#fee2e2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                             <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 2l6 6M8 2L2 8" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round"/></svg>
                         </div>
-                        <span style="font-size:14px;font-weight:600;color:#dc2626;">Sin protección</span>
+                        <span style="font-size:14px;font-weight:600;color:#dc2626;">{{ $homePage->comparison_without_label ?? 'Sin protección' }}</span>
                     </div>
                     {{-- Items --}}
-                    @foreach([
-                        'Ojos cansados y secos después de 2 horas',
-                        'Dolores de cabeza frecuentes al final del día',
-                        'Dificultad para conciliar el sueño',
-                        'Visión borrosa y tensión constante',
-                    ] as $item)
+                    @foreach($cmpWithoutItems as $item)
                     <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:0.5px solid rgba(239,68,68,0.12);">
                         <div style="width:18px;height:18px;border-radius:50%;background:#fee2e2;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">
                             <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 1.5l5 5M6.5 1.5l-5 5" stroke="#ef4444" stroke-width="1.6" stroke-linecap="round"/></svg>
@@ -813,15 +823,10 @@
                         <div style="width:22px;height:22px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                             <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </div>
-                        <span style="font-size:14px;font-weight:600;color:#16a34a;">Con nuvion glass</span>
+                        <span style="font-size:14px;font-weight:600;color:#16a34a;">{{ $homePage->comparison_with_label ?? 'Con nuvion glass' }}</span>
                     </div>
                     {{-- Items --}}
-                    @foreach([
-                        'Vista cómoda todo el día sin fatiga',
-                        'Menos dolores de cabeza y migrañas',
-                        'Mejor calidad de sueño y descanso',
-                        'Mayor rendimiento y concentración',
-                    ] as $item)
+                    @foreach($cmpWithItems as $item)
                     <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:0.5px solid rgba(22,163,74,0.12);">
                         <div style="width:18px;height:18px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">
                             <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2 2 4-4" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>

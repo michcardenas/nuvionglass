@@ -432,6 +432,80 @@
             </div>
         </div>
 
+        {{-- ═══════════ COMPARATIVO Con vs. sin protección ═══════════ --}}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-4">
+            <button type="button" @click="toggle('comparison')"
+                    class="w-full flex items-center justify-between px-6 py-4 text-left">
+                <h3 class="text-base font-semibold text-gray-900">Comparativo (Con vs. sin protección)</h3>
+                <svg :class="openSection === 'comparison' && 'rotate-180'" class="w-5 h-5 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
+                </svg>
+            </button>
+            <div x-show="openSection === 'comparison'" x-collapse class="px-6 pb-6 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Etiqueta superior</label>
+                        <input type="text" name="comparison_label" value="{{ $page->comparison_label ?? 'Comparativo' }}"
+                               class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Título</label>
+                        <input type="text" name="comparison_title" value="{{ $page->comparison_title ?? 'Con vs. sin protección' }}"
+                               class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Subtítulo</label>
+                    <textarea name="comparison_subtitle" rows="2"
+                              class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">{{ $page->comparison_subtitle ?? 'Mira la diferencia real de usar lentes con protección de luz azul.' }}</textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                    {{-- Sin protección --}}
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4 space-y-3">
+                        <h4 class="text-sm font-semibold text-red-700">Columna izquierda — Sin protección</h4>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Título de la columna</label>
+                            <input type="text" name="comparison_without_label" value="{{ $page->comparison_without_label ?? 'Sin protección' }}"
+                                   class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Items (uno por línea)</label>
+                            <textarea name="comparison_without_items_text" rows="6"
+                                      class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500"
+                                      placeholder="Ojos cansados y secos después de 2 horas&#10;Dolores de cabeza frecuentes al final del día&#10;Dificultad para conciliar el sueño&#10;Visión borrosa y tensión constante">{{ implode("\n", $page->comparison_without_items ?? [
+                                'Ojos cansados y secos después de 2 horas',
+                                'Dolores de cabeza frecuentes al final del día',
+                                'Dificultad para conciliar el sueño',
+                                'Visión borrosa y tensión constante',
+                              ]) }}</textarea>
+                        </div>
+                    </div>
+
+                    {{-- Con nuvion glass --}}
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 space-y-3">
+                        <h4 class="text-sm font-semibold text-green-700">Columna derecha — Con nuvion glass</h4>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Título de la columna</label>
+                            <input type="text" name="comparison_with_label" value="{{ $page->comparison_with_label ?? 'Con nuvion glass' }}"
+                                   class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Items (uno por línea)</label>
+                            <textarea name="comparison_with_items_text" rows="6"
+                                      class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500"
+                                      placeholder="Vista cómoda todo el día sin fatiga&#10;Menos dolores de cabeza y migrañas&#10;Mejor calidad de sueño y descanso&#10;Mayor rendimiento y concentración">{{ implode("\n", $page->comparison_with_items ?? [
+                                'Vista cómoda todo el día sin fatiga',
+                                'Menos dolores de cabeza y migrañas',
+                                'Mejor calidad de sueño y descanso',
+                                'Mayor rendimiento y concentración',
+                              ]) }}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {{-- ═══════════ CTA FINAL ═══════════ --}}
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-4">
             <button type="button" @click="toggle('cta')"

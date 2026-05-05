@@ -16,6 +16,8 @@ class HomePageSetting extends Model
         'trust_badges' => 'array',
         'cta_trust_items' => 'array',
         'benefits_cards' => 'array',
+        'comparison_without_items' => 'array',
+        'comparison_with_items' => 'array',
     ];
 
     public static function getCurrent(): static
