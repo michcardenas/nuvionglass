@@ -230,7 +230,11 @@
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var quill = new Quill('#quill-editor', {
+            var contentInput = document.getElementById('content');
+            var editorEl = document.getElementById('quill-editor');
+            if (!contentInput || !editorEl) return;
+
+            var quill = new Quill(editorEl, {
                 theme: 'snow',
                 placeholder: 'Escribe el contenido del artículo...',
                 modules: {
@@ -246,19 +250,25 @@
                 }
             });
 
+            function syncContent() {
+                var html = quill.root.innerHTML;
+                if (html === '<p><br></p>') html = '';
+                contentInput.value = html;
+            }
+
             // Load existing content
-            var existing = document.getElementById('content').value;
+            var existing = contentInput.value;
             if (existing && existing.trim().length > 0) {
                 quill.root.innerHTML = existing;
             }
 
-            // Sync to hidden textarea before submit
-            var form = document.querySelector('form');
-            form.addEventListener('submit', function() {
-                var html = quill.root.innerHTML;
-                if (html === '<p><br></p>') html = '';
-                document.getElementById('content').value = html;
-            });
+            quill.on('text-change', syncContent);
+
+            // Targetear el form del blog (no el form de logout del layout).
+            var form = editorEl.closest('form');
+            if (form) {
+                form.addEventListener('submit', syncContent);
+            }
         });
     </script>
 @endsection
