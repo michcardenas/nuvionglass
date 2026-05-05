@@ -863,13 +863,28 @@
 
             @php
                 // Las tarjetas vienen de Admin → Páginas → Inicio → "Tarjetas de categoría".
-                // Si el cliente no ha configurado nada, caemos al CRUD de /admin/categories.
+                // Si una tarjeta no trae imagen propia, intentamos heredar la que el cliente
+                // haya subido en /admin/categories matcheando por nombre o slug.
                 $configuredCards = collect($homePage->category_cards ?? [])
                     ->filter(fn ($c) => !empty($c['name'] ?? ''))
                     ->values();
 
+                $categoryByKey = $categories->keyBy(fn ($c) => \Illuminate\Support\Str::slug($c->name));
+
+                $resolveImage = function (array $card) use ($categoryByKey) {
+                    if (!empty($card['image'])) {
+                        return $card['image'];
+                    }
+                    $key = \Illuminate\Support\Str::slug($card['name'] ?? '');
+                    $match = $categoryByKey[$key] ?? null;
+                    return $match?->image;
+                };
+
                 if ($configuredCards->isNotEmpty()) {
-                    $cardsToRender = $configuredCards;
+                    $cardsToRender = $configuredCards->map(function ($card) use ($resolveImage) {
+                        $card['image'] = $resolveImage($card);
+                        return $card;
+                    });
                 } else {
                     $cardsToRender = $categories->filter(fn ($c) => $c->slug !== 'toallitas')
                         ->values()
