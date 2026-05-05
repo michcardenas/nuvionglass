@@ -102,6 +102,18 @@ class OrderAdminController extends Controller
             ->with('success', 'Pago verificado y orden confirmada.');
     }
 
+    public function updatePaymentStatus(Request $request, Order $order): RedirectResponse
+    {
+        $validated = $request->validate([
+            'payment_status' => 'required|in:pending,processing,paid,failed,refunded',
+        ]);
+
+        $order->update($validated);
+
+        return redirect()->route('admin.orders.show', $order)
+            ->with('success', 'Estado del pago actualizado a "' . $validated['payment_status'] . '".');
+    }
+
     public function rejectPayment(Request $request, Order $order): RedirectResponse
     {
         // Delete the uploaded receipt

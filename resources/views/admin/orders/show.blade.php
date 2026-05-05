@@ -283,10 +283,34 @@
                                     @case('pending') Pendiente @break
                                     @case('processing') Procesando @break
                                     @case('failed') Fallido @break
+                                    @case('refunded') Reembolsado @break
                                     @default {{ $order->payment_status }}
                                 @endswitch
                             </span>
                         </div>
+
+                        {{-- Cambiar manualmente el estado del pago (sirve cuando el cliente pagó por fuera, p. ej. transferencia confirmada por WhatsApp) --}}
+                        <form method="POST" action="{{ route('admin.orders.payment-status', $order) }}" class="pt-2 border-t border-gray-100">
+                            @csrf @method('PATCH')
+                            <label class="block text-[10px] uppercase tracking-wide text-gray-400 mb-1">Cambiar estado del pago</label>
+                            <div class="flex gap-2">
+                                <select name="payment_status" class="flex-1 border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    @foreach([
+                                        'pending' => 'Pendiente',
+                                        'processing' => 'Procesando',
+                                        'paid' => 'Pagado',
+                                        'failed' => 'Fallido',
+                                        'refunded' => 'Reembolsado',
+                                    ] as $val => $label)
+                                        <option value="{{ $val }}" {{ $order->payment_status === $val ? 'selected' : '' }}>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                                <button type="submit" class="bg-gray-800 hover:bg-gray-900 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
+                                    Guardar
+                                </button>
+                            </div>
+                        </form>
+
                         @if($order->stripe_payment_intent_id)
                         <div class="flex justify-between">
                             <span>Stripe ID</span>
