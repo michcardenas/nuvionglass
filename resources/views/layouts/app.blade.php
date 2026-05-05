@@ -79,7 +79,7 @@
     @include('partials.footer')
 
     {{-- WhatsApp floating button --}}
-    <a href="https://wa.me/528146964477?text=Hola%2C%20me%20interesa%20informaci%C3%B3n%20sobre%20los%20lentes%20Nuvion%20Glass"
+    <a href="{{ \App\Models\ContactPageSetting::whatsappUrl() }}"
        target="_blank"
        rel="noopener"
        aria-label="Contactar por WhatsApp"

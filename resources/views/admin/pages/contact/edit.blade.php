@@ -67,17 +67,39 @@
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">WhatsApp</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">WhatsApp (link tarjeta)</label>
                         <input type="text" name="whatsapp" value="{{ $page->whatsapp }}"
                                placeholder="https://wa.me/5233..."
                                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-                        <p class="text-xs text-gray-400 mt-1">Link completo de WhatsApp.</p>
+                        <p class="text-xs text-gray-400 mt-1">Link completo que se usa solo en la tarjeta de la página /contacto.</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Horario de atención</label>
                         <input type="text" name="schedule" value="{{ $page->schedule }}"
                                placeholder="Lunes a viernes, 9:00 a 18:00"
                                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                    </div>
+                </div>
+
+                {{-- Botón flotante / CTA blog --}}
+                <div class="border-t pt-4 mt-2">
+                    <h4 class="text-sm font-semibold text-gray-800 mb-1">Botón flotante de WhatsApp y CTA del blog</h4>
+                    <p class="text-xs text-gray-500 mb-3">Estos dos campos controlan el <strong>botón flotante verde</strong> que aparece en todas las páginas y el <strong>botón "WhatsApp"</strong> que cierra los artículos del blog. Si los dejas vacíos, se usa el número y mensaje por defecto.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Número de WhatsApp</label>
+                            <input type="text" name="whatsapp_number" value="{{ $page->whatsapp_number }}"
+                                   placeholder="528146964477"
+                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm font-mono">
+                            <p class="text-xs text-gray-400 mt-1">Solo dígitos, con código de país (sin <code>+</code>, sin espacios). Ej: <code>528146964477</code>.</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Mensaje pre-llenado</label>
+                            <textarea name="whatsapp_message" rows="2"
+                                      placeholder="Hola, me interesa información sobre los lentes Nuvion Glass"
+                                      class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">{{ $page->whatsapp_message }}</textarea>
+                            <p class="text-xs text-gray-400 mt-1">Texto que verá el cliente cargado en WhatsApp al hacer clic.</p>
+                        </div>
                     </div>
                 </div>
             </div>
