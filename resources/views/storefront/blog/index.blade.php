@@ -49,35 +49,57 @@
     .b-card:nth-child(7).animated { animation-delay: 0.65s; }
     .b-card:nth-child(8).animated { animation-delay: 0.75s; }
     .b-card:nth-child(9).animated { animation-delay: 0.85s; }
-    .b-card.filter-dim {
-        opacity: 0.25 !important;
-        transform: scale(0.97) !important;
-        pointer-events: none;
-    }
-    .b-card.filter-dim.animated {
-        animation: none;
-        opacity: 0.25;
-    }
+    .b-card.is-hidden { display: none !important; }
     .blog-filter-btn {
-        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
         font-size: 12px;
         font-weight: 500;
-        padding: 6px 16px;
-        border: 0.5px solid rgba(255,255,255,0.15);
-        color: rgba(255,255,255,0.5);
-        background: transparent;
+        padding: 7px 14px;
+        border: 1px solid rgba(255,255,255,0.18);
+        color: rgba(255,255,255,0.65);
+        background: rgba(255,255,255,0.03);
         cursor: pointer;
-        transition: all .2s;
+        transition: background .2s, border-color .2s, color .2s, transform .15s;
         white-space: nowrap;
     }
     .blog-filter-btn:hover {
-        border-color: rgba(255,255,255,0.35);
-        color: rgba(255,255,255,0.8);
+        border-color: rgba(56,138,221,0.55);
+        color: #fff;
+        background: rgba(56,138,221,0.12);
+    }
+    .blog-filter-btn:focus-visible {
+        outline: 2px solid #378ADD;
+        outline-offset: 2px;
     }
     .blog-filter-btn.active {
         background: #378ADD;
         color: #fff;
         border-color: #378ADD;
+        box-shadow: 0 4px 14px rgba(56,138,221,0.35);
+    }
+    .blog-filter-btn .blog-filter-count {
+        display: inline-block;
+        min-width: 20px;
+        padding: 1px 7px;
+        border-radius: 999px;
+        font-size: 10px;
+        line-height: 1.4;
+        background: rgba(255,255,255,0.12);
+        color: rgba(255,255,255,0.85);
+    }
+    .blog-filter-btn.active .blog-filter-count {
+        background: rgba(255,255,255,0.25);
+        color: #fff;
+    }
+    .blog-empty-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 56px 16px;
+        color: #64748b;
+        font-size: 14px;
     }
     .blog-grid {
         display: grid;
@@ -138,14 +160,19 @@
     </section>
 
     {{-- Filter bar --}}
-    @if(!$posts->isEmpty())
+    @if(!$posts->isEmpty() && $availableCategories->count() > 0)
     <div style="background:#0a0f1e;padding:0 24px 32px;">
-        <div class="flex flex-wrap items-center justify-center" style="gap:8px;">
-            <button class="blog-filter-btn active" data-filter="todos">Todos</button>
-            <button class="blog-filter-btn" data-filter="salud visual">Salud visual</button>
-            <button class="blog-filter-btn" data-filter="luz azul">Luz azul</button>
-            <button class="blog-filter-btn" data-filter="habitos">Hábitos digitales</button>
-            <button class="blog-filter-btn" data-filter="lentes">Lentes</button>
+        <div class="flex flex-wrap items-center justify-center" style="gap:10px;">
+            <button class="blog-filter-btn active" data-filter="todos" type="button">
+                Todos
+                <span class="blog-filter-count">{{ $totalPostsOnPage }}</span>
+            </button>
+            @foreach($availableCategories as $cat)
+                <button class="blog-filter-btn" data-filter="{{ $cat['key'] }}" type="button">
+                    {{ $cat['label'] }}
+                    <span class="blog-filter-count">{{ $cat['count'] }}</span>
+                </button>
+            @endforeach
         </div>
     </div>
     @endif
@@ -172,12 +199,13 @@
             @else
                 @foreach($posts as $post)
                     @php
-                        $cat = 'salud visual';
-                        $kw = strtolower($post->focus_keyword ?? '');
-                        if(str_contains($kw,'lentes')) $cat = 'lentes';
-                        elseif(str_contains($kw,'fatiga') || str_contains($kw,'síntomas') || str_contains($kw,'sintomas')) $cat = 'salud visual';
-                        elseif(str_contains($kw,'pantalla') || str_contains($kw,'horas')) $cat = 'habitos';
-                        elseif(str_contains($kw,'luz azul')) $cat = 'luz azul';
+                        $catKey = $post->category_key ?? 'salud-visual';
+                        $catLabel = match($catKey) {
+                            'lentes' => 'Lentes',
+                            'habitos' => 'Hábitos digitales',
+                            'luz-azul' => 'Luz azul',
+                            default => 'Salud visual',
+                        };
 
                         $gradients = [
                             'linear-gradient(135deg, #0f1b3d, #1a3a6e)',
@@ -188,7 +216,7 @@
                     @endphp
 
                     <article class="b-card"
-                             data-cat="{{ $cat }}"
+                             data-cat="{{ $catKey }}"
                              onclick="location.href='{{ route('blog.show', $post->slug) }}'">
 
                         {{-- Image --}}
@@ -205,7 +233,7 @@
                             @endif
 
                             {{-- Category badge --}}
-                            <span class="absolute" style="top:12px;left:12px;background:rgba(56,130,221,0.85);color:#fff;font-size:10px;padding:4px 10px;border-radius:20px;font-weight:500;text-transform:capitalize;">{{ $cat }}</span>
+                            <span class="absolute" style="top:12px;left:12px;background:rgba(56,130,221,0.85);color:#fff;font-size:10px;padding:4px 10px;border-radius:20px;font-weight:500;">{{ $catLabel }}</span>
 
                             {{-- Reading time --}}
                             @if($post->reading_time)
@@ -277,23 +305,63 @@
 
 <script>
 (function(){
-    // Filter buttons
     var btns = document.querySelectorAll('.blog-filter-btn');
-    var cards = document.querySelectorAll('.b-card');
+    var cards = Array.prototype.slice.call(document.querySelectorAll('.b-card'));
+    var grid = document.querySelector('.blog-grid');
+    if (!btns.length || !grid) return;
+
+    // Empty state que se muestra si la categoría no tiene resultados.
+    var emptyState = document.createElement('div');
+    emptyState.className = 'blog-empty-state';
+    emptyState.style.display = 'none';
+    emptyState.innerHTML = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" style="margin:0 auto 12px;display:block;"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>'
+        + '<p style="font-weight:600;color:#1e293b;font-size:15px;margin:0 0 4px;">No hay artículos en esta categoría</p>'
+        + '<p style="margin:0;">Prueba con otra o vuelve a "Todos".</p>';
+    grid.appendChild(emptyState);
+
+    function applyFilter(filter) {
+        var visible = 0;
+        cards.forEach(function(c){
+            var matches = (filter === 'todos' || c.getAttribute('data-cat') === filter);
+            c.classList.toggle('is-hidden', !matches);
+            if (matches) visible++;
+        });
+        emptyState.style.display = visible === 0 ? 'block' : 'none';
+
+        btns.forEach(function(b){
+            b.classList.toggle('active', b.getAttribute('data-filter') === filter);
+        });
+
+        // Persistir en URL para que los enlaces compartidos abran la categoría correcta.
+        if (filter === 'todos') {
+            history.replaceState(null, '', window.location.pathname + window.location.search);
+        } else {
+            history.replaceState(null, '', '#cat=' + encodeURIComponent(filter));
+        }
+    }
+
     btns.forEach(function(btn){
         btn.addEventListener('click', function(){
-            btns.forEach(function(b){ b.classList.remove('active'); });
-            btn.classList.add('active');
-            var f = btn.getAttribute('data-filter');
-            cards.forEach(function(c){
-                if(f === 'todos' || c.getAttribute('data-cat') === f){
-                    c.classList.remove('filter-dim');
-                } else {
-                    c.classList.add('filter-dim');
-                }
-            });
+            applyFilter(btn.getAttribute('data-filter'));
         });
     });
+
+    // Aplicar el filtro del hash al cargar (si viene de un enlace compartido).
+    var hashMatch = window.location.hash.match(/cat=([^&]+)/);
+    if (hashMatch) {
+        var initial = decodeURIComponent(hashMatch[1]);
+        var validKeys = Array.prototype.map.call(btns, function(b){ return b.getAttribute('data-filter'); });
+        if (validKeys.indexOf(initial) !== -1) {
+            applyFilter(initial);
+            // Scroll suave a la zona de filtros para que se vea aplicado.
+            var filterBar = document.querySelector('.blog-filter-btn');
+            if (filterBar && filterBar.scrollIntoView) {
+                setTimeout(function(){
+                    filterBar.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            }
+        }
+    }
 
     // Intersection Observer for fade-in
     var observer = new IntersectionObserver(function(entries){

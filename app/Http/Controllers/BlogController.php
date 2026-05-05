@@ -19,6 +19,43 @@ class BlogController extends Controller
             ->orderByDesc('published_at')
             ->paginate(9);
 
+        // Asigna una categoría a cada post a partir de su focus_keyword.
+        // Las claves coinciden con los data-filter de los botones.
+        $categoryLabels = [
+            'salud-visual' => 'Salud visual',
+            'luz-azul' => 'Luz azul',
+            'habitos' => 'Hábitos digitales',
+            'lentes' => 'Lentes',
+        ];
+
+        $categorize = function (?string $keyword): string {
+            $kw = mb_strtolower($keyword ?? '');
+            if (str_contains($kw, 'lentes')) return 'lentes';
+            if (str_contains($kw, 'pantalla') || str_contains($kw, 'horas')) return 'habitos';
+            if (str_contains($kw, 'luz azul')) return 'luz-azul';
+            return 'salud-visual';
+        };
+
+        // Decoramos cada post con su categoría calculada para que la vista no tenga lógica.
+        $posts->getCollection()->transform(function (BlogPost $post) use ($categorize) {
+            $post->category_key = $categorize($post->focus_keyword);
+            return $post;
+        });
+
+        // Solo mostramos los botones de las categorías que tienen al menos un post visible.
+        $countsByCategory = $posts->getCollection()
+            ->groupBy('category_key')
+            ->map->count();
+
+        $availableCategories = collect($categoryLabels)
+            ->filter(fn ($label, $key) => isset($countsByCategory[$key]))
+            ->map(fn ($label, $key) => [
+                'key' => $key,
+                'label' => $label,
+                'count' => $countsByCategory[$key] ?? 0,
+            ])
+            ->values();
+
         $breadcrumbs = $this->seo->breadcrumbSchema([
             ['name' => 'Inicio', 'url' => url('/')],
             ['name' => 'Blog', 'url' => route('blog.index')],
@@ -28,6 +65,8 @@ class BlogController extends Controller
 
         return view('storefront.blog.index', [
             'posts' => $posts,
+            'availableCategories' => $availableCategories,
+            'totalPostsOnPage' => $posts->count(),
             'breadcrumbs' => $breadcrumbs,
             'blogPage' => $blogPage,
         ]);
