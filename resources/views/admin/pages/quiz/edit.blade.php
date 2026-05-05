@@ -222,7 +222,7 @@
                                     <select x-model="rule.condition_field"
                                             class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                                         <option value="">— Selecciona pregunta —</option>
-                                        <template x-for="q in $root.questionsList()" :key="q.key">
+                                        <template x-for="q in $store.quizShared.questions" :key="q.key">
                                             <option :value="q.key" x-text="q.label + ' (' + q.key + ')'"></option>
                                         </template>
                                     </select>
@@ -232,7 +232,7 @@
                                     <select x-model="rule.condition_value"
                                             class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                                         <option value="">— Selecciona respuesta —</option>
-                                        <template x-for="opt in $root.optionsFor(rule.condition_field)" :key="opt.value">
+                                        <template x-for="opt in optionsFor(rule.condition_field)" :key="opt.value">
                                             <option :value="opt.value" x-text="opt.label + ' (' + opt.value + ')'"></option>
                                         </template>
                                     </select>
@@ -307,24 +307,19 @@
 
 @push('scripts')
 <script>
+// Shared store so the rules section can react to question edits in real time.
+document.addEventListener('alpine:init', () => {
+    const initialQuestions = @json($page->questions ?? \App\Models\QuizPageSetting::defaultQuestions());
+    Alpine.store('quizShared', {
+        questions: JSON.parse(JSON.stringify(initialQuestions)),
+    });
+});
+
 function quizAdmin() {
     return {
         openSection: 'textos',
         toggle(s) { this.openSection = this.openSection === s ? null : s; },
-
-        // Shared data
-        questionsData: @json($page->questions ?? \App\Models\QuizPageSetting::defaultQuestions()),
-
         init() {},
-
-        // Used by rules section to list available questions/options
-        questionsList() {
-            return this.questionsData;
-        },
-        optionsFor(key) {
-            const q = this.questionsData.find(q => q.key === key);
-            return q ? (q.options || []) : [];
-        },
     };
 }
 
@@ -344,11 +339,13 @@ function questionsRepeater() {
                 if (!Array.isArray(q.options)) q.options = [];
                 if (q.options.length === 0) q.options.push({value:'', label:'', desc:''});
             });
-            // Sync with parent questionsData whenever items change (used by rule selects)
+            // Push initial state into the shared store so the rules section
+            // sees the same data the repeater is editing (not just the snapshot
+            // taken at page load, which may differ if the JSON was malformed).
+            Alpine.store('quizShared').questions = JSON.parse(JSON.stringify(this.items));
+            // Keep the store in sync with edits.
             this.$watch('items', (val) => {
-                if (this.$root.questionsData !== undefined) {
-                    this.$root.questionsData = val;
-                }
+                Alpine.store('quizShared').questions = JSON.parse(JSON.stringify(val));
             }, { deep: true });
         }
     };
@@ -360,7 +357,12 @@ function rulesRepeater() {
         init() {
             const saved = @json($page->recommendation_rules ?? []);
             this.items = Array.isArray(saved) ? JSON.parse(JSON.stringify(saved)) : [];
-        }
+        },
+        optionsFor(key) {
+            if (!key) return [];
+            const q = (Alpine.store('quizShared').questions || []).find(q => q.key === key);
+            return q ? (q.options || []) : [];
+        },
     };
 }
 </script>
