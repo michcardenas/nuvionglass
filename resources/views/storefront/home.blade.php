@@ -861,10 +861,36 @@
                 <p style="margin-top:12px;font-size:15px;color:#6b7280;">{{ $homePage->categories_subtitle ?? 'Con o sin graduación, tenemos el modelo perfecto para ti.' }}</p>
             </div>
 
+            @php
+                // Las tarjetas vienen de Admin → Páginas → Inicio → "Tarjetas de categoría".
+                // Si el cliente no ha configurado nada, caemos al CRUD de /admin/categories.
+                $configuredCards = collect($homePage->category_cards ?? [])
+                    ->filter(fn ($c) => !empty($c['name'] ?? ''))
+                    ->values();
+
+                if ($configuredCards->isNotEmpty()) {
+                    $cardsToRender = $configuredCards;
+                } else {
+                    $cardsToRender = $categories->filter(fn ($c) => $c->slug !== 'toallitas')
+                        ->values()
+                        ->map(function ($c) {
+                            return [
+                                'name' => $c->name,
+                                'description' => $c->description ?? '',
+                                'image' => $c->image ?? null,
+                                'link_param' => method_exists($c, 'typeFilterList')
+                                    ? implode(',', $c->typeFilterList())
+                                    : '',
+                                'icon_svg' => '',
+                            ];
+                        });
+                }
+            @endphp
+
             {{-- Grid 3 columnas — flip cards --}}
             <div class="cats-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
 
-                @foreach($categories->filter(fn($c) => $c->slug !== 'toallitas')->values() as $catIndex => $cat)
+                @foreach($cardsToRender as $catIndex => $cat)
 
                 @php
                     $gradients = [
@@ -883,10 +909,9 @@
                     $catName = is_object($cat) ? $cat->name : ($cat['name'] ?? '');
                     $catDesc = is_object($cat) ? ($cat->description ?? '') : ($cat['description'] ?? '');
                     $catImage = is_object($cat) ? ($cat->image ?? null) : ($cat['image'] ?? null);
-                    $catTypes = is_object($cat) && method_exists($cat, 'typeFilterList')
-                        ? $cat->typeFilterList()
-                        : [];
-                    $catUrlParams = !empty($catTypes) ? ['type' => implode(',', $catTypes)] : [];
+                    $catIconSvg = is_object($cat) ? ($cat->icon_svg ?? '') : ($cat['icon_svg'] ?? '');
+                    $catLinkParam = is_object($cat) ? ($cat->link_param ?? '') : ($cat['link_param'] ?? '');
+                    $catUrlParams = !empty($catLinkParam) ? ['type' => $catLinkParam] : [];
                 @endphp
 
                 <div class="flip-card reveal" style="animation-delay:{{ $catIndex * 100 }}ms;">
@@ -920,7 +945,9 @@
                         <div class="flip-card-face flip-card-back" style="background:{{ $grad }};border:1px solid rgba(255,255,255,0.1);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 28px;text-align:center;">
                             <div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;margin-bottom:18px;">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                    @if($catIndex % 3 === 0)
+                                    @if(!empty($catIconSvg))
+                                        {!! $catIconSvg !!}
+                                    @elseif($catIndex % 3 === 0)
                                     <path d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
                                     <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                     @elseif($catIndex % 3 === 1)

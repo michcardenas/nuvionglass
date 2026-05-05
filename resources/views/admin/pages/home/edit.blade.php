@@ -43,11 +43,15 @@
                 </div>
 
                 <div class="border-t pt-4 mt-4">
-                    <h4 class="text-sm font-semibold text-gray-800 mb-3">Tarjetas (3 categorías)</h4>
+                    <h4 class="text-sm font-semibold text-gray-800 mb-1">Tarjetas (3 categorías)</h4>
+                    <p class="text-xs text-gray-500 mb-3">Estas son las tarjetas que se muestran en la página principal. El botón "Ver modelos" usa el campo <strong>Tipo a filtrar</strong> para llevar al catálogo filtrado (<code>/lentes?type=...</code>).</p>
                     @php $cards = $page->category_cards ?? []; @endphp
                     @for($i = 0; $i < 3; $i++)
-                    @php $card = $cards[$i] ?? ['name' => '', 'link_param' => '', 'description' => '', 'icon_svg' => '']; @endphp
+                    @php $card = $cards[$i] ?? ['name' => '', 'link_param' => '', 'description' => '', 'icon_svg' => '', 'image' => '']; @endphp
                     <div class="bg-gray-50 rounded-lg p-4 mb-3" x-data="{ showSvg{{ $i }}: false }">
+                        {{-- Persistimos el path de imagen actual; si suben una nueva, el controller lo reemplaza --}}
+                        <input type="hidden" name="category_cards[{{ $i }}][image]" value="{{ $card['image'] ?? '' }}">
+
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-xs font-medium text-gray-600 mb-1">Nombre</label>
@@ -55,10 +59,11 @@
                                        class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-gray-600 mb-1">Parámetro URL</label>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Tipo a filtrar (<code>?type=</code>)</label>
                                 <input type="text" name="category_cards[{{ $i }}][link_param]" value="{{ $card['link_param'] }}"
                                        class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500"
-                                       placeholder="ej: sin_graduacion">
+                                       placeholder="miopia">
+                                <p class="text-xs text-gray-400 mt-1">Valores válidos: <code>miopia</code>, <code>lectura</code>, <code>sin_graduacion</code>, <code>toallitas</code>. Para varios separa por coma (ej: <code>miopia,lectura</code>). Vacío = lleva al catálogo completo.</p>
                             </div>
                         </div>
                         <div class="mt-2">
@@ -66,9 +71,28 @@
                             <textarea name="category_cards[{{ $i }}][description]" rows="2"
                                       class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">{{ $card['description'] }}</textarea>
                         </div>
-                        <div class="mt-2">
+
+                        <div class="mt-3">
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Imagen de fondo</label>
+                            @if(!empty($card['image']))
+                            <div class="flex items-center gap-2 mb-2">
+                                <img src="{{ asset('storage/' . $card['image']) }}" alt="Imagen actual"
+                                     class="h-16 w-24 object-cover rounded-lg border border-gray-200">
+                                <label class="flex items-center gap-1 text-xs text-red-500 cursor-pointer">
+                                    <input type="checkbox" name="category_cards[{{ $i }}][image_remove]" value="1"
+                                           class="rounded border-gray-300 text-red-600 focus:ring-red-500">
+                                    Quitar imagen actual
+                                </label>
+                            </div>
+                            @endif
+                            <input type="file" name="category_cards[{{ $i }}][image_file]" accept="image/*"
+                                   class="block w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <p class="text-xs text-gray-400 mt-1">JPG/PNG/WebP, máx 2MB. Recomendado 800×450 px.</p>
+                        </div>
+
+                        <div class="mt-3">
                             <div class="flex items-center justify-between mb-1">
-                                <label class="text-xs font-medium text-gray-600">Icono</label>
+                                <label class="text-xs font-medium text-gray-600">Icono SVG (se muestra cuando la tarjeta voltea)</label>
                                 <button type="button" @click="showSvg{{ $i }} = !showSvg{{ $i }}"
                                         class="text-xs text-blue-500 hover:text-blue-700"
                                         x-text="showSvg{{ $i }} ? 'Ocultar SVG' : 'Editar SVG'"></button>

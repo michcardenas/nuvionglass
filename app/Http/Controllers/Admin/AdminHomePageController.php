@@ -22,18 +22,41 @@ class AdminHomePageController extends Controller
 
         $data = $request->except(['_token', '_method']);
 
-        // Category cards — array of objects
+        // Category cards — array of objects (with image upload per card)
         if ($request->has('category_cards')) {
             $cards = [];
-            foreach ($request->input('category_cards', []) as $card) {
-                if (!empty($card['name'])) {
-                    $cards[] = [
-                        'name' => $card['name'],
-                        'link_param' => $card['link_param'] ?? '',
-                        'description' => $card['description'] ?? '',
-                        'icon_svg' => $card['icon_svg'] ?? '',
-                    ];
+            $uploadedFiles = $request->file('category_cards', []);
+            foreach ($request->input('category_cards', []) as $i => $card) {
+                if (empty($card['name'])) {
+                    continue;
                 }
+
+                // Resolve image path: previous, removed, or newly uploaded.
+                $previousImage = $card['image'] ?? '';
+                $finalImage = $previousImage;
+
+                if (!empty($card['image_remove'])) {
+                    if ($previousImage) {
+                        Storage::disk('public')->delete($previousImage);
+                    }
+                    $finalImage = '';
+                }
+
+                $uploadedFile = $uploadedFiles[$i]['image_file'] ?? null;
+                if ($uploadedFile) {
+                    if ($previousImage && empty($card['image_remove'])) {
+                        Storage::disk('public')->delete($previousImage);
+                    }
+                    $finalImage = $uploadedFile->store('category_cards', 'public');
+                }
+
+                $cards[] = [
+                    'name' => $card['name'],
+                    'link_param' => $card['link_param'] ?? '',
+                    'description' => $card['description'] ?? '',
+                    'icon_svg' => $card['icon_svg'] ?? '',
+                    'image' => $finalImage,
+                ];
             }
             $data['category_cards'] = $cards;
         }
