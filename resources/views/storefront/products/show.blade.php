@@ -262,6 +262,7 @@
                             <div class="grad-btn grad-miopia"
                                  data-grad="{{ $grad }}"
                                  data-tipo="miopia"
+                                 data-grad-type="miopia"
                                  data-out-of-stock="{{ $gradOutOfStock ? '1' : '0' }}"
                                  @if(!$gradOutOfStock) onclick="selectGrad(this,'miopia')" @endif
                                  title="{{ $gradOutOfStock ? 'Agotado' : '' }}"
@@ -288,6 +289,7 @@
                             <div class="grad-btn grad-lectura"
                                  data-grad="{{ $grad }}"
                                  data-tipo="lectura"
+                                 data-grad-type="lectura"
                                  data-out-of-stock="{{ $gradOutOfStock ? '1' : '0' }}"
                                  @if(!$gradOutOfStock) onclick="selectGrad(this,'lectura')" @endif
                                  title="{{ $gradOutOfStock ? 'Agotado' : '' }}"
@@ -539,6 +541,104 @@
 /* ── Variant images map (color → image URL) ── */
 window.variantImagesByColor = @json($variantImagesByColor);
 
+/* ── Lista completa de variantes activas con stock para calcular disponibilidad cruzada ── */
+@php
+    $variantStockData = $product->variants->where('is_active', true)->map(function ($v) {
+        return [
+            'color' => $v->color,
+            'graduation' => $v->graduation,
+            'graduation_type' => $v->graduation_type,
+            'stock' => (int) $v->stock,
+        ];
+    })->values();
+@endphp
+window.variantStockData = @json($variantStockData);
+window.currentSelection = { color: null, gradType: null, grad: null };
+
+/**
+ * Recalcula qué colores y qué graduaciones siguen disponibles dado lo que ya se eligió.
+ * - Un color está disponible si existe alguna variante con ese color y la graduación
+ *   seleccionada (si la hay) que tenga stock > 0.
+ * - Una graduación está disponible si existe alguna variante con esa graduación y el
+ *   color seleccionado (si lo hay) que tenga stock > 0.
+ */
+function refreshVariantAvailability() {
+    var sel = window.currentSelection;
+    var data = window.variantStockData || [];
+
+    // ── Colores ──
+    document.querySelectorAll('.color-btn').forEach(function (btn) {
+        var color = btn.dataset.color;
+        var stock = data
+            .filter(function (v) {
+                if (v.color !== color) return false;
+                if (sel.gradType && sel.grad) {
+                    return v.graduation_type === sel.gradType && v.graduation === sel.grad;
+                }
+                return true;
+            })
+            .reduce(function (sum, v) { return sum + (v.stock || 0); }, 0);
+
+        var outOfStock = stock <= 0;
+        btn.dataset.outOfStock = outOfStock ? '1' : '0';
+        btn.style.opacity = outOfStock ? '0.4' : '1';
+        btn.style.cursor = outOfStock ? 'not-allowed' : 'pointer';
+        btn.title = color + (outOfStock ? ' (Agotado para esta combinación)' : '');
+
+        var xMark = btn.querySelector('.color-out-x');
+        if (outOfStock && !xMark) {
+            var span = document.createElement('span');
+            span.className = 'color-out-x';
+            span.textContent = '×';
+            span.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#dc2626;font-weight:700;font-size:18px;line-height:1;';
+            btn.appendChild(span);
+        } else if (!outOfStock && xMark) {
+            xMark.remove();
+        }
+
+        if (outOfStock) {
+            btn.onclick = null;
+        } else {
+            btn.onclick = (function (c) { return function () { selectColor(c); }; })(color);
+        }
+    });
+
+    // ── Graduaciones ──
+    document.querySelectorAll('.grad-btn').forEach(function (btn) {
+        var grad = btn.dataset.grad;
+        var gradType = btn.dataset.gradType || (btn.closest('[data-grad-type]') && btn.closest('[data-grad-type]').dataset.gradType);
+        // Fallback: deducir gradType del onclick original (miopia/lectura).
+        if (!gradType) {
+            var oc = btn.getAttribute('onclick') || '';
+            if (oc.indexOf("'miopia'") !== -1) gradType = 'miopia';
+            else if (oc.indexOf("'lectura'") !== -1) gradType = 'lectura';
+        }
+
+        var stock = data
+            .filter(function (v) {
+                if (v.graduation !== grad || v.graduation_type !== gradType) return false;
+                if (sel.color) {
+                    return v.color === sel.color;
+                }
+                return true;
+            })
+            .reduce(function (sum, v) { return sum + (v.stock || 0); }, 0);
+
+        var outOfStock = stock <= 0;
+        btn.dataset.outOfStock = outOfStock ? '1' : '0';
+        btn.style.opacity = outOfStock ? '0.45' : '1';
+        btn.style.textDecoration = outOfStock ? 'line-through' : 'none';
+        btn.style.cursor = outOfStock ? 'not-allowed' : 'pointer';
+        btn.title = outOfStock ? 'Agotado para esta combinación' : '';
+
+        if (outOfStock) {
+            btn.onclick = null;
+        } else {
+            btn.onclick = (function (b, t) { return function () { selectGrad(b, t); }; })(btn, gradType);
+        }
+    });
+}
+
 /* ── Image zoom on hover ── */
 function productZoomMove(e, container) {
     var imgs = container.querySelectorAll('img');
@@ -595,6 +695,9 @@ function selectColor(color) {
             overlay.style.display = 'none';
         }
     }
+
+    window.currentSelection.color = color;
+    refreshVariantAvailability();
 }
 
 /* ── Graduation selector ── */
@@ -618,10 +721,35 @@ function selectGrad(el, tipo) {
     el.style.color = '#fff';
     var label = document.getElementById('selected-grad-' + tipo);
     if (label) label.textContent = el.dataset.grad;
+
+    window.currentSelection.gradType = tipo;
+    window.currentSelection.grad = el.dataset.grad;
+
+    // Si el color actualmente seleccionado no tiene stock para esta graduación, lo deseleccionamos.
+    var sel = window.currentSelection;
+    var data = window.variantStockData || [];
+    if (sel.color) {
+        var stillValid = data.some(function (v) {
+            return v.color === sel.color && v.graduation_type === sel.gradType && v.graduation === sel.grad && v.stock > 0;
+        });
+        if (!stillValid) {
+            sel.color = null;
+            var lbl = document.getElementById('selected-color-name');
+            if (lbl) lbl.textContent = '— Selecciona un color';
+            document.querySelectorAll('.color-btn').forEach(function (b) {
+                b.style.borderColor = 'transparent';
+                b.style.boxShadow = 'none';
+            });
+        }
+    }
+
+    refreshVariantAvailability();
 }
 
 /* ── Auto-select first in-stock color ── */
 document.addEventListener('DOMContentLoaded', function() {
+    refreshVariantAvailability();
+
     var buttons = document.querySelectorAll('.color-btn');
     for (var i = 0; i < buttons.length; i++) {
         if (buttons[i].dataset.outOfStock !== '1') {
