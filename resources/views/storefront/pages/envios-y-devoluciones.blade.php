@@ -9,18 +9,18 @@
     <section class="relative bg-bg overflow-hidden">
         <div class="absolute inset-0 opacity-30" style="background:radial-gradient(ellipse at 50% 30%, #3A8DDE 0%, transparent 65%);"></div>
         <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 text-center">
-            <nav class="mb-8 text-sm text-text/40">
-                <a href="{{ route('home') }}" class="hover:text-text/70 transition-colors">Inicio</a>
+            <nav class="mb-8 text-sm text-white/60">
+                <a href="{{ route('home') }}" class="hover:text-white transition-colors">Inicio</a>
                 <span class="mx-2">/</span>
-                <span class="text-text/70">Envíos y devoluciones</span>
+                <span class="text-white/90">Envíos y devoluciones</span>
             </nav>
-            <h1 class="font-brand text-4xl md:text-5xl font-bold text-text">
+            <h1 class="font-brand text-4xl md:text-5xl font-bold text-white drop-shadow-lg">
                 {{ $page->hero_title ?? 'Envíos y devoluciones' }}
             </h1>
-            <p class="mt-5 text-lg text-text/50 max-w-2xl mx-auto">
+            <p class="mt-5 text-lg text-white/80 max-w-2xl mx-auto">
                 {{ $page->hero_subtitle ?? 'Todo lo que necesitas saber sobre nuestros tiempos de entrega y políticas de devolución.' }}
             </p>
-            <div style="width:48px;height:3px;background:#378ADD;border-radius:2px;margin:24px auto 0;"></div>
+            <div style="width:48px;height:3px;background:#3A8DDE;border-radius:2px;margin:24px auto 0;box-shadow:0 0 12px rgba(58,141,222,0.6);"></div>
         </div>
     </section>
 
