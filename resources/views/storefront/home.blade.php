@@ -883,7 +883,10 @@
                     $catName = is_object($cat) ? $cat->name : ($cat['name'] ?? '');
                     $catDesc = is_object($cat) ? ($cat->description ?? '') : ($cat['description'] ?? '');
                     $catImage = is_object($cat) ? ($cat->image ?? null) : ($cat['image'] ?? null);
-                    $catSlug = is_object($cat) ? ($cat->slug ?? $cat->link_param ?? '') : ($cat['link_param'] ?? $cat['slug'] ?? '');
+                    $catTypes = is_object($cat) && method_exists($cat, 'typeFilterList')
+                        ? $cat->typeFilterList()
+                        : [];
+                    $catUrlParams = !empty($catTypes) ? ['type' => implode(',', $catTypes)] : [];
                 @endphp
 
                 <div class="flip-card reveal" style="animation-delay:{{ $catIndex * 100 }}ms;">
@@ -930,7 +933,7 @@
                             </div>
                             <h3 style="font-size:18px;font-weight:700;color:#ffffff;margin-bottom:10px;line-height:1.2;font-family:'Bai Jamjuree',sans-serif;">{{ $catName }}</h3>
                             <p style="font-size:13px;color:rgba(255,255,255,0.8);line-height:1.6;margin-bottom:22px;">{{ $catDesc }}</p>
-                            <a href="{{ route('products.index', ['tipo' => $catSlug]) }}"
+                            <a href="{{ route('products.index', $catUrlParams) }}"
                                style="display:inline-flex;align-items:center;gap:6px;background:#ffffff;color:{{ $accent }};font-size:13px;font-weight:600;padding:10px 24px;border-radius:50px;text-decoration:none;transition:transform .2s,box-shadow .2s;"
                                onmouseover="this.style.transform='scale(1.05)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.2)'"
                                onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'">

@@ -23,14 +23,24 @@ class ProductController extends Controller
         $colorFiltro = $request->input('color');
         $graduacionFiltro = $request->input('graduation');
 
+        // Allow comma-separated types (e.g. "miopia,lectura" → match either).
+        $tipos = is_string($tipoFiltro)
+            ? array_values(array_filter(array_map('trim', explode(',', $tipoFiltro))))
+            : [];
+        $tiposEfectivos = array_values(array_filter($tipos, fn ($t) => $t !== '' && $t !== 'todos'));
+
         $query = Product::active()->with('variants')->orderBy('sort_order')
             ->where(function ($q) {
                 $q->where('stock', '>', 0)
                   ->orWhereHas('variants', fn ($v) => $v->where('is_active', true)->where('stock', '>', 0));
             });
 
-        if ($tipoFiltro && $tipoFiltro !== 'todos') {
-            $query->whereJsonContains('type', $tipoFiltro);
+        if (!empty($tiposEfectivos)) {
+            $query->where(function ($q) use ($tiposEfectivos) {
+                foreach ($tiposEfectivos as $t) {
+                    $q->orWhereJsonContains('type', $t);
+                }
+            });
         }
 
         if ($colorFiltro) {

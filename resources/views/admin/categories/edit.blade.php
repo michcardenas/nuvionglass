@@ -31,6 +31,28 @@
                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">{{ old('description', $category->description) }}</textarea>
                 </div>
                 <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Filtro al hacer clic en la tarjeta</label>
+                    <p class="text-xs text-gray-500 mb-2">Elige uno o más tipos de producto. El botón "Ver modelos" del home filtrará el catálogo por estos tipos. Si no eliges ninguno, lleva al catálogo completo.</p>
+                    @php
+                        $currentTypes = old('type_filter', $category->typeFilterList());
+                    @endphp
+                    <div class="grid grid-cols-2 gap-2">
+                        @foreach([
+                            'miopia' => 'Miopía',
+                            'lectura' => 'Lectura',
+                            'sin_graduacion' => 'Sin graduación',
+                            'toallitas' => 'Toallitas',
+                        ] as $value => $label)
+                        <label class="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                            <input type="checkbox" name="type_filter[]" value="{{ $value }}"
+                                   {{ in_array($value, $currentTypes) ? 'checked' : '' }}
+                                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="text-sm text-gray-700">{{ $label }}</span>
+                        </label>
+                        @endforeach
+                    </div>
+                </div>
+                <div>
                     <label for="sort_order" class="block text-sm font-medium text-gray-700 mb-1">Orden</label>
                     <input type="number" id="sort_order" name="sort_order" value="{{ old('sort_order', $category->sort_order) }}" min="0"
                            class="w-32 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">

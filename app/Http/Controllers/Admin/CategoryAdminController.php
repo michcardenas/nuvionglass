@@ -30,12 +30,17 @@ class CategoryAdminController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name',
             'description' => 'nullable|string|max:1000',
+            'type_filter' => 'nullable|array',
+            'type_filter.*' => 'string|in:miopia,lectura,sin_graduacion,toallitas',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'sort_order' => 'nullable|integer|min:0',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
         $validated['sort_order'] = $validated['sort_order'] ?? 0;
+        $validated['type_filter'] = !empty($validated['type_filter'])
+            ? implode(',', $validated['type_filter'])
+            : null;
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('categories', 'public');
@@ -65,12 +70,17 @@ class CategoryAdminController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
             'description' => 'nullable|string|max:1000',
+            'type_filter' => 'nullable|array',
+            'type_filter.*' => 'string|in:miopia,lectura,sin_graduacion,toallitas',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'sort_order' => 'nullable|integer|min:0',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
         $validated['sort_order'] = $validated['sort_order'] ?? 0;
+        $validated['type_filter'] = !empty($validated['type_filter'])
+            ? implode(',', $validated['type_filter'])
+            : null;
 
         if ($request->hasFile('image')) {
             if ($category->image) {
