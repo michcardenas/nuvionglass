@@ -864,25 +864,52 @@
             @php
                 // Las tarjetas vienen de Admin → Páginas → Inicio → "Tarjetas de categoría".
                 // Si una tarjeta no trae imagen propia, intentamos heredar la que el cliente
-                // haya subido en /admin/categories matcheando por nombre o slug.
+                // haya subido en /admin/categories: primero matcheando por nombre/slug, y si
+                // tampoco hay match, usando la categoría en la misma posición.
                 $configuredCards = collect($homePage->category_cards ?? [])
                     ->filter(fn ($c) => !empty($c['name'] ?? ''))
                     ->values();
 
-                $categoryByKey = $categories->keyBy(fn ($c) => \Illuminate\Support\Str::slug($c->name));
+                $nonToallitasCategories = $categories
+                    ->filter(fn ($c) => $c->slug !== 'toallitas')
+                    ->values();
 
-                $resolveImage = function (array $card) use ($categoryByKey) {
+                $categoryBySlug = $categories->keyBy('slug');
+                $categoryByNameSlug = $categories->keyBy(fn ($c) => \Illuminate\Support\Str::slug($c->name));
+
+                $resolveImage = function (array $card, int $index)
+                    use ($categoryBySlug, $categoryByNameSlug, $nonToallitasCategories) {
+                    // 1) Imagen propia de la tarjeta.
                     if (!empty($card['image'])) {
                         return $card['image'];
                     }
-                    $key = \Illuminate\Support\Str::slug($card['name'] ?? '');
-                    $match = $categoryByKey[$key] ?? null;
-                    return $match?->image;
+
+                    // 2) Match por slug del "Tipo a filtrar" (ej. card link_param = "sin_graduacion"
+                    //    → categoría con slug "sin-graduacion").
+                    $linkParam = $card['link_param'] ?? '';
+                    if ($linkParam) {
+                        $candidateSlug = \Illuminate\Support\Str::slug(str_replace('_', '-', $linkParam));
+                        $match = $categoryBySlug[$candidateSlug] ?? $categoryByNameSlug[$candidateSlug] ?? null;
+                        if ($match && $match->image) {
+                            return $match->image;
+                        }
+                    }
+
+                    // 3) Match por slug del nombre de la tarjeta vs nombre de la categoría.
+                    $nameSlug = \Illuminate\Support\Str::slug($card['name'] ?? '');
+                    $match = $categoryByNameSlug[$nameSlug] ?? $categoryBySlug[$nameSlug] ?? null;
+                    if ($match && $match->image) {
+                        return $match->image;
+                    }
+
+                    // 4) Último recurso: la categoría (sin toallitas) en la misma posición.
+                    $byPosition = $nonToallitasCategories[$index] ?? null;
+                    return $byPosition?->image;
                 };
 
                 if ($configuredCards->isNotEmpty()) {
-                    $cardsToRender = $configuredCards->map(function ($card) use ($resolveImage) {
-                        $card['image'] = $resolveImage($card);
+                    $cardsToRender = $configuredCards->values()->map(function ($card, $i) use ($resolveImage) {
+                        $card['image'] = $resolveImage($card, $i);
                         return $card;
                     });
                 } else {
