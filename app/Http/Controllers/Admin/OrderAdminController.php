@@ -65,6 +65,15 @@ class OrderAdminController extends Controller
         $notify = $validated['notify_status'] ?? false;
         unset($validated['notify_status']);
 
+        // Si la orden avanza a confirmada/enviada/entregada, el pago debe estar
+        // marcado como pagado — no tiene sentido tener una orden enviada con pago pendiente.
+        if (
+            in_array($validated['status'], ['confirmed', 'shipped', 'delivered'], true)
+            && $order->payment_status !== 'paid'
+        ) {
+            $validated['payment_status'] = 'paid';
+        }
+
         $order->update($validated);
 
         if ($notify && $order->customer) {
