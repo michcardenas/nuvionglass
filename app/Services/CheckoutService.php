@@ -28,9 +28,6 @@ class CheckoutService
             $customer = $this->findOrCreateCustomer($data);
             $order = $this->createOrder($customer, $data);
             $this->createOrderItems($order);
-            // Marca la orden como ya descontada del inventario (la migracion
-            // de backfill respeta este flag para no descontar dos veces).
-            $order->update(['inventory_adjusted' => true]);
             $this->cart->clear();
 
             return $order;
