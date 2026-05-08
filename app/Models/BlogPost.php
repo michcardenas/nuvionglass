@@ -17,6 +17,7 @@ class BlogPost extends Model
         'meta_title',
         'meta_description',
         'focus_keyword',
+        'category',
         'canonical_url',
         'og_title',
         'og_description',

@@ -110,6 +110,26 @@
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
+                    <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Categoría del blog</label>
+                    <select id="category" name="category"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        @php
+                            $blogCategories = [
+                                '' => '— Detectar automáticamente por keyword —',
+                                'salud-visual' => 'Salud visual',
+                                'luz-azul' => 'Luz azul',
+                                'habitos' => 'Hábitos digitales',
+                                'lentes' => 'Lentes',
+                            ];
+                            $currentCat = old('category', $post->category);
+                        @endphp
+                        @foreach($blogCategories as $val => $label)
+                            <option value="{{ $val }}" {{ $currentCat === $val ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    <p class="mt-1 text-xs text-gray-400">Determina en qué filtro aparece el artículo en <code>/blog</code>.</p>
+                </div>
+                <div>
                     <label for="canonical_url" class="block text-sm font-medium text-gray-700 mb-1">URL canónica</label>
                     <input type="url" id="canonical_url" name="canonical_url" value="{{ old('canonical_url', $post->canonical_url) }}"
                            placeholder="Dejar vacío para usar la URL del post"

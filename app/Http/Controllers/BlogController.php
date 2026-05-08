@@ -29,7 +29,8 @@ class BlogController extends Controller
             'lentes' => 'Lentes',
         ];
 
-        $categorize = function (?string $keyword): string {
+        $validKeys = array_keys($categoryLabels);
+        $categorize = function (?string $keyword) use ($validKeys): string {
             $kw = mb_strtolower($keyword ?? '');
             if (str_contains($kw, 'lentes')) return 'lentes';
             if (str_contains($kw, 'pantalla') || str_contains($kw, 'horas')) return 'habitos';
@@ -37,9 +38,12 @@ class BlogController extends Controller
             return 'salud-visual';
         };
 
-        // Decoramos cada post con su categoría calculada para que la vista no tenga lógica.
-        $posts->getCollection()->transform(function (BlogPost $post) use ($categorize) {
-            $post->category_key = $categorize($post->focus_keyword);
+        // Si el admin eligió categoría manual la usamos; si no, la inferimos del keyword.
+        $posts->getCollection()->transform(function (BlogPost $post) use ($categorize, $validKeys) {
+            $manual = $post->category ?? null;
+            $post->category_key = ($manual && in_array($manual, $validKeys, true))
+                ? $manual
+                : $categorize($post->focus_keyword);
             return $post;
         });
 
