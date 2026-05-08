@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DiscountCode;
+use App\Models\LentesPageSetting;
 use App\Models\ShippingSetting;
 use App\Services\CartService;
 use Illuminate\Http\JsonResponse;
@@ -19,6 +20,11 @@ class CartController extends Controller
     public function index(): View
     {
         $data = $this->cartData();
+
+        // Trust badges / beneficios — misma fuente que /checkout
+        $lentesPage = LentesPageSetting::getCurrent();
+        $data['productBenefits'] = $lentesPage->product_benefits ?? [];
+        $data['freeThreshold'] = (float) ShippingSetting::get('free_shipping_threshold', 999);
 
         return view('storefront.cart', $data);
     }
