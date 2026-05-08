@@ -6,6 +6,8 @@ use App\Mail\OrderAdminNotification;
 use App\Mail\OrderConfirmation;
 use App\Models\Customer;
 use App\Models\Order;
+use App\Models\Product;
+use App\Models\ProductVariant;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
@@ -104,7 +106,9 @@ class CheckoutService
     }
 
     /**
-     * Create order items from cart contents.
+     * Create order items from cart contents and decrement inventory.
+     * Esta funcion corre dentro de la transaccion del checkout (ver process()),
+     * asi que cualquier fallo revierte tanto la orden como los descuentos de stock.
      */
     private function createOrderItems(Order $order): void
     {
@@ -116,6 +120,41 @@ class CheckoutService
                 'unit_price' => $item['unit_price'],
                 'total' => $item['total'],
             ]);
+
+            $this->decrementInventory(
+                productId: (int) $item['product_id'],
+                variantId: $item['variant_id'] ? (int) $item['variant_id'] : null,
+                qty: (int) $item['qty'],
+            );
+        }
+    }
+
+    /**
+     * Restar stock al cerrar la orden. Si el item tiene variante, se descuenta
+     * de la variante; si no, del stock del producto. Usamos lockForUpdate para
+     * evitar carreras entre dos checkouts simultaneos del mismo SKU. No bajamos
+     * de 0 (en caso de oversell por race condition, se queda en 0 y queda visible
+     * al admin).
+     */
+    private function decrementInventory(int $productId, ?int $variantId, int $qty): void
+    {
+        if ($qty <= 0) {
+            return;
+        }
+
+        if ($variantId) {
+            $variant = ProductVariant::where('id', $variantId)->lockForUpdate()->first();
+            if ($variant) {
+                $newStock = max(0, (int) $variant->stock - $qty);
+                $variant->update(['stock' => $newStock]);
+                return;
+            }
+        }
+
+        $product = Product::where('id', $productId)->lockForUpdate()->first();
+        if ($product) {
+            $newStock = max(0, (int) $product->stock - $qty);
+            $product->update(['stock' => $newStock]);
         }
     }
 }
