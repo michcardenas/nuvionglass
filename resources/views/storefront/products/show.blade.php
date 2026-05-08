@@ -222,8 +222,9 @@
                 {{-- 6. Selector de color --}}
                 @if($colores->count() > 0)
                 <div style="margin-bottom:20px;{{ $product->badge_2x1 ? '' : 'margin-top:20px;' }}">
-                    <p style="font-size:14px;font-weight:500;color:#1a1a2e;margin:0 0 10px;">
-                        Color: <span id="selected-color-name" style="font-weight:400;color:#666;">{{ $colores->first() }}</span>
+                    <p style="font-size:14px;font-weight:500;color:#1a1a2e;margin:0 0 10px;display:flex;align-items:center;gap:8px;">
+                        <span>Color: <span id="selected-color-name" style="font-weight:400;color:#666;">{{ $colores->first() }}</span></span>
+                        <button type="button" id="clear-color-btn" onclick="clearColor()" style="display:none;background:none;border:none;color:#378ADD;font-size:12px;font-weight:500;cursor:pointer;text-decoration:underline;padding:0;">Quitar</button>
                     </p>
                     <div style="display:flex;flex-wrap:wrap;gap:8px;">
                         @foreach($colores as $color)
@@ -252,9 +253,9 @@
                 {{-- 7. Selector de graduación --}}
                 @if($graduacionesMiopia->count() > 0)
                 <div style="margin-bottom:20px;">
-                    <p style="font-size:14px;font-weight:500;color:#1a1a2e;margin:0 0 10px;">
-                        Graduación Miopía:
-                        <span id="selected-grad-miopia" style="font-weight:400;color:#666;">— Selecciona</span>
+                    <p style="font-size:14px;font-weight:500;color:#1a1a2e;margin:0 0 10px;display:flex;align-items:center;gap:8px;">
+                        <span>Graduación Miopía: <span id="selected-grad-miopia" style="font-weight:400;color:#666;">— Selecciona</span></span>
+                        <button type="button" id="clear-grad-miopia-btn" onclick="clearGraduation()" style="display:none;background:none;border:none;color:#378ADD;font-size:12px;font-weight:500;cursor:pointer;text-decoration:underline;padding:0;">Quitar</button>
                     </p>
                     <div style="display:flex;flex-wrap:wrap;gap:8px;">
                         @foreach($graduacionesMiopia as $grad)
@@ -279,9 +280,9 @@
 
                 @if($graduacionesLectura->count() > 0)
                 <div style="margin-bottom:20px;">
-                    <p style="font-size:14px;font-weight:500;color:#1a1a2e;margin:0 0 10px;">
-                        Graduación Lectura:
-                        <span id="selected-grad-lectura" style="font-weight:400;color:#666;">— Selecciona</span>
+                    <p style="font-size:14px;font-weight:500;color:#1a1a2e;margin:0 0 10px;display:flex;align-items:center;gap:8px;">
+                        <span>Graduación Lectura: <span id="selected-grad-lectura" style="font-weight:400;color:#666;">— Selecciona</span></span>
+                        <button type="button" id="clear-grad-lectura-btn" onclick="clearGraduation()" style="display:none;background:none;border:none;color:#378ADD;font-size:12px;font-weight:500;cursor:pointer;text-decoration:underline;padding:0;">Quitar</button>
                     </p>
                     <div style="display:flex;flex-wrap:wrap;gap:8px;">
                         @foreach($graduacionesLectura as $grad)
@@ -669,8 +670,31 @@ function hideVariantImage() {
     }
 }
 
+/* ── Helpers para mostrar/ocultar los botones "Quitar" ── */
+function updateClearButtons() {
+    var sel = window.currentSelection;
+    var clearColorBtn = document.getElementById('clear-color-btn');
+    if (clearColorBtn) {
+        clearColorBtn.style.display = sel.color ? 'inline-block' : 'none';
+    }
+    var clearMiopiaBtn = document.getElementById('clear-grad-miopia-btn');
+    var clearLecturaBtn = document.getElementById('clear-grad-lectura-btn');
+    if (clearMiopiaBtn) {
+        clearMiopiaBtn.style.display = (sel.gradType === 'miopia') ? 'inline-block' : 'none';
+    }
+    if (clearLecturaBtn) {
+        clearLecturaBtn.style.display = (sel.gradType === 'lectura') ? 'inline-block' : 'none';
+    }
+}
+
 /* ── Color selector ── */
 function selectColor(color) {
+    // Toggle: si el color ya está seleccionado, lo deseleccionamos.
+    if (window.currentSelection.color === color) {
+        clearColor();
+        return;
+    }
+
     document.querySelectorAll('.color-btn').forEach(function(b) {
         b.style.borderColor = 'transparent';
         b.style.boxShadow = 'none';
@@ -698,10 +722,34 @@ function selectColor(color) {
 
     window.currentSelection.color = color;
     refreshVariantAvailability();
+    updateClearButtons();
+}
+
+/* ── Limpiar color ── */
+function clearColor() {
+    document.querySelectorAll('.color-btn').forEach(function (b) {
+        b.style.borderColor = 'transparent';
+        b.style.boxShadow = 'none';
+    });
+    var label = document.getElementById('selected-color-name');
+    if (label) label.textContent = '— Selecciona un color';
+
+    var overlay = document.getElementById('variant-color-image');
+    if (overlay) { overlay.src = ''; overlay.style.display = 'none'; }
+
+    window.currentSelection.color = null;
+    refreshVariantAvailability();
+    updateClearButtons();
 }
 
 /* ── Graduation selector ── */
 function selectGrad(el, tipo) {
+    // Toggle: si la graduación ya está seleccionada, la deseleccionamos.
+    if (window.currentSelection.gradType === tipo && window.currentSelection.grad === el.dataset.grad) {
+        clearGraduation();
+        return;
+    }
+
     // Reset ALL graduation buttons (both miopia and lectura) — only one can be selected at a time
     document.querySelectorAll('.grad-btn').forEach(function(b) {
         b.style.background = '#fff';
@@ -744,6 +792,26 @@ function selectGrad(el, tipo) {
     }
 
     refreshVariantAvailability();
+    updateClearButtons();
+}
+
+/* ── Limpiar graduación ── */
+function clearGraduation() {
+    document.querySelectorAll('.grad-btn').forEach(function (b) {
+        b.style.background = '#fff';
+        b.style.borderColor = '#ddd';
+        b.style.color = '#444';
+    });
+    var labelMiopia = document.getElementById('selected-grad-miopia');
+    var labelLectura = document.getElementById('selected-grad-lectura');
+    if (labelMiopia) labelMiopia.textContent = '— Selecciona';
+    if (labelLectura) labelLectura.textContent = '— Selecciona';
+
+    window.currentSelection.gradType = null;
+    window.currentSelection.grad = null;
+
+    refreshVariantAvailability();
+    updateClearButtons();
 }
 
 /* ── Auto-select first in-stock color ── */
@@ -757,6 +825,8 @@ document.addEventListener('DOMContentLoaded', function() {
             break;
         }
     }
+
+    updateClearButtons();
 });
 
 /* ── Alpine component ── */
