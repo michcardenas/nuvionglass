@@ -169,8 +169,8 @@
                                 </div>
                             </template>
 
-                            {{-- Free shipping achieved --}}
-                            <template x-if="freeThreshold > 0 && (subtotal - discount_2x1) >= freeThreshold">
+                            {{-- Free shipping achieved (solo si el envío real es 0) --}}
+                            <template x-if="shipping === 0 && (subtotal - discount_2x1) > 0">
                                 <div style="text-align:center;font-size:13px;color:#16a34a;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:8px 14px;">
                                     ✓ ¡Envío gratis aplicado!
                                 </div>
