@@ -15,7 +15,7 @@ class ProductAdminController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Product::with('category');
+        $query = Product::with(['category', 'variants']);
 
         if ($request->filled('search')) {
             $query->where('name', 'like', "%{$request->search}%");

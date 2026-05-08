@@ -81,7 +81,16 @@
                                         <span class="text-gray-400 line-through text-xs ml-1">${{ number_format($product->compare_price, 2) }}</span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 text-sm {{ $product->stock < 10 ? 'text-red-600 font-medium' : 'text-gray-700' }}">{{ $product->stock }}</td>
+                                @php
+                                    $totalStock = $product->availableStock();
+                                    $hasVariants = $product->variants->where('is_active', true)->count() > 0;
+                                @endphp
+                                <td class="px-6 py-4 text-sm {{ $totalStock < 10 ? 'text-red-600 font-medium' : 'text-gray-700' }}">
+                                    {{ $totalStock }}
+                                    @if($hasVariants)
+                                        <span class="text-xs text-gray-400 font-normal block">({{ $product->variants->where('is_active', true)->count() }} variantes)</span>
+                                    @endif
+                                </td>
                                 <td class="px-6 py-4">
                                     <form method="POST" action="{{ route('admin.products.toggle', $product) }}" class="inline">
                                         @csrf @method('PATCH')
