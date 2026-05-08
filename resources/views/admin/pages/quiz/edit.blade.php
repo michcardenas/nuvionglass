@@ -220,26 +220,29 @@
                                 <div>
                                     <label class="block text-xs font-medium text-gray-600 mb-1">Si la respuesta de...</label>
                                     <select x-model="rule.condition_field"
+                                            x-init="$nextTick(() => { if (rule.condition_field) $el.value = rule.condition_field; })"
                                             class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                                         <option value="">— Selecciona pregunta —</option>
                                         <template x-for="q in $store.quizShared.questions" :key="q.key">
-                                            <option :value="q.key" x-text="q.label + ' (' + q.key + ')'"></option>
+                                            <option :value="q.key" :selected="q.key === rule.condition_field" x-text="q.label + ' (' + q.key + ')'"></option>
                                         </template>
                                     </select>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-medium text-gray-600 mb-1">... es igual a</label>
                                     <select x-model="rule.condition_value"
+                                            x-init="$nextTick(() => { if (rule.condition_value) $el.value = rule.condition_value; })"
                                             class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                                         <option value="">— Selecciona respuesta —</option>
                                         <template x-for="opt in optionsFor(rule.condition_field)" :key="opt.value">
-                                            <option :value="opt.value" x-text="opt.label + ' (' + opt.value + ')'"></option>
+                                            <option :value="opt.value" :selected="opt.value === rule.condition_value" x-text="opt.label + ' (' + opt.value + ')'"></option>
                                         </template>
                                     </select>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-medium text-gray-600 mb-1">Recomendar producto</label>
-                                    <select x-model="rule.product_id"
+                                    <select x-model.number="rule.product_id"
+                                            x-init="$nextTick(() => { if (rule.product_id) $el.value = rule.product_id; })"
                                             class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                                         <option value="">— Selecciona —</option>
                                         @foreach($products as $prod)
@@ -356,7 +359,26 @@ function rulesRepeater() {
         items: [],
         init() {
             const saved = @json($page->recommendation_rules ?? []);
-            this.items = Array.isArray(saved) ? JSON.parse(JSON.stringify(saved)) : [];
+            this.items = (Array.isArray(saved) ? JSON.parse(JSON.stringify(saved)) : []).map(r => ({
+                condition_field: r.condition_field ?? '',
+                condition_value: r.condition_value ?? '',
+                product_id: r.product_id != null ? Number(r.product_id) : '',
+                reason: r.reason ?? '',
+            }));
+
+            // Cuando cambian las preguntas (el cliente edita en la misma pagina),
+            // re-asignamos los valores guardados a los selects para que no se pierdan
+            // si la pregunta sigue existiendo.
+            this.$watch('$store.quizShared.questions', () => {
+                this.$nextTick(() => {
+                    document.querySelectorAll('[data-rule-select]').forEach(sel => {
+                        const expected = sel.dataset.ruleValue;
+                        if (expected != null && expected !== '' && sel.value !== expected) {
+                            sel.value = expected;
+                        }
+                    });
+                });
+            }, { deep: true });
         },
         optionsFor(key) {
             if (!key) return [];
