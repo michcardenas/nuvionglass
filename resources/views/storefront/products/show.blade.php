@@ -919,9 +919,13 @@ function productDetail() {
                     window.dispatchEvent(new CustomEvent('open-cart-drawer', { detail: data }));
                     var self = this;
                     setTimeout(function() { self.added = false; }, 2000);
+                } else {
+                    // Backend rechazo (p. ej. stock insuficiente).
+                    alert(data.message || 'No se pudo agregar al carrito.');
                 }
             } catch (e) {
                 console.error(e);
+                alert('Error de conexión. Intenta de nuevo.');
             } finally {
                 this.adding = false;
             }

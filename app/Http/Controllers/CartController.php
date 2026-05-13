@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\DiscountCode;
 use App\Models\LentesPageSetting;
+use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\ShippingSetting;
 use App\Services\CartService;
 use Illuminate\Http\JsonResponse;
@@ -37,11 +39,27 @@ class CartController extends Controller
             'qty' => 'integer|min:1|max:10',
         ]);
 
-        $this->cart->add(
-            $validated['product_id'],
-            $validated['qty'] ?? 1,
-            $validated['variant_id'] ?? null,
-        );
+        $productId = (int) $validated['product_id'];
+        $variantId = isset($validated['variant_id']) ? (int) $validated['variant_id'] : null;
+        $qty = (int) ($validated['qty'] ?? 1);
+
+        // Stock = stock disponible − qty ya en el carrito para el mismo SKU.
+        $availableStock = $this->stockFor($productId, $variantId);
+        $alreadyInCart = $this->qtyInCart($productId, $variantId);
+        $remaining = max(0, $availableStock - $alreadyInCart);
+
+        if ($qty > $remaining) {
+            $msg = $remaining > 0
+                ? "Solo quedan {$remaining} unidad(es) disponibles."
+                : 'Este producto no tiene stock disponible.';
+
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $msg], 422);
+            }
+            return redirect()->back()->with('error', $msg);
+        }
+
+        $this->cart->add($productId, $qty, $variantId);
 
         if ($request->expectsJson()) {
             return response()->json(array_merge(
@@ -60,13 +78,56 @@ class CartController extends Controller
             'qty' => 'required|integer|min:0|max:10',
         ]);
 
-        $this->cart->update($itemId, $validated['qty']);
+        $newQty = (int) $validated['qty'];
+
+        // Validar contra stock real (la actualizacion REEMPLAZA la cantidad).
+        $items = $this->cart->getItems();
+        $item = $items->firstWhere('key', $itemId);
+
+        if ($item && $newQty > 0) {
+            $availableStock = $this->stockFor((int) $item['product_id'], $item['variant_id'] ? (int) $item['variant_id'] : null);
+            if ($newQty > $availableStock) {
+                $msg = $availableStock > 0
+                    ? "Solo quedan {$availableStock} unidad(es) disponibles."
+                    : 'Sin stock disponible.';
+                if ($request->expectsJson()) {
+                    return response()->json(array_merge(['message' => $msg], $this->cartData()), 422);
+                }
+                return redirect()->route('cart.index')->with('error', $msg);
+            }
+        }
+
+        $this->cart->update($itemId, $newQty);
 
         if ($request->expectsJson()) {
             return response()->json($this->cartData());
         }
 
         return redirect()->route('cart.index');
+    }
+
+    /**
+     * Stock disponible para un producto/variante.
+     */
+    private function stockFor(int $productId, ?int $variantId): int
+    {
+        if ($variantId) {
+            $variant = ProductVariant::where('id', $variantId)->where('is_active', true)->first();
+            return $variant ? (int) $variant->stock : 0;
+        }
+        $product = Product::where('id', $productId)->first();
+        return $product ? (int) $product->stock : 0;
+    }
+
+    /**
+     * Cantidad ya presente en el carrito para el mismo SKU (producto + variante).
+     */
+    private function qtyInCart(int $productId, ?int $variantId): int
+    {
+        return (int) $this->cart->getItems()
+            ->where('product_id', $productId)
+            ->where('variant_id', $variantId)
+            ->sum('qty');
     }
 
     public function remove(string $itemId): RedirectResponse|JsonResponse
