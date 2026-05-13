@@ -69,7 +69,7 @@
     {{-- ============================================================
          FICHA PRINCIPAL: IMAGEN + DATOS
          ============================================================ --}}
-    <section style="background:#fff;padding:48px 24px;" x-data="productDetail()" @variant-selection-changed.window="qty = Math.min(qty, Math.max(maxAvailableQty(), 1)); stockError = '';">
+    <section style="background:#fff;padding:48px 24px;" x-data="productDetail()" @variant-selection-changed.window="recomputeMax(); stockError = '';">
         <div class="product-layout" style="max-width:1100px;margin:0 auto;">
 
             {{-- ==================== COLUMNA IZQUIERDA: IMAGEN ==================== --}}
@@ -340,13 +340,13 @@
                             <span style="width:36px;text-align:center;font-size:14px;font-weight:600;color:#1a1a2e;"
                                   x-text="qty"></span>
                             <button @click="increaseQty()"
-                                    :disabled="qty >= maxAvailableQty()"
-                                    :title="qty >= maxAvailableQty() ? ('Máximo disponible: ' + maxAvailableQty()) : ''"
+                                    :disabled="qty >= currentMax"
+                                    :title="qty >= currentMax ? ('Máximo disponible: ' + currentMax) : ''"
                                     :style="{
                                         width:'40px',height:'40px',display:'flex',alignItems:'center',
                                         justifyContent:'center',background:'none',border:'none',
-                                        cursor: qty >= maxAvailableQty() ? 'not-allowed' : 'pointer',
-                                        color: qty >= maxAvailableQty() ? '#d1d5db' : '#888',
+                                        cursor: qty >= currentMax ? 'not-allowed' : 'pointer',
+                                        color: qty >= currentMax ? '#d1d5db' : '#888',
                                         fontSize:'18px',
                                     }">
                                 +
@@ -854,6 +854,7 @@ function productDetail() {
         activeImage: 0,
         lightboxOpen: false,
         qty: 1,
+        currentMax: 10,
         adding: false,
         added: false,
         hoverBtn: false,
@@ -861,35 +862,41 @@ function productDetail() {
 
         init() {
             // Limpiar el mensaje de error cuando el usuario cambia la cantidad
-            // o la seleccion de color/graduacion (porque pudo haber cambiado el stock disponible).
+            // (porque pudo haber cambiado el stock disponible).
             this.$watch('qty', () => { this.stockError = ''; });
+            // Calculo inicial del maximo segun la variante por defecto.
+            this.recomputeMax();
         },
 
         /**
          * Calcula el stock disponible para la combinacion actualmente seleccionada
-         * (color + graduacion). Si solo hay color seleccionado pero no graduacion
-         * (o viceversa), suma el stock de todas las variantes que matchean lo que
-         * si esta seleccionado.
+         * (color + graduacion) y lo guarda en currentMax para que Alpine reactivamente
+         * actualice los bindings :disabled/:title del boton +.
+         * Si qty actual ya excede el nuevo max, la bajamos al max para no quedar invalida.
          */
-        maxAvailableQty() {
+        recomputeMax() {
             var data = window.variantStockData || [];
             var sel = window.currentSelection || {};
 
             // Sin variantes: usa el stock del producto.
             if (data.length === 0) {
-                return {{ (int) ($product->stock ?? 10) }};
+                this.currentMax = Math.min({{ (int) ($product->stock ?? 10) }}, 10);
+            } else {
+                var stock = data.reduce(function (sum, v) {
+                    if (sel.color && v.color !== sel.color) return sum;
+                    if (sel.gradType && sel.grad) {
+                        if (v.graduation_type !== sel.gradType || v.graduation !== sel.grad) return sum;
+                    }
+                    return sum + (v.stock || 0);
+                }, 0);
+                // Cap superior de 10 (limite de la API).
+                this.currentMax = Math.min(Math.max(stock, 0), 10);
             }
 
-            var stock = data.reduce(function (sum, v) {
-                if (sel.color && v.color !== sel.color) return sum;
-                if (sel.gradType && sel.grad) {
-                    if (v.graduation_type !== sel.gradType || v.graduation !== sel.grad) return sum;
-                }
-                return sum + (v.stock || 0);
-            }, 0);
-
-            // Cap superior de 10 (limite de la API) y minimo 1 si hay algo.
-            return Math.min(Math.max(stock, 0), 10);
+            // Clampear qty al nuevo maximo (siempre >= 1).
+            if (this.qty > this.currentMax) {
+                this.qty = Math.max(this.currentMax, 1);
+            }
         },
 
         /**
@@ -898,13 +905,15 @@ function productDetail() {
          * un hint inline en lugar de subir el contador.
          */
         increaseQty() {
-            var max = this.maxAvailableQty();
-            if (this.qty < max) {
+            // Recalculamos por si las dudas (la selecccion pudo cambiar
+            // entre eventos).
+            this.recomputeMax();
+            if (this.qty < this.currentMax) {
                 this.qty++;
                 this.stockError = '';
             } else {
-                this.stockError = max > 0
-                    ? 'Máximo disponible: ' + max + ' unidad(es).'
+                this.stockError = this.currentMax > 0
+                    ? 'Máximo disponible: ' + this.currentMax + ' unidad(es).'
                     : 'Sin stock disponible.';
             }
         },
