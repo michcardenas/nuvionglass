@@ -69,7 +69,7 @@
     {{-- ============================================================
          FICHA PRINCIPAL: IMAGEN + DATOS
          ============================================================ --}}
-    <section style="background:#fff;padding:48px 24px;" x-data="productDetail()">
+    <section style="background:#fff;padding:48px 24px;" x-data="productDetail()" @variant-selection-changed.window="qty = Math.min(qty, Math.max(maxAvailableQty(), 1)); stockError = '';">
         <div class="product-layout" style="max-width:1100px;margin:0 auto;">
 
             {{-- ==================== COLUMNA IZQUIERDA: IMAGEN ==================== --}}
@@ -327,17 +327,28 @@
                         {{-- Quantity --}}
                         <div style="display:flex;align-items:center;border:1.5px solid #e5e5e5;border-radius:10px;overflow:hidden;">
                             <button @click="qty > 1 && qty--"
-                                    style="width:40px;height:40px;display:flex;align-items:center;
-                                           justify-content:center;background:none;border:none;
-                                           cursor:pointer;color:#888;font-size:18px;">
+                                    :disabled="qty <= 1"
+                                    :style="{
+                                        width:'40px',height:'40px',display:'flex',alignItems:'center',
+                                        justifyContent:'center',background:'none',border:'none',
+                                        cursor: qty <= 1 ? 'not-allowed' : 'pointer',
+                                        color: qty <= 1 ? '#d1d5db' : '#888',
+                                        fontSize:'18px',
+                                    }">
                                 −
                             </button>
                             <span style="width:36px;text-align:center;font-size:14px;font-weight:600;color:#1a1a2e;"
                                   x-text="qty"></span>
-                            <button @click="qty < 10 && qty++"
-                                    style="width:40px;height:40px;display:flex;align-items:center;
-                                           justify-content:center;background:none;border:none;
-                                           cursor:pointer;color:#888;font-size:18px;">
+                            <button @click="increaseQty()"
+                                    :disabled="qty >= maxAvailableQty()"
+                                    :title="qty >= maxAvailableQty() ? ('Máximo disponible: ' + maxAvailableQty()) : ''"
+                                    :style="{
+                                        width:'40px',height:'40px',display:'flex',alignItems:'center',
+                                        justifyContent:'center',background:'none',border:'none',
+                                        cursor: qty >= maxAvailableQty() ? 'not-allowed' : 'pointer',
+                                        color: qty >= maxAvailableQty() ? '#d1d5db' : '#888',
+                                        fontSize:'18px',
+                                    }">
                                 +
                             </button>
                         </div>
@@ -727,6 +738,7 @@ function selectColor(color) {
     window.currentSelection.color = color;
     refreshVariantAvailability();
     updateClearButtons();
+    window.dispatchEvent(new CustomEvent('variant-selection-changed'));
 }
 
 /* ── Limpiar color ── */
@@ -744,6 +756,7 @@ function clearColor() {
     window.currentSelection.color = null;
     refreshVariantAvailability();
     updateClearButtons();
+    window.dispatchEvent(new CustomEvent('variant-selection-changed'));
 }
 
 /* ── Graduation selector ── */
@@ -797,6 +810,7 @@ function selectGrad(el, tipo) {
 
     refreshVariantAvailability();
     updateClearButtons();
+    window.dispatchEvent(new CustomEvent('variant-selection-changed'));
 }
 
 /* ── Limpiar graduación ── */
@@ -816,6 +830,7 @@ function clearGraduation() {
 
     refreshVariantAvailability();
     updateClearButtons();
+    window.dispatchEvent(new CustomEvent('variant-selection-changed'));
 }
 
 /* ── Auto-select first in-stock color ── */
@@ -848,6 +863,50 @@ function productDetail() {
             // Limpiar el mensaje de error cuando el usuario cambia la cantidad
             // o la seleccion de color/graduacion (porque pudo haber cambiado el stock disponible).
             this.$watch('qty', () => { this.stockError = ''; });
+        },
+
+        /**
+         * Calcula el stock disponible para la combinacion actualmente seleccionada
+         * (color + graduacion). Si solo hay color seleccionado pero no graduacion
+         * (o viceversa), suma el stock de todas las variantes que matchean lo que
+         * si esta seleccionado.
+         */
+        maxAvailableQty() {
+            var data = window.variantStockData || [];
+            var sel = window.currentSelection || {};
+
+            // Sin variantes: usa el stock del producto.
+            if (data.length === 0) {
+                return {{ (int) ($product->stock ?? 10) }};
+            }
+
+            var stock = data.reduce(function (sum, v) {
+                if (sel.color && v.color !== sel.color) return sum;
+                if (sel.gradType && sel.grad) {
+                    if (v.graduation_type !== sel.gradType || v.graduation !== sel.grad) return sum;
+                }
+                return sum + (v.stock || 0);
+            }, 0);
+
+            // Cap superior de 10 (limite de la API) y minimo 1 si hay algo.
+            return Math.min(Math.max(stock, 0), 10);
+        },
+
+        /**
+         * Incrementa qty pero no permite pasar del maximo disponible.
+         * Si el cliente clickea cuando ya esta en el maximo, mostramos
+         * un hint inline en lugar de subir el contador.
+         */
+        increaseQty() {
+            var max = this.maxAvailableQty();
+            if (this.qty < max) {
+                this.qty++;
+                this.stockError = '';
+            } else {
+                this.stockError = max > 0
+                    ? 'Máximo disponible: ' + max + ' unidad(es).'
+                    : 'Sin stock disponible.';
+            }
         },
 
         openLightbox() {
