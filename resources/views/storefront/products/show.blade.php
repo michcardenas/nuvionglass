@@ -344,9 +344,13 @@
 
                         {{-- Stock --}}
                         @if($productHasStock)
-                        <span style="font-size:13px;color:#16a34a;display:flex;align-items:center;gap:5px;">
+                        <span x-show="!stockError" style="font-size:13px;color:#16a34a;display:flex;align-items:center;gap:5px;">
                             <span style="width:7px;height:7px;border-radius:50%;background:#16a34a;display:inline-block;"></span>
                             En stock
+                        </span>
+                        <span x-show="stockError" x-cloak x-transition style="font-size:13px;color:#dc2626;display:flex;align-items:center;gap:5px;font-weight:500;">
+                            <span style="width:7px;height:7px;border-radius:50%;background:#dc2626;display:inline-block;flex-shrink:0;"></span>
+                            <span x-text="stockError"></span>
                         </span>
                         @else
                         <span style="font-size:13px;color:#dc2626;display:flex;align-items:center;gap:5px;">
@@ -838,6 +842,13 @@ function productDetail() {
         adding: false,
         added: false,
         hoverBtn: false,
+        stockError: '',
+
+        init() {
+            // Limpiar el mensaje de error cuando el usuario cambia la cantidad
+            // o la seleccion de color/graduacion (porque pudo haber cambiado el stock disponible).
+            this.$watch('qty', () => { this.stockError = ''; });
+        },
 
         openLightbox() {
             this.lightboxOpen = true;
@@ -910,6 +921,7 @@ function productDetail() {
 
                 if (res.ok) {
                     this.added = true;
+                    this.stockError = '';
                     var badge = document.getElementById('cart-badge');
                     var count = document.getElementById('cart-count');
                     if (badge && count) {
@@ -920,12 +932,13 @@ function productDetail() {
                     var self = this;
                     setTimeout(function() { self.added = false; }, 2000);
                 } else {
-                    // Backend rechazo (p. ej. stock insuficiente).
-                    alert(data.message || 'No se pudo agregar al carrito.');
+                    // Backend rechazo (p. ej. stock insuficiente). Mostramos
+                    // el mensaje inline en lugar de un alert intrusivo.
+                    this.stockError = data.message || 'No se pudo agregar al carrito.';
                 }
             } catch (e) {
                 console.error(e);
-                alert('Error de conexión. Intenta de nuevo.');
+                this.stockError = 'Error de conexión. Intenta de nuevo.';
             } finally {
                 this.adding = false;
             }
