@@ -236,9 +236,30 @@
                 {{-- Shipping --}}
                 <div class="flex justify-between text-sm">
                     <span style="color:#6b7280;">Envío</span>
-                    <span x-text="'$' + fmt(shipping)"
-                          style="color:#1a1a2e;"></span>
+                    <span x-text="shipping === 0 ? '¡GRATIS!' : '$' + fmt(shipping)"
+                          :style="shipping === 0 ? 'color:#16a34a;font-weight:600;' : 'color:#1a1a2e;'"></span>
                 </div>
+
+                {{-- Shipping progress bar (cuando aun falta para envio gratis basado en TOTAL post-descuentos) --}}
+                <template x-if="freeThreshold > 0 && shipping > 0 && (subtotal - discount_2x1 - coupon_discount) > 0 && (subtotal - discount_2x1 - coupon_discount) < freeThreshold">
+                    <div style="padding:10px 14px;background:#ffffff;border-radius:8px;border:1px solid #e5e7eb;">
+                        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
+                            <span style="color:#9ca3af;">Envío gratis</span>
+                            <span style="color:#378ADD;font-weight:500;" x-text="'$' + fmt(freeThreshold - (subtotal - discount_2x1 - coupon_discount)) + ' más'"></span>
+                        </div>
+                        <div style="background:#e5e7eb;border-radius:2px;height:4px;overflow:hidden;">
+                            <div style="background:#378ADD;height:100%;border-radius:2px;transition:width .3s ease;"
+                                 :style="'width:' + Math.min(((subtotal - discount_2x1 - coupon_discount) / freeThreshold) * 100, 100) + '%'"></div>
+                        </div>
+                    </div>
+                </template>
+
+                {{-- Free shipping achieved (solo cuando el envio real es 0) --}}
+                <template x-if="shipping === 0 && (subtotal - discount_2x1 - coupon_discount) > 0">
+                    <div style="text-align:center;font-size:13px;color:#16a34a;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:8px 14px;">
+                        ✓ ¡Envío sin costo!
+                    </div>
+                </template>
 
                 {{-- Coupon applied --}}
                 <template x-if="coupon_code">
