@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\OrderShipped;
 use App\Mail\OrderStatusUpdate;
+use App\Mail\PaymentStatusUpdate;
 use App\Models\Order;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -75,17 +77,13 @@ class OrderAdminController extends Controller
         }
 
         $order->update($validated);
+        $order->load('items.product', 'items.variant', 'customer');
 
-        if ($notify && $order->customer) {
-            try {
-                $order->load('items.product', 'items.variant', 'customer');
-                Mail::to($order->customer->email)->send(new OrderStatusUpdate($order));
-            } catch (\Throwable $e) {
-                report($e);
-                return redirect()->route('admin.orders.show', $order)
-                    ->with('success', 'Estado actualizado, pero no se pudo enviar el correo.');
-            }
+        // Cliente: solo si marcaron 'notificar'. Admin: siempre.
+        if ($notify) {
+            $this->sendToCustomer($order, new OrderStatusUpdate($order));
         }
+        $this->sendToAdmin($order, new OrderStatusUpdate($order));
 
         return redirect()->route('admin.orders.show', $order)
             ->with('success', $notify ? 'Estado actualizado y cliente notificado.' : 'Estado actualizado.');
@@ -97,9 +95,13 @@ class OrderAdminController extends Controller
             'payment_status' => 'paid',
             'status' => 'confirmed',
         ]);
+        $order->load('items.product', 'items.variant', 'customer');
+
+        $this->sendToCustomer($order, new PaymentStatusUpdate($order, 'approved'));
+        $this->sendToAdmin($order, new PaymentStatusUpdate($order, 'approved'));
 
         return redirect()->route('admin.orders.show', $order)
-            ->with('success', 'Pago verificado y orden confirmada.');
+            ->with('success', 'Pago verificado y orden confirmada. Correo enviado al cliente y al admin.');
     }
 
     public function updatePaymentStatus(Request $request, Order $order): RedirectResponse
@@ -109,9 +111,19 @@ class OrderAdminController extends Controller
         ]);
 
         $order->update($validated);
+        $order->load('items.product', 'items.variant', 'customer');
+
+        $event = match ($validated['payment_status']) {
+            'paid' => 'approved',
+            'failed' => 'rejected',
+            default => 'updated',
+        };
+
+        $this->sendToCustomer($order, new PaymentStatusUpdate($order, $event));
+        $this->sendToAdmin($order, new PaymentStatusUpdate($order, $event));
 
         return redirect()->route('admin.orders.show', $order)
-            ->with('success', 'Estado del pago actualizado a "' . $validated['payment_status'] . '".');
+            ->with('success', 'Estado del pago actualizado a "' . $validated['payment_status'] . '". Correo enviado.');
     }
 
     public function rejectPayment(Request $request, Order $order): RedirectResponse
@@ -125,9 +137,13 @@ class OrderAdminController extends Controller
             'payment_status' => 'pending',
             'payment_receipt' => null,
         ]);
+        $order->load('items.product', 'items.variant', 'customer');
+
+        $this->sendToCustomer($order, new PaymentStatusUpdate($order, 'rejected'));
+        $this->sendToAdmin($order, new PaymentStatusUpdate($order, 'rejected'));
 
         return redirect()->route('admin.orders.show', $order)
-            ->with('success', 'Comprobante rechazado. El cliente podrá subir uno nuevo.');
+            ->with('success', 'Comprobante rechazado. El cliente podrá subir uno nuevo. Correo enviado.');
     }
 
     public function updateTracking(Request $request, Order $order): RedirectResponse
@@ -149,19 +165,48 @@ class OrderAdminController extends Controller
             $order->update(['status' => 'shipped']);
         }
 
-        if ($notify && $order->customer) {
-            try {
-                $order->load('items.product', 'items.variant', 'customer');
-                Mail::to($order->customer->email)->send(new OrderShipped($order));
-            } catch (\Throwable $e) {
-                report($e);
-                return redirect()->route('admin.orders.show', $order)
-                    ->with('success', 'Guía actualizada, pero no se pudo enviar el correo.');
-            }
+        $order->load('items.product', 'items.variant', 'customer');
+
+        if ($notify) {
+            $this->sendToCustomer($order, new OrderShipped($order));
         }
+        $this->sendToAdmin($order, new OrderShipped($order));
 
         return redirect()->route('admin.orders.show', $order)
             ->with('success', $notify ? 'Guía actualizada y cliente notificado.' : 'Guía actualizada.');
+    }
+
+    /**
+     * Envía un correo al cliente de la orden. Captura cualquier error para que el
+     * flujo del admin no se rompa si el SMTP falla.
+     */
+    private function sendToCustomer(Order $order, Mailable $mailable): void
+    {
+        if (! $order->customer?->email) {
+            return;
+        }
+        try {
+            Mail::to($order->customer->email)->send($mailable);
+        } catch (\Throwable $e) {
+            report($e);
+        }
+    }
+
+    /**
+     * Envía un correo al admin configurado (MAIL_ADMIN). Captura errores
+     * para no romper el flujo del admin si el SMTP falla.
+     */
+    private function sendToAdmin(Order $order, Mailable $mailable): void
+    {
+        $adminEmail = config('mail.admin');
+        if (! $adminEmail) {
+            return;
+        }
+        try {
+            Mail::to($adminEmail)->send($mailable);
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 
     public function destroy(Order $order): RedirectResponse

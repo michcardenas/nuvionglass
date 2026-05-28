@@ -115,7 +115,7 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
-    'admin' => env('MAIL_ADMIN', 'admin@nuvionglass.com.mx'),
+    'admin' => env('MAIL_ADMIN', 'nuvionglass@gmail.com'),
     'pedidos' => env('MAIL_PEDIDOS', 'pedidos@nuvionglass.com.mx'),
     'contacto' => env('MAIL_CONTACTO', 'contacto@nuvionglass.com.mx'),
 
