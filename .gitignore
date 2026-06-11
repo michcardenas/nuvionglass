@@ -21,3 +21,8 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+/public/storage
+/public/storage_backup
+/composer-setup.php
+/storage/app/public/receipts
