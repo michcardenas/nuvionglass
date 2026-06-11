@@ -2,6 +2,20 @@
 
 @section('title', $seoSettings->meta_title ?? 'Envíos y devoluciones | Nuvion Glass')
 @section('meta_description', $seoSettings->meta_description ?? 'Información sobre envíos, devoluciones y garantía de Nuvion Glass. Envío gratis en compras mayores a $999.')
+@section('robots', $seoSettings->robots ?? 'index, follow')
+@section('canonical', $seoSettings->canonical_url ?? route('shipping-returns'))
+@section('og_title', $seoSettings->og_title ?? $seoSettings->meta_title ?? 'Envíos y devoluciones | Nuvion Glass')
+@section('og_description', $seoSettings->og_description ?? $seoSettings->meta_description ?? 'Información sobre envíos, devoluciones y garantía de Nuvion Glass.')
+@section('og_image', $seoSettings->og_image_url ?? asset('images/og-default.jpg'))
+@section('twitter_title', $seoSettings->twitter_title ?? $seoSettings->meta_title ?? 'Envíos y devoluciones | Nuvion Glass')
+@section('twitter_description', $seoSettings->twitter_description ?? $seoSettings->meta_description ?? 'Información sobre envíos, devoluciones y garantía de Nuvion Glass.')
+@section('twitter_image', $seoSettings->twitter_image_url ?? $seoSettings->og_image_url ?? asset('images/og-default.jpg'))
+
+@if($seoSettings && $seoSettings->custom_schema_markup)
+@push('schema')
+    {!! $seoSettings->custom_schema_markup !!}
+@endpush
+@endif
 
 @section('content')
 

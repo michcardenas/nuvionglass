@@ -1,15 +1,23 @@
 @extends('layouts.app')
 
-@section('title', 'Blog | nuvion glass')
-@section('meta_description', 'Artículos sobre salud visual, luz azul y cómo proteger tus ojos de las pantallas. Blog nuvion glass.')
-@section('canonical', route('blog.index'))
-@section('og_title', 'Blog | nuvion glass')
-@section('og_description', 'Artículos sobre salud visual, luz azul y cómo proteger tus ojos.')
-@section('twitter_title', 'Blog | nuvion glass')
-@section('twitter_description', 'Artículos sobre salud visual, luz azul y cómo proteger tus ojos.')
+@section('title', $seoSettings->meta_title ?? 'Blog | nuvion glass')
+@section('meta_description', $seoSettings->meta_description ?? 'Artículos sobre salud visual, luz azul y cómo proteger tus ojos de las pantallas. Blog nuvion glass.')
+@section('robots', $seoSettings->robots ?? 'index, follow')
+@section('canonical', $seoSettings->canonical_url ?? route('blog.index'))
+@section('og_type', $seoSettings->og_type ?? 'website')
+@section('og_title', $seoSettings->og_title ?? $seoSettings->meta_title ?? 'Blog | nuvion glass')
+@section('og_description', $seoSettings->og_description ?? $seoSettings->meta_description ?? 'Artículos sobre salud visual, luz azul y cómo proteger tus ojos.')
+@section('og_image', $seoSettings->og_image_url ?? asset('images/og-default.jpg'))
+@section('twitter_card', $seoSettings->twitter_card ?? 'summary_large_image')
+@section('twitter_title', $seoSettings->twitter_title ?? $seoSettings->meta_title ?? 'Blog | nuvion glass')
+@section('twitter_description', $seoSettings->twitter_description ?? $seoSettings->meta_description ?? 'Artículos sobre salud visual, luz azul y cómo proteger tus ojos.')
+@section('twitter_image', $seoSettings->twitter_image_url ?? $seoSettings->og_image_url ?? asset('images/og-default.jpg'))
 
 @push('schema')
     {!! $breadcrumbs !!}
+    @if($seoSettings && $seoSettings->custom_schema_markup)
+        {!! $seoSettings->custom_schema_markup !!}
+    @endif
 @endpush
 
 @section('content')

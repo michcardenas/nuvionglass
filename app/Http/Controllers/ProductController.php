@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\LentesPageSetting;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\SeoSetting;
 use App\Services\SeoService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -102,6 +103,7 @@ class ProductController extends Controller
         ]);
 
         $lentesPage = LentesPageSetting::getCurrent();
+        $seoSettings = SeoSetting::getForPage('products-index');
 
         return view('storefront.products.index', [
             'products' => $products,
@@ -115,6 +117,7 @@ class ProductController extends Controller
             'breadcrumbs' => $breadcrumbs,
             'colorHelper' => ColorHelper::all(),
             'lentesPage' => $lentesPage,
+            'seoSettings' => $seoSettings,
         ]);
     }
 

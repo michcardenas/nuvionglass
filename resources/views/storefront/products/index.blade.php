@@ -1,15 +1,23 @@
 @extends('layouts.app')
 
-@section('title', 'Catálogo de lentes | Nuvion Glass')
-@section('meta_description', 'Catálogo completo de lentes nuvion glass con protección de luz azul. Con y sin graduación. 2×1 combinables. Envío gratis +$999.')
-@section('canonical', route('products.index'))
-@section('og_title', 'Catálogo de lentes | Nuvion Glass')
-@section('og_description', 'Catálogo completo de lentes nuvion glass con protección de luz azul. Con y sin graduación.')
-@section('twitter_title', 'Catálogo de lentes | Nuvion Glass')
-@section('twitter_description', 'Catálogo completo de lentes nuvion glass con protección de luz azul. Con y sin graduación.')
+@section('title', $seoSettings->meta_title ?? 'Catálogo de lentes | Nuvion Glass')
+@section('meta_description', $seoSettings->meta_description ?? 'Catálogo completo de lentes nuvion glass con protección de luz azul. Con y sin graduación. 2×1 combinables. Envío gratis +$999.')
+@section('robots', $seoSettings->robots ?? 'index, follow')
+@section('canonical', $seoSettings->canonical_url ?? route('products.index'))
+@section('og_type', $seoSettings->og_type ?? 'website')
+@section('og_title', $seoSettings->og_title ?? $seoSettings->meta_title ?? 'Catálogo de lentes | Nuvion Glass')
+@section('og_description', $seoSettings->og_description ?? $seoSettings->meta_description ?? 'Catálogo completo de lentes nuvion glass con protección de luz azul. Con y sin graduación.')
+@section('og_image', $seoSettings->og_image_url ?? asset('images/og-default.jpg'))
+@section('twitter_card', $seoSettings->twitter_card ?? 'summary_large_image')
+@section('twitter_title', $seoSettings->twitter_title ?? $seoSettings->meta_title ?? 'Catálogo de lentes | Nuvion Glass')
+@section('twitter_description', $seoSettings->twitter_description ?? $seoSettings->meta_description ?? 'Catálogo completo de lentes nuvion glass con protección de luz azul. Con y sin graduación.')
+@section('twitter_image', $seoSettings->twitter_image_url ?? $seoSettings->og_image_url ?? asset('images/og-default.jpg'))
 
 @push('schema')
     {!! $breadcrumbs !!}
+    @if($seoSettings && $seoSettings->custom_schema_markup)
+        {!! $seoSettings->custom_schema_markup !!}
+    @endif
 @endpush
 
 @section('content')

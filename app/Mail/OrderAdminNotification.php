@@ -16,7 +16,7 @@ class OrderAdminNotification extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "Nuevo pedido #{$this->order->id} — nuvion glass",
+            subject: "¡Vendiste! Nuvionglass Pedido #{$this->order->id}",
         );
     }
 

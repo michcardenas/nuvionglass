@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BlogPageSetting;
 use App\Models\BlogPost;
 use App\Models\Product;
+use App\Models\SeoSetting;
 use App\Services\SeoService;
 use Illuminate\View\View;
 
@@ -67,6 +68,7 @@ class BlogController extends Controller
         ]);
 
         $blogPage = BlogPageSetting::getCurrent();
+        $seoSettings = SeoSetting::getForPage('blog');
 
         return view('storefront.blog.index', [
             'posts' => $posts,
@@ -74,6 +76,7 @@ class BlogController extends Controller
             'totalPostsOnPage' => $posts->count(),
             'breadcrumbs' => $breadcrumbs,
             'blogPage' => $blogPage,
+            'seoSettings' => $seoSettings,
         ]);
     }
 

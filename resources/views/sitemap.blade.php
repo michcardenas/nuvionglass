@@ -22,9 +22,14 @@
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>{{ route('landing.index') }}</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.7</priority>
+        <loc>{{ route('contact') }}</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>{{ route('shipping-returns') }}</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
     </url>
     <url>
         <loc>{{ route('landing.quiz') }}</loc>
